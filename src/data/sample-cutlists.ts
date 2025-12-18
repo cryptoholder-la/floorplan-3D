@@ -1,0 +1,211 @@
+import { Cutlist, CutlistItem } from '@/types/cutlist.types';
+
+export const sampleCutlistItems: CutlistItem[] = [
+  {
+    id: 'cl-item-1',
+    partName: 'Cabinet Side Panel - Left',
+    width: 23.5,
+    height: 34.5,
+    thickness: 0.75,
+    quantity: 2,
+    materialId: 'mat-1',
+    edgeBanding: {
+      top: false,
+      bottom: false,
+      left: true,
+      right: false,
+    },
+    grainDirection: 'vertical',
+    notes: 'Shelf pin holes required',
+    cabinetId: 'cab-1',
+    cabinetName: 'Base Cabinet - Kitchen',
+    priority: 'high',
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cl-item-2',
+    partName: 'Cabinet Top',
+    width: 24,
+    height: 12,
+    thickness: 0.75,
+    quantity: 1,
+    materialId: 'mat-1',
+    edgeBanding: {
+      top: false,
+      bottom: false,
+      left: true,
+      right: true,
+    },
+    grainDirection: 'horizontal',
+    cabinetId: 'cab-1',
+    cabinetName: 'Base Cabinet - Kitchen',
+    priority: 'high',
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cl-item-3',
+    partName: 'Cabinet Bottom',
+    width: 24,
+    height: 12,
+    thickness: 0.75,
+    quantity: 1,
+    materialId: 'mat-1',
+    edgeBanding: {
+      top: false,
+      bottom: false,
+      left: true,
+      right: true,
+    },
+    grainDirection: 'horizontal',
+    cabinetId: 'cab-1',
+    cabinetName: 'Base Cabinet - Kitchen',
+    priority: 'high',
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cl-item-4',
+    partName: 'Drawer Front',
+    width: 22,
+    height: 6,
+    thickness: 0.75,
+    quantity: 3,
+    materialId: 'mat-2',
+    edgeBanding: {
+      top: true,
+      bottom: true,
+      left: true,
+      right: true,
+    },
+    grainDirection: 'horizontal',
+    notes: 'Apply veneer before edge banding',
+    cabinetId: 'cab-1',
+    cabinetName: 'Base Cabinet - Kitchen',
+    priority: 'medium',
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cl-item-5',
+    partName: 'Back Panel',
+    width: 24,
+    height: 34.5,
+    thickness: 0.25,
+    quantity: 1,
+    materialId: 'mat-3',
+    edgeBanding: {
+      top: false,
+      bottom: false,
+      left: false,
+      right: false,
+    },
+    grainDirection: 'vertical',
+    cabinetId: 'cab-1',
+    cabinetName: 'Base Cabinet - Kitchen',
+    priority: 'low',
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'cl-item-6',
+    partName: 'Adjustable Shelf',
+    width: 22.5,
+    height: 11,
+    thickness: 0.75,
+    quantity: 2,
+    materialId: 'mat-1',
+    edgeBanding: {
+      top: false,
+      bottom: false,
+      left: true,
+      right: true,
+    },
+    grainDirection: 'horizontal',
+    cabinetId: 'cab-1',
+    cabinetName: 'Base Cabinet - Kitchen',
+    priority: 'medium',
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+export const sampleCutlists: Cutlist[] = [
+  {
+    id: 'cutlist-1',
+    name: 'Kitchen Remodel - Phase 1',
+    projectName: 'Johnson Residence Kitchen',
+    items: sampleCutlistItems,
+    totalSheets: 3,
+    totalCost: 450.75,
+    wastePercentage: 12.5,
+    status: 'draft',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    metadata: {
+      clientName: 'John Johnson',
+      jobNumber: 'JOB-2024-001',
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      notes: 'Client requested premium grade plywood for all visible parts',
+    },
+  },
+  {
+    id: 'cutlist-2',
+    name: 'Master Bedroom Closet',
+    projectName: 'Smith Custom Closet System',
+    items: [],
+    totalSheets: 5,
+    totalCost: 625.00,
+    wastePercentage: 8.3,
+    status: 'approved',
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    metadata: {
+      clientName: 'Sarah Smith',
+      jobNumber: 'JOB-2024-002',
+      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+      notes: 'White melamine finish required',
+    },
+  },
+  {
+    id: 'cutlist-3',
+    name: 'Office Built-ins',
+    projectName: 'Corporate Office Renovation',
+    items: [],
+    totalSheets: 8,
+    totalCost: 1200.50,
+    wastePercentage: 15.2,
+    status: 'in_production',
+    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    metadata: {
+      clientName: 'TechCorp Inc.',
+      jobNumber: 'JOB-2024-003',
+      dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+      notes: 'Rush order - expedite processing',
+    },
+  },
+];
+
+export const getCutlistById = (id: string): Cutlist | undefined => {
+  return sampleCutlists.find(cutlist => cutlist.id === id);
+};
+
+export const getCutlistItemById = (id: string): CutlistItem | undefined => {
+  return sampleCutlistItems.find(item => item.id === id);
+};
+
+export const getCutlistItemsByCabinetId = (cabinetId: string): CutlistItem[] => {
+  return sampleCutlistItems.filter(item => item.cabinetId === cabinetId);
+};
+
+export const getCutlistsByStatus = (status: Cutlist['status']): Cutlist[] => {
+  return sampleCutlists.filter(cutlist => cutlist.status === status);
+};
