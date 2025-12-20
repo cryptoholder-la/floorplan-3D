@@ -3,6 +3,6 @@
   "createdAt": 1765748389962,
   "version": "2.0",
   "startupCommands": [
-    "bun install; bun run dev"
+    "npm install; npm run dev"
   ]
 }

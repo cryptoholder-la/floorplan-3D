@@ -1,0 +1,80 @@
+
+
+public
+
+file.svg
+
+globe.svg
+
+next.svg
+
+vercel.svg
+
+window.svg
+
+src
+
+app
+
+
+
+favicon.ico
+
+$env:SHADCNUI_PACKAGE_MANAGER="npm"
+npx shadcn@latest add tabs.tsx
+npx shadcn@latest add sonner.tsx
+npx shadcn@latest add card.tsx
+npx shadcn@latest add button.tsx
+npx shadcn@latest add select.tsx
+npx shadcn@latest add accordion.tsx
+npx shadcn@latest add alert-dialog.tsx
+npx shadcn@latest add alert.tsx
+npx shadcn@latest add aspect-ratio.tsx
+npx shadcn@latest add avatar.tsx
+npx shadcn@latest add badge.tsx
+npx shadcn@latest add breadcrumb.tsx
+npx shadcn@latest add button-group.tsx
+npx shadcn@latest add calendar.tsx
+npx shadcn@latest add carousel.tsx
+npx shadcn@latest add chart.tsx
+npx shadcn@latest add checkbox.tsx
+npx shadcn@latest add collapsible.tsx
+npx shadcn@latest add command.tsx
+npx shadcn@latest add context-menu.tsx
+npx shadcn@latest add dialog.tsx
+npx shadcn@latest add drawer.tsx
+npx shadcn@latest add dropdown-menu.tsx
+npx shadcn@latest add empty.tsx
+npx shadcn@latest add field.tsx
+npx shadcn@latest add form.tsx
+npx shadcn@latest add hover-card.tsx
+npx shadcn@latest add input-group.tsx
+npx shadcn@latest add input-otp.tsx
+npx shadcn@latest add input.tsx
+npx shadcn@latest add item.tsx
+npx shadcn@latest add kbd.tsx
+npx shadcn@latest add label.tsx
+npx shadcn@latest add menubar.tsx
+npx shadcn@latest add navigation-menu.tsx
+npx shadcn@latest add pagination.tsx
+npx shadcn@latest add popover.tsx
+npx shadcn@latest add progress.tsx
+npx shadcn@latest add radio-group.tsx
+npx shadcn@latest add resizable.tsx
+npx shadcn@latest add scroll-area.tsx
+npx shadcn@latest add separator.tsx
+npx shadcn@latest add sheet.tsx
+npx shadcn@latest add sidebar.tsx
+npx shadcn@latest add skeleton.tsx
+npx shadcn@latest add slider.tsx
+npx shadcn@latest add sonner.tsx
+npx shadcn@latest add spinner.tsx
+npx shadcn@latest add switch.tsx
+npx shadcn@latest add table.tsx
+npx shadcn@latest add textarea.tsx
+npx shadcn@latest add toggle-group.tsx
+npx shadcn@latest add toggle.tsx
+npx shadcn@latest add tooltip.tsx
+
+
+
