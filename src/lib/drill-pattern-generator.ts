@@ -142,6 +142,21 @@ export function createCustomPattern(
   };
 }
 
+export function duplicatePattern(pattern: DrillPattern): DrillPattern {
+  const timestamp = Date.now();
+  const duplicatedHoles = pattern.holes.map((hole, index) => ({
+    ...hole,
+    id: `${hole.id}-dup-${timestamp}-${index}`,
+  }));
+
+  return {
+    ...pattern,
+    id: `${pattern.id}-dup-${timestamp}`,
+    name: `${pattern.name} Copy`,
+    holes: duplicatedHoles,
+  };
+}
+
 export function addHoleToPattern(
   pattern: DrillPattern,
   x: number,

@@ -15,10 +15,18 @@ import { WallCabinetWidth, WallCabinetHeight, ComponentDimensions } from '@/type
 
 type ViewMode = 'top' | 'elevation' | '3d';
 
-export default function WallCabinetWireframe() {
+interface WallCabinetWireframeProps {
+  defaultWidth?: WallCabinetWidth;
+  defaultHeight?: WallCabinetHeight;
+}
+
+export default function WallCabinetWireframe({
+  defaultWidth = 24,
+  defaultHeight = 30,
+}: WallCabinetWireframeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [width, setWidth] = useState<WallCabinetWidth>(24);
-  const [height, setHeight] = useState<WallCabinetHeight>(30);
+  const [width, setWidth] = useState<WallCabinetWidth>(defaultWidth);
+  const [height, setHeight] = useState<WallCabinetHeight>(defaultHeight);
   const [viewMode, setViewMode] = useState<ViewMode>('elevation');
   const [showInternals, setShowInternals] = useState(true);
 

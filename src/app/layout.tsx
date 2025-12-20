@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
-import VisualEditsMessenger from "../visual-edits/VisualEditsMessenger";
+ 
 import ErrorReporter from "@/components/ErrorReporter";
 import Navigation from "@/components/Navigation";
 import Script from "next/script";
@@ -38,7 +38,7 @@ export default function RootLayout({
         />
         <Navigation />
         {children}
-        <VisualEditsMessenger />
+       
       </body>
     </html>
   );

@@ -15,10 +15,18 @@ import { TallCabinetWidth, TallCabinetHeight } from '@/types/cabinet.types';
 
 type ViewMode = 'top' | 'elevation' | '3d';
 
-export default function TallCabinetWireframe() {
+interface TallCabinetWireframeProps {
+  defaultWidth?: TallCabinetWidth;
+  defaultHeight?: TallCabinetHeight;
+}
+
+export default function TallCabinetWireframe({
+  defaultWidth = 24,
+  defaultHeight = 85.5,
+}: TallCabinetWireframeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [width, setWidth] = useState<TallCabinetWidth>(24);
-  const [height, setHeight] = useState<TallCabinetHeight>(85.5);
+  const [width, setWidth] = useState<TallCabinetWidth>(defaultWidth);
+  const [height, setHeight] = useState<TallCabinetHeight>(defaultHeight);
   const [viewMode, setViewMode] = useState<ViewMode>('elevation');
   const [showInternals, setShowInternals] = useState(true);
 

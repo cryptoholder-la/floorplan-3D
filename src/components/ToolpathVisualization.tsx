@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ManufacturingJob, CNCOperation } from '@/types/manufacturing.types';
 
 interface ToolpathVisualizationProps {
@@ -18,37 +18,73 @@ export default function ToolpathVisualization({
   const [currentOperation, setCurrentOperation] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    drawToolpaths(ctx, job, currentOperation);
-  }, [job, currentOperation]);
-
-  useEffect(() => {
-    if (!isPlaying) return;
-
-    const interval = setInterval(() => {
-      setCurrentOperation(prev => {
-        if (prev >= job.operations.length - 1) {
-          setIsPlaying(false);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isPlaying, job.operations.length]);
-
-  const drawToolpaths = (
+  const drawToolpaths = useCallback((
     ctx: CanvasRenderingContext2D,
-    job: ManufacturingJob,
     upToOperation: number
   ) => {
+    const drawOperation = (
+      operation: CNCOperation,
+      offsetX: number,
+      offsetY: number,
+      scale: number,
+      isCurrent: boolean
+    ) => {
+      const transform = (x: number, y: number) => ({
+        x: offsetX + x * scale,
+        y: offsetY + y * scale,
+      });
+
+      if (operation.type === 'drill') {
+        const pos = transform(operation.startPoint.x, operation.startPoint.y);
+        const radius = (operation.tool.diameter / 2) * scale;
+
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, Math.max(radius, 3), 0, Math.PI * 2);
+        ctx.fillStyle = isCurrent ? '#00ff00' : '#0088ff';
+        ctx.fill();
+        ctx.strokeStyle = isCurrent ? '#00ff00' : '#0088ff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(pos.x - 4, pos.y);
+        ctx.lineTo(pos.x + 4, pos.y);
+        ctx.moveTo(pos.x, pos.y - 4);
+        ctx.lineTo(pos.x, pos.y + 4);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      if (operation.type === 'route' && operation.path && operation.path.length > 1) {
+        ctx.beginPath();
+        const firstPoint = transform(operation.path[0].x, operation.path[0].y);
+        ctx.moveTo(firstPoint.x, firstPoint.y);
+
+        for (let i = 1; i < operation.path.length; i++) {
+          const point = transform(operation.path[i].x, operation.path[i].y);
+          ctx.lineTo(point.x, point.y);
+        }
+
+        ctx.strokeStyle = isCurrent ? '#ff9900' : '#ff6600';
+        ctx.lineWidth = Math.max(operation.tool.diameter * scale * 0.5, 2);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+
+        if (isCurrent) {
+          const lastPoint = transform(
+            operation.path[operation.path.length - 1].x,
+            operation.path[operation.path.length - 1].y
+          );
+          ctx.beginPath();
+          ctx.arc(lastPoint.x, lastPoint.y, 5, 0, Math.PI * 2);
+          ctx.fillStyle = '#ff9900';
+          ctx.fill();
+        }
+      }
+    };
+
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     ctx.fillStyle = '#1a1a1a';
@@ -82,7 +118,7 @@ export default function ToolpathVisualization({
       const operation = job.operations[i];
       const isCurrent = i === upToOperation;
 
-      drawOperation(ctx, operation, offsetX, offsetY, scale, isCurrent);
+      drawOperation(operation, offsetX, offsetY, scale, isCurrent);
     }
 
     ctx.fillStyle = '#fff';
@@ -100,71 +136,33 @@ export default function ToolpathVisualization({
         ctx.canvas.height - padding + 35
       );
     }
-  };
+  }, [job, width, height]);
 
-  const drawOperation = (
-    ctx: CanvasRenderingContext2D,
-    operation: CNCOperation,
-    offsetX: number,
-    offsetY: number,
-    scale: number,
-    isCurrent: boolean
-  ) => {
-    const transform = (x: number, y: number) => ({
-      x: offsetX + x * scale,
-      y: offsetY + y * scale,
-    });
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    if (operation.type === 'drill') {
-      const pos = transform(operation.startPoint.x, operation.startPoint.y);
-      const radius = (operation.tool.diameter / 2) * scale;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-      ctx.beginPath();
-      ctx.arc(pos.x, pos.y, Math.max(radius, 3), 0, Math.PI * 2);
-      ctx.fillStyle = isCurrent ? '#00ff00' : '#0088ff';
-      ctx.fill();
-      ctx.strokeStyle = isCurrent ? '#00ff00' : '#0088ff';
-      ctx.lineWidth = 1;
-      ctx.stroke();
+    drawToolpaths(ctx, currentOperation);
+  }, [currentOperation, drawToolpaths]);
 
-      ctx.beginPath();
-      ctx.moveTo(pos.x - 4, pos.y);
-      ctx.lineTo(pos.x + 4, pos.y);
-      ctx.moveTo(pos.x, pos.y - 4);
-      ctx.lineTo(pos.x, pos.y + 4);
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
+  useEffect(() => {
+    if (!isPlaying) return;
 
-    if (operation.type === 'route' && operation.path && operation.path.length > 1) {
-      ctx.beginPath();
-      const firstPoint = transform(operation.path[0].x, operation.path[0].y);
-      ctx.moveTo(firstPoint.x, firstPoint.y);
+    const interval = setInterval(() => {
+      setCurrentOperation(prev => {
+        if (prev >= job.operations.length - 1) {
+          setIsPlaying(false);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 1000);
 
-      for (let i = 1; i < operation.path.length; i++) {
-        const point = transform(operation.path[i].x, operation.path[i].y);
-        ctx.lineTo(point.x, point.y);
-      }
-
-      ctx.strokeStyle = isCurrent ? '#ff9900' : '#ff6600';
-      ctx.lineWidth = Math.max(operation.tool.diameter * scale * 0.5, 2);
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.stroke();
-
-      if (isCurrent) {
-        const lastPoint = transform(
-          operation.path[operation.path.length - 1].x,
-          operation.path[operation.path.length - 1].y
-        );
-        ctx.beginPath();
-        ctx.arc(lastPoint.x, lastPoint.y, 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#ff9900';
-        ctx.fill();
-      }
-    }
-  };
+    return () => clearInterval(interval);
+  }, [isPlaying, job.operations.length]);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);

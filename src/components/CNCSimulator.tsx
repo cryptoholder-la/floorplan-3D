@@ -1,6 +1,5 @@
 "use client";
-
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CabinetPart, Toolpath, CNCSimulationState } from '@/lib/cnc-types';
 import { generateToolpath } from '@/lib/cnc-toolpath-generator';
 import { Card } from '@/components/ui/card';
@@ -15,20 +14,20 @@ interface Props {
   height?: number;
 }
 
-export default function CNCSimulator({ part, width = 600, height = 400 }: Props) {
+const CNCSimulator = ({ part, width = 600, height = 400 }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [toolpath, setToolpath] = useState<Toolpath | null>(null);
   const [simState, setSimState] = useState<CNCSimulationState>({
     currentCommand: 0,
     totalCommands: 0,
-    currentPosition: { x: 0, y: 0, z: 0 },
+    currentPosition: { x: 0, y: 0, z: 5 },
     spindleOn: false,
     progress: 0,
     toolpathHistory: [],
   });
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
     const tp = generateToolpath(part);
@@ -43,48 +42,26 @@ export default function CNCSimulator({ part, width = 600, height = 400 }: Props)
     });
   }, [part]);
 
-  useEffect(() => {
-    if (toolpath) {
-      drawSimulation();
-    }
-  }, [toolpath, simState]);
-
-  useEffect(() => {
-    if (isPlaying && toolpath) {
-      animationRef.current = requestAnimationFrame(animate);
-    }
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [isPlaying, simState, speed]);
-
   const animate = () => {
     if (!toolpath) return;
-
     setSimState((prev) => {
       if (prev.currentCommand >= toolpath.commands.length - 1) {
         setIsPlaying(false);
         return prev;
       }
-
       const nextCommand = prev.currentCommand + speed;
       const cmd = toolpath.commands[Math.floor(nextCommand)];
-      
-      if (!cmd) return prev;
 
+      if (!cmd) return prev;
       const newPos = {
         x: cmd.x ?? prev.currentPosition.x,
         y: cmd.y ?? prev.currentPosition.y,
         z: cmd.z ?? prev.currentPosition.z,
       };
-
       const newHistory = [...prev.toolpathHistory];
       if (cmd.type === 'linear' || cmd.type === 'drill') {
         newHistory.push(newPos);
       }
-
       return {
         ...prev,
         currentCommand: Math.floor(nextCommand),
@@ -94,21 +71,37 @@ export default function CNCSimulator({ part, width = 600, height = 400 }: Props)
         toolpathHistory: newHistory,
       };
     });
-
     if (isPlaying) {
       animationRef.current = requestAnimationFrame(animate);
     }
   };
 
-  const drawSimulation = () => {
+
+
+  useEffect(() => {
+    if (isPlaying && toolpath) {
+      animationRef.current = requestAnimationFrame(animate);
+    } else {
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+    }
+    return () => {
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+    };
+  }, [isPlaying, simState, speed, toolpath]);
+
+  const drawSimulation = React.useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas || !toolpath) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     ctx.clearRect(0, 0, width, height);
-
     const scaleX = (width - 80) / part.width;
     const scaleY = (height - 80) / part.height;
     const scale = Math.min(scaleX, scaleY);
@@ -117,7 +110,6 @@ export default function CNCSimulator({ part, width = 600, height = 400 }: Props)
 
     ctx.fillStyle = part.material.color;
     ctx.fillRect(offsetX, offsetY, part.width * scale, part.height * scale);
-
     ctx.strokeStyle = '#666';
     ctx.lineWidth = 2;
     ctx.strokeRect(offsetX, offsetY, part.width * scale, part.height * scale);
@@ -128,7 +120,7 @@ export default function CNCSimulator({ part, width = 600, height = 400 }: Props)
         const holeX = offsetX + hole.x * scale;
         const holeY = offsetY + hole.y * scale;
         const holeR = (hole.diameter / 2) * scale;
-        
+
         ctx.beginPath();
         ctx.arc(holeX, holeY, holeR, 0, Math.PI * 2);
         ctx.fill();
@@ -139,16 +131,16 @@ export default function CNCSimulator({ part, width = 600, height = 400 }: Props)
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
     ctx.beginPath();
-    
+
     for (let i = 0; i < simState.toolpathHistory.length - 1; i++) {
       const p1 = simState.toolpathHistory[i];
       const p2 = simState.toolpathHistory[i + 1];
-      
+
       const x1 = offsetX + p1.x * scale;
       const y1 = offsetY + p1.y * scale;
       const x2 = offsetX + p2.x * scale;
       const y2 = offsetY + p2.y * scale;
-      
+
       if (i === 0) {
         ctx.moveTo(x1, y1);
       }
@@ -159,7 +151,7 @@ export default function CNCSimulator({ part, width = 600, height = 400 }: Props)
 
     const toolX = offsetX + simState.currentPosition.x * scale;
     const toolY = offsetY + simState.currentPosition.y * scale;
-    
+
     ctx.fillStyle = simState.spindleOn ? '#ef4444' : '#10b981';
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
@@ -184,7 +176,13 @@ export default function CNCSimulator({ part, width = 600, height = 400 }: Props)
     ctx.fillText(`X: ${simState.currentPosition.x.toFixed(1)}`, 10, 20);
     ctx.fillText(`Y: ${simState.currentPosition.y.toFixed(1)}`, 10, 35);
     ctx.fillText(`Z: ${simState.currentPosition.z.toFixed(1)}`, 10, 50);
-  };
+  }, [toolpath, part, simState, width, height]);
+
+  useEffect(() => {
+    if (toolpath) {
+      drawSimulation();
+    }
+  }, [toolpath, drawSimulation]);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -223,14 +221,12 @@ export default function CNCSimulator({ part, width = 600, height = 400 }: Props)
             </Badge>
           </div>
         </div>
-
         <canvas
           ref={canvasRef}
           width={width}
           height={height}
           className="border rounded-lg bg-slate-100 dark:bg-slate-900"
         />
-
         <div className="space-y-4">
           <div className="flex items-center gap-4">
             <Button
@@ -261,7 +257,6 @@ export default function CNCSimulator({ part, width = 600, height = 400 }: Props)
               </div>
             </div>
           </div>
-
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div className="p-3 bg-muted rounded-lg">
               <div className="text-muted-foreground mb-1">Command</div>
@@ -286,4 +281,6 @@ export default function CNCSimulator({ part, width = 600, height = 400 }: Props)
       </div>
     </Card>
   );
-}
+};
+
+export default CNCSimulator;

@@ -1,4 +1,4 @@
-import { ScaleOption, DEFAULT_SCALE } from '@/types/scale.types';
+import { ScaleOption } from '@/types/scale.types';
 
 export interface Point {
   x: number;
@@ -131,6 +131,32 @@ export interface FloorPlan {
   };
 }
 
-export type ToolType = 'select' | 'wall' | 'room' | 'door' | 'window' | 'cabinet' | 'delete' | 'measure' | 'model3d' | 'photo' | 'resize';
+export type ViewMode = '2d' | 'elevation' | '3d' | 'manufacturing';
 
-export type View
+export type ToolType = 
+  'select' | 
+  'wall' | 
+  'room' | 
+  'door' | 
+  'window' | 
+  'cabinet' | 
+  'delete' | 
+  'measure' | 
+  'model3d' | 
+  'photo' | 
+  'resize';
+
+export type Mode = 
+  '2d' | 
+  '3d' | 
+  'elevation' | 
+  'manufacturing' | 
+  'floorplan' | 
+  'photo' | 
+  'drawing' | 
+  'drawing-editor' | 
+  'drawing-viewer' | 
+  'drawing-viewer-3d' | 
+  'drawing-viewer-2d' | 
+  'drawing-viewer-3d-2d' | 
+  'drawing-viewer-2d-3d';
