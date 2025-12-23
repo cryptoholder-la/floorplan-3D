@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { FloorPlan, Wall, Door, Window, Point, ResizeHandle } from '@/lib/floorplan-types';
 import { distance, formatMeasurement, pointToLineDistance } from '@/lib/floorplan-utils';
+import { DEFAULT_SCALE, ScaleOption, inchesToPixels } from '@/lib/unified-scale-utils';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -34,12 +35,12 @@ export default function WallElevationView({
   const [resizeHandle, setResizeHandle] = useState<ResizeHandle | null>(null);
   const [editingElement, setEditingElement] = useState<{ id: string; type: 'door' | 'window' } | null>(null);
 
-  const scale = floorPlan.metadata?.scale || 20;
-  const unit = floorPlan.metadata?.unit || 'meters';
+  const scaleOption: ScaleOption = floorPlan.metadata?.scaleOption || DEFAULT_SCALE;
+  const unit = floorPlan.metadata?.unit || 'inches';
 
     const selectedWall = floorPlan.walls.find(w => w.id === selectedWallId);
-    const wallLength = selectedWall ? distance(selectedWall.start, selectedWall.end) : 0;
-    const wallHeight = selectedWall?.height || 96;
+    const wallLengthPx = selectedWall ? distance(selectedWall.start, selectedWall.end) : 0;
+    const wallHeightInches = selectedWall?.height || 96;
 
   const getDoorsOnWall = useCallback((wallId: string) => {
     return floorPlan.doors.filter(d => d.wallId === wallId);
@@ -50,20 +51,20 @@ export default function WallElevationView({
   }, [floorPlan.windows]);
 
   const worldToScreen = useCallback((worldX: number, worldY: number): Point => {
-    const scaleRatio = (width - 100) / wallLength * zoom;
+    const scaleRatio = (width - 100) / wallLengthPx * zoom;
     return {
       x: 50 + worldX * scaleRatio + panOffset.x,
       y: height - 50 - worldY * scaleRatio + panOffset.y,
     };
-  }, [width, height, wallLength, zoom, panOffset]);
+  }, [width, height, wallLengthPx, zoom, panOffset]);
 
   const screenToWorld = useCallback((screenX: number, screenY: number): Point => {
-    const scaleRatio = (width - 100) / wallLength * zoom;
+    const scaleRatio = (width - 100) / wallLengthPx * zoom;
     return {
       x: (screenX - 50 - panOffset.x) / scaleRatio,
       y: (height - 50 - screenY + panOffset.y) / scaleRatio,
     };
-  }, [width, height, wallLength, zoom, panOffset]);
+  }, [width, height, wallLengthPx, zoom, panOffset]);
 
   const drawArrowLine = useCallback((
     ctx: CanvasRenderingContext2D, 
@@ -120,14 +121,14 @@ export default function WallElevationView({
     ctx.fillRect(0, 0, width, height);
 
     const wallStart = worldToScreen(0, 0);
-    const wallEnd = worldToScreen(wallLength, 0);
-    const wallTop = worldToScreen(0, wallHeight * scale);
+    const wallEnd = worldToScreen(wallLengthPx, 0);
+    const wallTop = worldToScreen(0, inchesToPixels(wallHeightInches, scaleOption));
 
     ctx.fillStyle = '#e2e8f0';
     ctx.beginPath();
     ctx.moveTo(wallStart.x, wallStart.y);
     ctx.lineTo(wallEnd.x, wallEnd.y);
-    ctx.lineTo(worldToScreen(wallLength, wallHeight * scale).x, worldToScreen(wallLength, wallHeight * scale).y);
+    ctx.lineTo(worldToScreen(wallLengthPx, inchesToPixels(wallHeightInches, scaleOption)).x, worldToScreen(wallLengthPx, inchesToPixels(wallHeightInches, scaleOption)).y);
     ctx.lineTo(wallTop.x, wallTop.y);
     ctx.closePath();
     ctx.fill();
@@ -140,7 +141,7 @@ export default function WallElevationView({
       ctx,
       wallStart.x, wallStart.y + 20,
       wallEnd.x, wallEnd.y + 20,
-      formatMeasurement(wallLength, scale, unit),
+      formatMeasurement(wallLengthPx, scaleOption, unit),
       '#0ea5e9'
     );
 
@@ -148,7 +149,7 @@ export default function WallElevationView({
       ctx,
       wallStart.x - 20, wallStart.y,
       wallTop.x - 20, wallTop.y,
-      formatMeasurement(wallHeight * scale, scale, unit),
+      formatMeasurement(inchesToPixels(wallHeightInches, scaleOption), scaleOption, unit),
       '#0ea5e9'
     );
 
@@ -156,8 +157,8 @@ export default function WallElevationView({
     doorsOnWall.forEach(door => {
       const doorX = distance(selectedWall.start, door.position);
       const doorWidth = door.width;
-      const doorHeight = (door.height || 2.0) * scale;
-      const sillHeight = (door.sillHeight || 0) * scale;
+      const doorHeight = inchesToPixels((door.height || 80), scaleOption);
+      const sillHeight = inchesToPixels((door.sillHeight || 0), scaleOption);
 
       const topLeft = worldToScreen(doorX - doorWidth / 2, sillHeight + doorHeight);
       const topRight = worldToScreen(doorX + doorWidth / 2, sillHeight + doorHeight);
@@ -202,9 +203,9 @@ export default function WallElevationView({
         ctx.fillRect((bottomLeft.x + bottomRight.x) / 2 - handleSize / 2, bottomLeft.y - handleSize / 2, handleSize, handleSize);
 
         drawArrowLine(ctx, bottomLeft.x, bottomLeft.y + 15, bottomRight.x, bottomRight.y + 15, 
-          formatMeasurement(doorWidth, scale, unit), '#f59e0b');
+          formatMeasurement(doorWidth, scaleOption, unit), '#f59e0b');
         drawArrowLine(ctx, topRight.x + 15, topRight.y, bottomRight.x + 15, bottomRight.y, 
-          formatMeasurement(doorHeight, scale, unit), '#f59e0b');
+          formatMeasurement(doorHeight, scaleOption, unit), '#f59e0b');
       }
     });
 
@@ -212,8 +213,8 @@ export default function WallElevationView({
     windowsOnWall.forEach(window => {
       const windowX = distance(selectedWall.start, window.position);
       const windowWidth = window.width;
-      const windowHeight = (window.height || 1.5) * scale;
-      const sillHeight = (window.sillHeight || 0.9) * scale;
+      const windowHeight = inchesToPixels((window.height || 48), scaleOption);
+      const sillHeight = inchesToPixels((window.sillHeight || 36), scaleOption);
 
       const topLeft = worldToScreen(windowX - windowWidth / 2, sillHeight + windowHeight);
       const topRight = worldToScreen(windowX + windowWidth / 2, sillHeight + windowHeight);
@@ -266,13 +267,13 @@ export default function WallElevationView({
         ctx.fillRect((bottomLeft.x + bottomRight.x) / 2 - handleSize / 2, bottomLeft.y - handleSize / 2, handleSize, handleSize);
 
         drawArrowLine(ctx, bottomLeft.x, bottomLeft.y + 15, bottomRight.x, bottomRight.y + 15, 
-          formatMeasurement(windowWidth, scale, unit), '#2563eb');
+          formatMeasurement(windowWidth, scaleOption, unit), '#2563eb');
         drawArrowLine(ctx, topRight.x + 15, topRight.y, bottomRight.x + 15, bottomRight.y, 
-          formatMeasurement(windowHeight, scale, unit), '#2563eb');
+          formatMeasurement(windowHeight, scaleOption, unit), '#2563eb');
 
         const floorToSill = worldToScreen(windowX - windowWidth / 2, 0);
         drawArrowLine(ctx, floorToSill.x - 30, wallStart.y, floorToSill.x - 30, bottomLeft.y,
-          formatMeasurement(sillHeight, scale, unit), '#10b981');
+          formatMeasurement(sillHeight, scaleOption, unit), '#10b981');
       }
     });
 
@@ -281,7 +282,7 @@ export default function WallElevationView({
     ctx.textAlign = 'center';
     ctx.fillText(`Wall Elevation: ${selectedWall.id}`, width / 2, 25);
 
-  }, [selectedWall, width, height, wallLength, wallHeight, scale, unit, worldToScreen, drawArrowLine, getDoorsOnWall, getWindowsOnWall, selectedElementId]);
+  }, [selectedWall, width, height, wallLengthPx, wallHeightInches, scaleOption, unit, worldToScreen, drawArrowLine, getDoorsOnWall, getWindowsOnWall, selectedElementId]);
 
   useEffect(() => {
     draw();
@@ -298,8 +299,8 @@ export default function WallElevationView({
     for (const door of doorsOnWall) {
       const doorX = distance(selectedWall.start, door.position);
       const doorWidth = door.width;
-      const doorHeight = (door.height || 2.0) * scale;
-      const sillHeight = (door.sillHeight || 0) * scale;
+      const doorHeight = inchesToPixels((door.height || 80), scaleOption);
+      const sillHeight = inchesToPixels((door.sillHeight || 0), scaleOption);
 
       const topLeft = worldToScreen(doorX - doorWidth / 2, sillHeight + doorHeight);
       const bottomRight = worldToScreen(doorX + doorWidth / 2, sillHeight);
@@ -328,8 +329,8 @@ export default function WallElevationView({
     for (const window of windowsOnWall) {
       const windowX = distance(selectedWall.start, window.position);
       const windowWidth = window.width;
-      const windowHeight = (window.height || 1.5) * scale;
-      const sillHeight = (window.sillHeight || 0.9) * scale;
+      const windowHeight = inchesToPixels((window.height || 48), scaleOption);
+      const sillHeight = inchesToPixels((window.sillHeight || 36), scaleOption);
 
       const topLeft = worldToScreen(windowX - windowWidth / 2, sillHeight + windowHeight);
       const bottomRight = worldToScreen(windowX + windowWidth / 2, sillHeight);
@@ -386,10 +387,10 @@ export default function WallElevationView({
             door.width = Math.max(20, door.width + (resizeHandle.type === 'width-right' ? dx : -dx));
             break;
           case 'top':
-            door.height = Math.max(0.5, (door.height || 2.0) + dy / scale);
+            door.height = Math.max(12, (door.height || 80) + dy / inchesToPixels(1, scaleOption));
             break;
           case 'bottom':
-            door.sillHeight = Math.max(0, (door.sillHeight || 0) + dy / scale);
+            door.sillHeight = Math.max(0, (door.sillHeight || 0) + dy / inchesToPixels(1, scaleOption));
             break;
         }
 
@@ -406,10 +407,10 @@ export default function WallElevationView({
             window.width = Math.max(20, window.width + (resizeHandle.type === 'width-right' ? dx : -dx));
             break;
           case 'top':
-            window.height = Math.max(0.3, (window.height || 1.5) + dy / scale);
+            window.height = Math.max(12, (window.height || 48) + dy / inchesToPixels(1, scaleOption));
             break;
           case 'bottom':
-            window.sillHeight = Math.max(0, (window.sillHeight || 0.9) + dy / scale);
+            window.sillHeight = Math.max(0, (window.sillHeight || 36) + dy / inchesToPixels(1, scaleOption));
             break;
         }
 
@@ -465,7 +466,7 @@ export default function WallElevationView({
           <SelectContent>
             {floorPlan.walls.map((wall, index) => (
               <SelectItem key={wall.id} value={wall.id}>
-                Wall {index + 1} ({formatMeasurement(distance(wall.start, wall.end), scale, unit)})
+                Wall {index + 1} ({formatMeasurement(distance(wall.start, wall.end), scaleOption, unit)})
               </SelectItem>
             ))}
           </SelectContent>

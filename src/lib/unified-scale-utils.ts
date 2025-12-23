@@ -26,15 +26,15 @@ export const SCALE_OPTIONS: Record<ScaleOption, ScaleSettings> = {
 export const DEFAULT_SCALE: ScaleOption = '1/2"=12"';
 
 export const STANDARD_DIMENSIONS = {
-  wallHeight: 96,
-  finishedFloorOffset: 0.5,
-  upperCabinetMountHeight: 54,
-  baseCabinetHeight: 30,
-  baseCabinetTotalHeight: 34.5,
-  toeKickHeight: 4.5,
-  baseCabinetDepth: 24,
-  wallCabinetDepth: 12,
-  tallCabinetDepth: 24,
+  wallHeightInches: 96,
+  finishedFloorOffsetInches: 0.5,
+  upperCabinetMountHeightInches: 54,
+  baseCabinetBoxHeightInches: 30,
+  baseCabinetTotalHeightInches: 34.5,
+  toeKickHeightInches: 4.5,
+  baseCabinetDepthInches: 24,
+  wallCabinetDepthInches: 12,
+  tallCabinetDepthInches: 24,
 } as const;
 
 export function inchesToPixels(inches: number, scale: ScaleOption = DEFAULT_SCALE): number {
@@ -97,4 +97,22 @@ export function calculateScaledDimensions(
     displayInches: `${inches}"`,
     displayFeet: formatDimension(inches, true),
   };
+}
+
+export const INCHES_PER_METER = 39.37007874015748;
+
+export function inchesToMeters(inches: number): number {
+  return inches / INCHES_PER_METER;
+}
+
+export function metersToInches(meters: number): number {
+  return meters * INCHES_PER_METER;
+}
+
+export function pixelsToMeters(pixels: number, scale: ScaleOption = DEFAULT_SCALE): number {
+  return inchesToMeters(pixelsToInches(pixels, scale));
+}
+
+export function metersToPixels(meters: number, scale: ScaleOption = DEFAULT_SCALE): number {
+  return inchesToPixels(metersToInches(meters), scale);
 }

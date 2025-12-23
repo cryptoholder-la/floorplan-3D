@@ -1,5 +1,6 @@
 import { FloorPlan, Wall, Room, Door, Window, Cabinet, Model3D, PhotoReference } from './floorplan-types';
 import * as THREE from 'three';
+import { DEFAULT_SCALE, ScaleOption, pixelsToMeters, inchesToMeters } from '@/lib/unified-scale-utils';
 
 export interface FloorPlan3DData {
   meshes: Array<{
@@ -21,10 +22,11 @@ export interface FloorPlan3DData {
 
 export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
   const meshes: FloorPlan3DData['meshes'] = [];
-  const scale = (floorPlan.metadata?.scale || 20) / 20;
-  
+  const scaleOption: ScaleOption = floorPlan.metadata?.scaleOption || DEFAULT_SCALE;
+  const pxToM = (px: number) => pixelsToMeters(px, scaleOption);
+
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  
+
   floorPlan.walls.forEach(wall => {
     minX = Math.min(minX, wall.start.x, wall.end.x);
     maxX = Math.max(maxX, wall.start.x, wall.end.x);
@@ -46,18 +48,18 @@ export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
     const dy = wall.end.y - wall.start.y;
     const length = Math.sqrt(dx * dx + dy * dy);
     const angle = Math.atan2(dy, dx);
-    
+
     const centerX = (wall.start.x + wall.end.x) / 2;
     const centerY = (wall.start.y + wall.end.y) / 2;
 
-    const x = (centerX - (minX + maxX) / 2) * 0.1 * scale;
-    const z = (centerY - (minY + maxY) / 2) * 0.1 * scale;
-    const wallHeight = wall.height || 2.7;
+    const x = pxToM(centerX - (minX + maxX) / 2);
+    const z = pxToM(centerY - (minY + maxY) / 2);
+    const wallHeight = inchesToMeters(wall.height || 96);
 
     const geometry = new THREE.BoxGeometry(
-      length * 0.1 * scale,
+      pxToM(length),
       wallHeight,
-      wall.thickness * 0.1 * scale
+      pxToM(wall.thickness)
     );
 
     let material: THREE.Material;
@@ -66,7 +68,8 @@ export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
       const texture = textureLoader.load(wall.texture);
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(length * 0.1 * scale / 2, wallHeight / 2);
+      texture.repeat.set(pxToM(length) / 2, wallHeight / 2);
+
       material = new THREE.MeshStandardMaterial({
         map: texture,
         roughness: 0.8,
@@ -95,9 +98,9 @@ export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
 
     const shape = new THREE.Shape();
     room.points.forEach((point, index) => {
-      const x = (point.x - (minX + maxX) / 2) * 0.1 * scale;
-      const z = (point.y - (minY + maxY) / 2) * 0.1 * scale;
-      
+      const x = pxToM(point.x - (minX + maxX) / 2);
+      const z = pxToM(point.y - (minY + maxY) / 2);
+
       if (index === 0) {
         shape.moveTo(x, z);
       } else {
@@ -108,13 +111,14 @@ export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
 
     const floorGeometry = new THREE.ShapeGeometry(shape);
     let floorMaterial: THREE.Material;
-    
+
     if (room.floorTexture) {
       const textureLoader = new THREE.TextureLoader();
       const texture = textureLoader.load(room.floorTexture);
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
       texture.repeat.set(4, 4);
+
       floorMaterial = new THREE.MeshStandardMaterial({
         map: texture,
         roughness: 0.9,
@@ -147,10 +151,11 @@ export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
       side: THREE.DoubleSide,
     });
 
+    const ceilingHeight = inchesToMeters(floorPlan.metadata?.defaultWallHeight || 96);
     meshes.push({
       geometry: ceilingGeometry,
       material: ceilingMaterial,
-      position: [0, 2.7, 0],
+      position: [0, ceilingHeight, 0],
       rotation: [-Math.PI / 2, 0, 0],
       type: 'ceiling',
       id: `${room.id}-ceiling`,
@@ -158,13 +163,13 @@ export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
   });
 
   floorPlan.doors.forEach(door => {
-    const x = (door.position.x - (minX + maxX) / 2) * 0.1 * scale;
-    const z = (door.position.y - (minY + maxY) / 2) * 0.1 * scale;
-    const doorHeight = door.height || 2.0;
-    const sillHeight = door.sillHeight || 0;
+    const x = pxToM(door.position.x - (minX + maxX) / 2);
+    const z = pxToM(door.position.y - (minY + maxY) / 2);
+    const doorHeight = inchesToMeters(door.height || 80);
+    const sillHeight = inchesToMeters(door.sillHeight || 0);
 
     const geometry = new THREE.BoxGeometry(
-      door.width * 0.1 * scale,
+      pxToM(door.width),
       doorHeight,
       0.05
     );
@@ -213,13 +218,13 @@ export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
   });
 
   floorPlan.windows.forEach(window => {
-    const x = (window.position.x - (minX + maxX) / 2) * 0.1 * scale;
-    const z = (window.position.y - (minY + maxY) / 2) * 0.1 * scale;
-    const windowHeight = window.height || 1.5;
-    const sillHeight = window.sillHeight || 0.9;
+    const x = pxToM(window.position.x - (minX + maxX) / 2);
+    const z = pxToM(window.position.y - (minY + maxY) / 2);
+    const windowHeight = inchesToMeters(window.height || 48);
+    const sillHeight = inchesToMeters(window.sillHeight || 36);
 
     const geometry = new THREE.BoxGeometry(
-      window.width * 0.1 * scale,
+      pxToM(window.width),
       windowHeight,
       0.05
     );
@@ -242,7 +247,7 @@ export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
     });
 
     const frameGeometry = new THREE.BoxGeometry(
-      window.width * 0.1 * scale + 0.05,
+      pxToM(window.width) + 0.05,
       windowHeight + 0.05,
       0.06
     );
@@ -263,15 +268,17 @@ export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
   });
 
   floorPlan.cabinets.forEach(cabinet => {
-    const x = (cabinet.position.x - (minX + maxX) / 2) * 0.1 * scale;
-    const z = (cabinet.position.y - (minY + maxY) / 2) * 0.1 * scale;
+    const x = pxToM(cabinet.position.x - (minX + maxX) / 2);
+    const z = pxToM(cabinet.position.y - (minY + maxY) / 2);
 
-    const yPosition = cabinet.type === 'wall' ? 1.8 : cabinet.height / 2;
+    const cabinetHeightM = inchesToMeters(cabinet.height);
+    const mountHeightM = inchesToMeters(cabinet.mountHeight || 0);
+    const yPosition = cabinet.type === 'wall' ? mountHeightM + cabinetHeightM / 2 : cabinetHeightM / 2;
 
     const geometry = new THREE.BoxGeometry(
-      cabinet.width * 0.1 * scale,
-      cabinet.height,
-      cabinet.depth * 0.1 * scale
+      pxToM(cabinet.width),
+      cabinetHeightM,
+      pxToM(cabinet.depth)
     );
 
     const color = new THREE.Color(cabinet.color);
@@ -299,8 +306,8 @@ export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
         metalness: 0.8,
       });
 
-      const handleOffset = cabinet.depth * 0.1 * scale / 2 + 0.025;
-      
+      const handleOffset = pxToM(cabinet.depth) / 2 + 0.025;
+
       meshes.push({
         geometry: handleGeometry,
         material: handleMaterial,
@@ -313,8 +320,8 @@ export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
   });
 
   floorPlan.models3D?.forEach(model => {
-    const x = (model.position.x - (minX + maxX) / 2) * 0.1 * scale;
-    const z = (model.position.y - (minY + maxY) / 2) * 0.1 * scale;
+    const x = pxToM(model.position.x - (minX + maxX) / 2);
+    const z = pxToM(model.position.y - (minY + maxY) / 2);
 
     const size = 0.5 * model.scale;
     const geometry = new THREE.BoxGeometry(size, size, size);
@@ -329,7 +336,7 @@ export function convertFloorPlanTo3D(floorPlan: FloorPlan): FloorPlan3DData {
     meshes.push({
       geometry,
       material,
-      position: [x, model.height + size / 2, z],
+      position: [x, inchesToMeters(model.height) + size / 2, z],
       rotation: [0, model.angle, 0],
       type: 'model3d',
       id: model.id,

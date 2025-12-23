@@ -4,6 +4,7 @@ import "./globals.css";
  
 import ErrorReporter from "@/components/ErrorReporter";
 import Navigation from "@/components/Navigation";
+import Providers from "@/app/providers";
 import Script from "next/script";
 
 export const metadata: Metadata = {
@@ -37,7 +38,7 @@ export default function RootLayout({
           data-custom-data='{"appName": "YourApp", "version": "1.0.0", "greeting": "hi"}'
         />
         <Navigation />
-        {children}
+        <Providers>{children}</Providers>
        
       </body>
     </html>

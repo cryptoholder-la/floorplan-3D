@@ -9,11 +9,11 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals"),
-  ...compat.config({
+  {
     plugins: {
       import: eslintPluginImport,
     },
-  }),
+  },
   {
     rules: {
       "react/no-unescaped-entities": "off",
@@ -21,6 +21,8 @@ const eslintConfig = [
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "react-hooks/exhaustive-deps": "off",
+      
+      // eslint-plugin-import
       "import/no-unresolved": "error",
       "import/named": "error",
       "import/default": "error",

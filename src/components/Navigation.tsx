@@ -9,6 +9,7 @@ export default function Navigation() {
   const navItems = [
     { href: '/', label: 'Floor Plan', icon: '📐' },
     { href: '/cabinets', label: 'Cabinets', icon: '📦' },
+    { href: '/catalog', label: 'Catalog', icon: '🗂️' },
     { href: '/manufacturing', label: 'CNC', icon: '🏭' },
     { href: '/drill-configurator', label: 'Drill', icon: '🔧' },
   ];

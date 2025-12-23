@@ -11,7 +11,7 @@ import {
   Groove,
 } from '@/types/cabinet.types';
 
-export type CabinetType = 'base' | 'wall' | 'tall';
+export type CabinetType = 'base' | 'wall' | 'tall' | 'db' | 'sb' | 'lsb';
 
 export interface UnifiedCabinetDimensions {
   type: CabinetType;
@@ -87,6 +87,33 @@ function getCabinetDimensions(
         toeKickDepth: 21,
         totalHeight: 34.5,
       };
+    case 'db':
+      return {
+        type: 'db',
+        width,
+        height: 24,
+        depth: 24,
+      };
+    case 'sb':
+      return {
+        type: 'sb',
+        width,
+        height: 30,
+        depth: 24,
+        toeKickHeight: 4.5,
+        toeKickDepth: 21,
+        totalHeight: 34.5,
+      };
+    case 'lsb':
+      return {
+        type: 'lsb',
+        width,
+        height: 30,
+        depth: 24,
+        toeKickHeight: 4.5,
+        toeKickDepth: 21,
+        totalHeight: 34.5,
+      };
     case 'wall':
       return {
         type: 'wall',
@@ -127,6 +154,12 @@ function getConfiguration(
 
   switch (type) {
     case 'base':
+      return { ...baseConfig, shelfCount: 1 };
+    case 'db':
+      return { ...baseConfig, hasAdjustableShelf: false, shelfCount: 0, hasDrawer: true, drawerCount: 2 };
+    case 'sb':
+      return { ...baseConfig, hasAdjustableShelf: false, shelfCount: 0 };
+    case 'lsb':
       return { ...baseConfig, shelfCount: 1 };
     case 'wall':
       return { ...baseConfig, shelfCount: Math.floor(dims.height / 12) };

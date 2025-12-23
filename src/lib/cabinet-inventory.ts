@@ -48,6 +48,21 @@ export const CABINET_TYPE_OPTIONS: CabinetTypeOption[] = [
     description: '34.5" tall, 24" deep',
   },
   {
+    value: 'db',
+    label: 'Drawer Base (DB)',
+    description: '24" tall, 24" deep',
+  },
+  {
+    value: 'sb',
+    label: 'Sink Base (SB)',
+    description: '34.5" tall, 24" deep',
+  },
+  {
+    value: 'lsb',
+    label: 'Lazy Susan Base (LSB)',
+    description: '34.5" tall, 24" deep',
+  },
+  {
     value: 'wall',
     label: 'Wall Cabinet',
     description: '12-42" tall, 12" deep',
@@ -63,6 +78,33 @@ export function getBaseCabinetSizes(): CabinetSizeOption[] {
   const widths = getAvailableWidths();
   return widths.map((width) => ({
     value: `base-${width}`,
+    label: `${width}" Wide`,
+    width,
+  }));
+}
+
+export function getDrawerBaseCabinetSizes(): CabinetSizeOption[] {
+  const widths: CabinetWidth[] = [12, 15, 18, 21, 24];
+  return widths.map((width) => ({
+    value: `db-${width}`,
+    label: `${width}" Wide`,
+    width,
+  }));
+}
+
+export function getSinkBaseCabinetSizes(): CabinetSizeOption[] {
+  const widths: CabinetWidth[] = [24, 27, 30, 33, 36];
+  return widths.map((width) => ({
+    value: `sb-${width}`,
+    label: `${width}" Wide`,
+    width,
+  }));
+}
+
+export function getLazySusanBaseCabinetSizes(): CabinetSizeOption[] {
+  const widths: CabinetWidth[] = [33, 36];
+  return widths.map((width) => ({
+    value: `lsb-${width}`,
     label: `${width}" Wide`,
     width,
   }));
@@ -110,6 +152,12 @@ export function getCabinetSizesByType(type: CabinetType): CabinetSizeOption[] {
   switch (type) {
     case 'base':
       return getBaseCabinetSizes();
+    case 'db':
+      return getDrawerBaseCabinetSizes();
+    case 'sb':
+      return getSinkBaseCabinetSizes();
+    case 'lsb':
+      return getLazySusanBaseCabinetSizes();
     case 'wall':
       return getWallCabinetSizes();
     case 'tall':
@@ -136,6 +184,51 @@ export function generateCabinetByTypeAndSize(
       height: cabinet.dimensions.totalHeight,
       depth: cabinet.dimensions.depth,
       category: 'Base Cabinets',
+    };
+  }
+
+  if (type === 'db' && parts.length === 2) {
+    const width = parseInt(parts[1]) as CabinetWidth;
+    if (![12, 15, 18, 21, 24].includes(width)) return null;
+    return {
+      id: `drawer-base-${width}`,
+      type: 'db',
+      label: `Drawer Base ${width}"`,
+      width,
+      height: 24,
+      depth: 24,
+      category: 'Drawer Base Cabinets',
+    };
+  }
+
+  if (type === 'sb' && parts.length === 2) {
+    const width = parseInt(parts[1]) as CabinetWidth;
+    if (![24, 27, 30, 33, 36].includes(width)) return null;
+    // Reuse base cabinet generator dimensions (same depth/height), but keep distinct type/label.
+    const base = generateBaseCabinet(width);
+    return {
+      id: `sink-base-${width}`,
+      type: 'sb',
+      label: `Sink Base ${width}"`,
+      width: base.dimensions.width,
+      height: base.dimensions.totalHeight,
+      depth: base.dimensions.depth,
+      category: 'Sink Base Cabinets',
+    };
+  }
+
+  if (type === 'lsb' && parts.length === 2) {
+    const width = parseInt(parts[1]) as CabinetWidth;
+    if (![33, 36].includes(width)) return null;
+    const base = generateBaseCabinet(width);
+    return {
+      id: `lazy-susan-base-${width}`,
+      type: 'lsb',
+      label: `Lazy Susan Base ${width}"`,
+      width: base.dimensions.width,
+      height: base.dimensions.totalHeight,
+      depth: base.dimensions.depth,
+      category: 'Lazy Susan Base Cabinets',
     };
   }
 

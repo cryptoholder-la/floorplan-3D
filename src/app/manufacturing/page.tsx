@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import Navigation from '@/components/Navigation';
 import { generateBaseCabinet, generateCutList } from '@/lib/cabinet-generator';
 import { generateJobsForCabinet } from '@/lib/cnc-operations';
 import { generateGCode, downloadGCode } from '@/lib/gcode-generator';
@@ -31,7 +30,6 @@ export default function ManufacturingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
-      <Navigation />
       <div className="p-6 pt-20">
         <div className="max-w-7xl mx-auto">
           <header className="mb-8">

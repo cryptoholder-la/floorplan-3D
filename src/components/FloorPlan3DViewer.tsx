@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import { FloorPlan } from '@/lib/floorplan-types';
 import { convertFloorPlanTo3D, FloorPlan3DData } from '@/lib/floorplan-3d-converter';
 import { distance, formatMeasurement } from '@/lib/floorplan-utils';
+import { DEFAULT_SCALE, ScaleOption, pixelsToMeters } from '@/lib/unified-scale-utils';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -95,8 +96,9 @@ function Scene3D({
   showMeasurements: boolean;
 }) {
   const groupRef = useRef<THREE.Group>(null);
-  const scale = floorPlan.metadata?.scale || 20;
-  const unit = floorPlan.metadata?.unit || 'meters';
+  const scaleOption: ScaleOption = floorPlan.metadata?.scaleOption || DEFAULT_SCALE;
+  const unit = floorPlan.metadata?.unit || 'inches';
+  const pxToM = (px: number) => pixelsToMeters(px, scaleOption);
 
   return (
     <group ref={groupRef}>
@@ -139,15 +141,14 @@ function Scene3D({
             const maxX = Math.max(...floorPlan.walls.map(w => Math.max(w.start.x, w.end.x)), ...floorPlan.rooms.flatMap(r => r.points.map(p => p.x)));
             const minY = Math.min(...floorPlan.walls.map(w => Math.min(w.start.y, w.end.y)), ...floorPlan.rooms.flatMap(r => r.points.map(p => p.y)));
             const maxY = Math.max(...floorPlan.walls.map(w => Math.max(w.start.y, w.end.y)), ...floorPlan.rooms.flatMap(r => r.points.map(p => p.y)));
-            
-            const scaleVal = (floorPlan.metadata?.scale || 20) / 20;
-            const x1 = (wall.start.x - (minX + maxX) / 2) * 0.1 * scaleVal;
-            const z1 = (wall.start.y - (minY + maxY) / 2) * 0.1 * scaleVal;
-            const x2 = (wall.end.x - (minX + maxX) / 2) * 0.1 * scaleVal;
-            const z2 = (wall.end.y - (minY + maxY) / 2) * 0.1 * scaleVal;
+
+            const x1 = pxToM(wall.start.x - (minX + maxX) / 2);
+            const z1 = pxToM(wall.start.y - (minY + maxY) / 2);
+            const x2 = pxToM(wall.end.x - (minX + maxX) / 2);
+            const z2 = pxToM(wall.end.y - (minY + maxY) / 2);
 
             const dist = distance(wall.start, wall.end);
-            const label = formatMeasurement(dist, scale, unit);
+            const label = formatMeasurement(dist, scaleOption, unit);
 
             return (
               <Measurement3D
@@ -166,18 +167,16 @@ function Scene3D({
             const maxX = Math.max(...floorPlan.walls.map(w => Math.max(w.start.x, w.end.x)), ...floorPlan.rooms.flatMap(r => r.points.map(p => p.x)));
             const minY = Math.min(...floorPlan.walls.map(w => Math.min(w.start.y, w.end.y)), ...floorPlan.rooms.flatMap(r => r.points.map(p => p.y)));
             const maxY = Math.max(...floorPlan.walls.map(w => Math.max(w.start.y, w.end.y)), ...floorPlan.rooms.flatMap(r => r.points.map(p => p.y)));
-            
-            const scaleVal = (floorPlan.metadata?.scale || 20) / 20;
 
             return room.points.map((point, i) => {
               const nextPoint = room.points[(i + 1) % room.points.length];
-              const x1 = (point.x - (minX + maxX) / 2) * 0.1 * scaleVal;
-              const z1 = (point.y - (minY + maxY) / 2) * 0.1 * scaleVal;
-              const x2 = (nextPoint.x - (minX + maxX) / 2) * 0.1 * scaleVal;
-              const z2 = (nextPoint.y - (minY + maxY) / 2) * 0.1 * scaleVal;
+              const x1 = pxToM(point.x - (minX + maxX) / 2);
+              const z1 = pxToM(point.y - (minY + maxY) / 2);
+              const x2 = pxToM(nextPoint.x - (minX + maxX) / 2);
+              const z2 = pxToM(nextPoint.y - (minY + maxY) / 2);
 
               const dist = distance(point, nextPoint);
-              const label = formatMeasurement(dist, scale, unit);
+              const label = formatMeasurement(dist, scaleOption, unit);
 
               return (
                 <Measurement3D
@@ -199,12 +198,11 @@ function Scene3D({
             const maxX = Math.max(...floorPlan.walls.map(w => Math.max(w.start.x, w.end.x)), ...floorPlan.rooms.flatMap(r => r.points.map(p => p.x)));
             const minY = Math.min(...floorPlan.walls.map(w => Math.min(w.start.y, w.end.y)), ...floorPlan.rooms.flatMap(r => r.points.map(p => p.y)));
             const maxY = Math.max(...floorPlan.walls.map(w => Math.max(w.start.y, w.end.y)), ...floorPlan.rooms.flatMap(r => r.points.map(p => p.y)));
-            
-            const scaleVal = (floorPlan.metadata?.scale || 20) / 20;
-            const x1 = (measurement.start.x - (minX + maxX) / 2) * 0.1 * scaleVal;
-            const z1 = (measurement.start.y - (minY + maxY) / 2) * 0.1 * scaleVal;
-            const x2 = (measurement.end.x - (minX + maxX) / 2) * 0.1 * scaleVal;
-            const z2 = (measurement.end.y - (minY + maxY) / 2) * 0.1 * scaleVal;
+
+            const x1 = pxToM(measurement.start.x - (minX + maxX) / 2);
+            const z1 = pxToM(measurement.start.y - (minY + maxY) / 2);
+            const x2 = pxToM(measurement.end.x - (minX + maxX) / 2);
+            const z2 = pxToM(measurement.end.y - (minY + maxY) / 2);
 
             return (
               <Measurement3D

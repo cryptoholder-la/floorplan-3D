@@ -9,7 +9,7 @@ export type WallCabinetHeight = 12 | 15 | 18 | 21 | 24 | 27 | 30 | 33 | 36 | 39 
 export type TallCabinetWidth = 12 | 15 | 18 | 21 | 24 | 27 | 30 | 33 | 36;
 export type TallCabinetHeight = 79.5 | 85.5 | 91.5;
 
-export type CabinetType = 'base' | 'wall' | 'tall';
+export type CabinetType = 'base' | 'wall' | 'tall' | 'db' | 'sb' | 'lsb';
 
 export interface BaseCabinetDimensions {
   width: CabinetWidth; // Width in inches (9-36 in 3" steps)

@@ -1,4 +1,4 @@
-import { ScaleOption } from '@/types/scale.types';
+import { ScaleOption } from '@/lib/unified-scale-utils';
 
 export interface Point {
   x: number;
@@ -47,7 +47,7 @@ export interface Window {
 
 export interface Cabinet {
   id: string;
-  type: 'base' | 'wall' | 'tall' | 'corner' | 'island';
+  type: 'base' | 'wall' | 'tall' | 'db' | 'sb' | 'lsb' | 'corner' | 'island';
   position: Point;
   angle: number;
   width: number;

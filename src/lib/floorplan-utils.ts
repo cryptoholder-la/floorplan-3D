@@ -1,8 +1,48 @@
 import { Point, Wall, Room, Door, Window, FloorPlan, Cabinet, Measurement, Model3D, PhotoReference } from './floorplan-types';
-import { DEFAULT_SCALE, STANDARD_HEIGHTS, SCALE_OPTIONS, ScaleOption, inchesToPixels } from '@/types/scale.types';
+import {
+  DEFAULT_SCALE,
+  STANDARD_DIMENSIONS,
+  SCALE_OPTIONS,
+  ScaleOption,
+  inchesToPixels,
+  pixelsToInches,
+  formatDimension,
+  inchesToMeters,
+} from '@/lib/unified-scale-utils';
 
 export function distance(p1: Point, p2: Point): number {
   return Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+}
+
+export function getWallVector(wall: Wall): Point {
+  return {
+    x: wall.end.x - wall.start.x,
+    y: wall.end.y - wall.start.y,
+  };
+}
+
+export function getWallLength(wall: Wall): number {
+  return distance(wall.start, wall.end);
+}
+
+export function getWallTangent(wall: Wall): Point {
+  const len = getWallLength(wall);
+  if (len === 0) return { x: 0, y: 0 };
+  const v = getWallVector(wall);
+  return { x: v.x / len, y: v.y / len };
+}
+
+export function getWallNormal(wall: Wall): Point {
+  const t = getWallTangent(wall);
+  return { x: -t.y, y: t.x };
+}
+
+export function getPointOnWall(wall: Wall, tParameter: number): Point {
+  const v = getWallVector(wall);
+  return {
+    x: wall.start.x + tParameter * v.x,
+    y: wall.start.y + tParameter * v.y,
+  };
 }
 
 export function pointToLineDistance(point: Point, lineStart: Point, lineEnd: Point): number {
@@ -105,13 +145,13 @@ export function createDefaultFloorPlan(): FloorPlan {
     metadata: {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      scale: 20,
+      scale: SCALE_OPTIONS[DEFAULT_SCALE].pixelsPerInch,
       unit: 'inches',
       showMeasurements: true,
       scaleOption: DEFAULT_SCALE,
-      defaultWallHeight: STANDARD_HEIGHTS.wallHeight,
-      upperCabinetHeight: STANDARD_HEIGHTS.upperCabinetHeight,
-      finishedFloorOffset: STANDARD_HEIGHTS.finishedFloorOffset,
+      defaultWallHeight: STANDARD_DIMENSIONS.wallHeightInches,
+      upperCabinetHeight: STANDARD_DIMENSIONS.upperCabinetMountHeightInches,
+      finishedFloorOffset: STANDARD_DIMENSIONS.finishedFloorOffsetInches,
     },
   };
 }
@@ -150,50 +190,68 @@ export function createCabinet(
   position: Point,
   angle: number = 0,
   scaleOption: ScaleOption = DEFAULT_SCALE,
-  customDimensions?: { 
-    widthInches?: number; 
-    depthInches?: number; 
-    heightInches?: number; 
+  customDimensions?: {
+    widthInches?: number;
+    depthInches?: number;
+    heightInches?: number;
     mountHeightInches?: number;
   }
 ): Cabinet {
-  const presets: Record<Cabinet['type'], { 
-    widthInches: number; 
-    depthInches: number; 
-    heightInches: number; 
-    mountHeightInches?: number; 
-    color: string 
+  const presets: Record<Cabinet['type'], {
+    widthInches: number;
+    depthInches: number;
+    heightInches: number;
+    mountHeightInches?: number;
+    color: string
   }> = {
-    base: { 
-      widthInches: 24, 
-      depthInches: 24, 
-      heightInches: STANDARD_HEIGHTS.baseCabinetHeight, 
-      color: '#8B4513' 
+    base: {
+      widthInches: 24,
+      depthInches: STANDARD_DIMENSIONS.baseCabinetDepthInches,
+      heightInches: STANDARD_DIMENSIONS.baseCabinetTotalHeightInches,
+      color: '#8B4513'
     },
-    wall: { 
-      widthInches: 30, 
-      depthInches: 12.875, 
-      heightInches: 30, 
-      mountHeightInches: STANDARD_HEIGHTS.upperCabinetHeight,
-      color: '#A0522D' 
+    db: {
+      widthInches: 18,
+      depthInches: STANDARD_DIMENSIONS.baseCabinetDepthInches,
+      heightInches: 24,
+      color: '#8B4513'
     },
-    tall: { 
-      widthInches: 24, 
-      depthInches: 24.875, 
-      heightInches: 84, 
-      color: '#654321' 
+    sb: {
+      widthInches: 30,
+      depthInches: STANDARD_DIMENSIONS.baseCabinetDepthInches,
+      heightInches: STANDARD_DIMENSIONS.baseCabinetTotalHeightInches,
+      color: '#8B4513'
     },
-    corner: { 
-      widthInches: 36, 
-      depthInches: 36, 
-      heightInches: STANDARD_HEIGHTS.baseCabinetHeight, 
-      color: '#8B4513' 
+    lsb: {
+      widthInches: 36,
+      depthInches: STANDARD_DIMENSIONS.baseCabinetDepthInches,
+      heightInches: STANDARD_DIMENSIONS.baseCabinetTotalHeightInches,
+      color: '#8B4513'
     },
-    island: { 
-      widthInches: 48, 
-      depthInches: 36, 
-      heightInches: STANDARD_HEIGHTS.baseCabinetHeight, 
-      color: '#A0522D' 
+    wall: {
+      widthInches: 30,
+      depthInches: STANDARD_DIMENSIONS.wallCabinetDepthInches,
+      heightInches: 30,
+      mountHeightInches: STANDARD_DIMENSIONS.upperCabinetMountHeightInches,
+      color: '#A0522D'
+    },
+    tall: {
+      widthInches: 24,
+      depthInches: STANDARD_DIMENSIONS.tallCabinetDepthInches,
+      heightInches: 84,
+      color: '#654321'
+    },
+    corner: {
+      widthInches: 36,
+      depthInches: 36,
+      heightInches: STANDARD_DIMENSIONS.baseCabinetTotalHeightInches,
+      color: '#8B4513'
+    },
+    island: {
+      widthInches: 48,
+      depthInches: 36,
+      heightInches: STANDARD_DIMENSIONS.baseCabinetTotalHeightInches,
+      color: '#A0522D'
     },
   };
 
@@ -216,47 +274,59 @@ export function createCabinet(
   };
 }
 
-export function convertPixelsToRealWorld(pixels: number, scale: number, unit: 'meters' | 'feet' | 'inches'): number {
-  const meters = pixels / scale;
+export function convertPixelsToRealWorld(
+  pixels: number,
+  scaleOption: ScaleOption = DEFAULT_SCALE,
+  unit: 'meters' | 'feet' | 'inches' = 'inches'
+): number {
+  const inches = pixelsToInches(pixels, scaleOption);
   switch (unit) {
     case 'feet':
-      return meters * 3.28084;
-    case 'inches':
-      return meters * 39.3701;
+      return inches / 12;
+    case 'meters':
+      return inchesToMeters(inches);
     default:
-      return meters;
+      return inches;
   }
 }
 
-export function convertRealWorldToPixels(realWorld: number, scale: number, unit: 'meters' | 'feet' | 'inches'): number {
-  let meters = realWorld;
+export function convertRealWorldToPixels(
+  realWorld: number,
+  scaleOption: ScaleOption = DEFAULT_SCALE,
+  unit: 'meters' | 'feet' | 'inches' = 'inches'
+): number {
+  let inches = realWorld;
   switch (unit) {
     case 'feet':
-      meters = realWorld / 3.28084;
+      inches = realWorld * 12;
       break;
-    case 'inches':
-      meters = realWorld / 39.3701;
+    case 'meters':
+      inches = realWorld * 39.37007874015748;
       break;
   }
-  return meters * scale;
+  return inchesToPixels(inches, scaleOption);
 }
 
-export function formatMeasurement(pixels: number, scale: number, unit: 'meters' | 'feet' | 'inches'): string {
-  const value = convertPixelsToRealWorld(pixels, scale, unit);
+export function formatMeasurement(
+  pixels: number,
+  scaleOption: ScaleOption = DEFAULT_SCALE,
+  unit: 'meters' | 'feet' | 'inches' = 'inches'
+): string {
+  const inches = pixelsToInches(pixels, scaleOption);
   switch (unit) {
     case 'feet':
-      return `${value.toFixed(2)} ft`;
-    case 'inches':
-      return `${value.toFixed(1)} in`;
+      return formatDimension(inches, true);
+    case 'meters':
+      return `${inchesToMeters(inches).toFixed(2)} m`;
     default:
-      return `${value.toFixed(2)} m`;
+      return `${inches.toFixed(1)} in`;
   }
 }
 
 export function calculateAutoMeasurements(floorPlan: FloorPlan): Measurement[] {
   const measurements: Measurement[] = [];
-  const scale = floorPlan.metadata?.scale || 20;
-  const unit = floorPlan.metadata?.unit || 'meters';
+  const scaleOption = floorPlan.metadata?.scaleOption || DEFAULT_SCALE;
+  const unit = floorPlan.metadata?.unit || 'inches';
 
   // Add measurements for all walls
   floorPlan.walls.forEach(wall => {
@@ -265,7 +335,7 @@ export function calculateAutoMeasurements(floorPlan: FloorPlan): Measurement[] {
       id: `measure-wall-${wall.id}`,
       start: wall.start,
       end: wall.end,
-      label: formatMeasurement(dist, scale, unit),
+      label: formatMeasurement(dist, scaleOption, unit),
       visible: true,
     });
   });
@@ -280,7 +350,7 @@ export function calculateAutoMeasurements(floorPlan: FloorPlan): Measurement[] {
         id: `measure-room-${room.id}-${i}`,
         start,
         end,
-        label: formatMeasurement(dist, scale, unit),
+        label: formatMeasurement(dist, scaleOption, unit),
         visible: true,
       });
     }

@@ -1,6 +1,5 @@
 "use client";
 
-import Navigation from '@/components/Navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BaseCabinetWireframe from '@/components/BaseCabinetWireframe';
 import WallCabinetWireframe from '@/components/WallCabinetWireframe';
@@ -11,8 +10,6 @@ export default function CabinetsPage() {
   return (
     <ScaleProvider>
       <div className="relative flex h-full min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display antialiased text-slate-900 dark:text-white">
-        <Navigation />
-
         <div className="flex-1 bg-background-light dark:bg-background-dark relative z-10 pt-20">
           <div className="p-5 flex flex-col gap-6">
             <div className="flex items-center justify-center">

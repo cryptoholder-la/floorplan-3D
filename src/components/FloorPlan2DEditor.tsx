@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { FloorPlan, Point, Wall, Room, Door, Window, Cabinet, ToolType, Measurement, PhotoReference, Model3D, ResizeHandle } from '@/lib/floorplan-types';
 import { distance, snapToGrid, pointToLineDistance, findNearestPoint, isPointInPolygon, getWallAngle, generateRoomTemplate, createCabinet, formatMeasurement, uploadImageToDataURL, calculateAutoMeasurements } from '@/lib/floorplan-utils';
+import { DEFAULT_SCALE, inchesToPixels, ScaleOption, INCHES_PER_METER } from '@/lib/unified-scale-utils';
 import { Button } from '@/components/ui/button';
 import { Move, Square, DoorOpen, Maximize, Trash2, Hand, CookingPot, Ruler, ImagePlus, Box, Eye, EyeOff, Move3d } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -48,8 +49,8 @@ export default function FloorPlan2DEditor({
   const [resizeHandle, setResizeHandle] = useState<ResizeHandle | null>(null);
   const [isResizing, setIsResizing] = useState(false);
   
-  const scale = floorPlan.metadata?.scale || 20;
-  const unit = floorPlan.metadata?.unit || 'meters';
+  const scaleOption: ScaleOption = floorPlan.metadata?.scaleOption || DEFAULT_SCALE;
+  const unit = floorPlan.metadata?.unit || 'inches';
 
   const findNearestWall = useCallback((point: Point): Wall | null => {
     let nearest: Wall | null = null;
@@ -366,7 +367,7 @@ export default function FloorPlan2DEditor({
             ctx,
             measurement.start,
             measurement.end,
-            measurement.label || formatMeasurement(distance(measurement.start, measurement.end), scale, unit),
+            measurement.label || formatMeasurement(distance(measurement.start, measurement.end), scaleOption, unit),
             '#ff5722'
           );
         }
@@ -392,14 +393,14 @@ export default function FloorPlan2DEditor({
         );
       } else if (tool === 'measure') {
         const dist = distance(dragStart, currentPoint);
-        drawArrowLine(ctx, dragStart, currentPoint, formatMeasurement(dist, scale, unit), '#ff9800');
+        drawArrowLine(ctx, dragStart, currentPoint, formatMeasurement(dist, scaleOption, unit), '#ff9800');
       }
       
       ctx.setLineDash([]);
     }
 
     ctx.restore();
-  }, [floorPlan, width, height, showGrid, gridSize, isDragging, dragStart, currentPoint, selectedId, tool, panOffset, showMeasurements, scale, unit, drawArrowLine, drawResizeHandles]);
+  }, [floorPlan, width, height, showGrid, gridSize, isDragging, dragStart, currentPoint, selectedId, tool, panOffset, showMeasurements, scaleOption, unit, drawArrowLine, drawResizeHandles]);
 
   useEffect(() => {
     draw();
@@ -667,8 +668,8 @@ export default function FloorPlan2DEditor({
         id: `wall-${Date.now()}`,
         start: dragStart,
         end: currentPoint,
-        thickness: 8,
-        height: 2.7,
+        thickness: inchesToPixels(4, scaleOption),
+        height: 96,
       };
       updatedFloorPlan.walls.push(newWall);
     } else if (tool === 'room') {
@@ -690,8 +691,8 @@ export default function FloorPlan2DEditor({
         id: `door-${Date.now()}`,
         position: currentPoint,
         angle: nearestWall ? getElementAngleOnWall(currentPoint, nearestWall) : 0,
-        width: 40,
-        height: 2.0,
+        width: inchesToPixels(36, scaleOption),
+        height: 80,
         sillHeight: 0,
         doorType: doorType,
         wallId: nearestWall?.id,
@@ -706,9 +707,9 @@ export default function FloorPlan2DEditor({
         id: `window-${Date.now()}`,
         position: currentPoint,
         angle: nearestWall ? getElementAngleOnWall(currentPoint, nearestWall) : 0,
-        width: 40,
-        height: 1.5,
-        sillHeight: 0.9,
+        width: inchesToPixels(36, scaleOption),
+        height: 48,
+        sillHeight: 36,
         windowType: windowType,
         wallId: nearestWall?.id,
       };
@@ -744,7 +745,7 @@ export default function FloorPlan2DEditor({
         id: `measurement-${Date.now()}`,
         start: dragStart,
         end: currentPoint,
-        label: formatMeasurement(dist, scale, unit),
+        label: formatMeasurement(dist, scaleOption, unit),
         visible: true,
       };
       if (!updatedFloorPlan.measurements) {
@@ -883,17 +884,17 @@ export default function FloorPlan2DEditor({
       return;
     }
 
-    let meters = realWorld;
+    let inches = realWorld;
     switch (scaleUnit) {
       case 'feet':
-        meters = realWorld / 3.28084;
+        inches = realWorld * 12;
         break;
-      case 'inches':
-        meters = realWorld / 39.3701;
+      case 'meters':
+        inches = realWorld * INCHES_PER_METER;
         break;
     }
 
-    const newScale = pixels / meters;
+    const newPixelsPerInch = pixels / inches;
 
     const updatedFloorPlan = {
       ...floorPlan,
@@ -905,7 +906,7 @@ export default function FloorPlan2DEditor({
       },
       metadata: {
         ...floorPlan.metadata!,
-        scale: newScale,
+        scale: newPixelsPerInch,
         unit: scaleUnit,
       },
     };
@@ -1134,7 +1135,7 @@ export default function FloorPlan2DEditor({
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Current scale: {scale.toFixed(2)} pixels per meter ({unit})
+            Current scale: {floorPlan.metadata?.scale?.toFixed(2) || '0.00'} px per unit ({unit})
           </p>
         </div>
       )}

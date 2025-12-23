@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FloorPlan, ViewMode } from '@/lib/floorplan-types';
 import { createDefaultFloorPlan, exportFloorPlan, importFloorPlan } from '@/lib/floorplan-utils';
 import { ScaleProvider } from '@/contexts/ScaleContext';
 import { SCALE_OPTIONS, ScaleOption, getAllScaleOptions } from '@/lib/unified-scale-utils';
+import { HistoryManager } from '@/lib/history-manager';
 import FloorPlan2DEditor from './FloorPlan2DEditor';
 import FloorPlan3DViewer from './FloorPlan3DViewer';
 import WallElevationView from './WallElevationView';
@@ -15,21 +16,97 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Download, Upload, Eye, PenTool, Trash2, Layers, Factory, Ruler } from 'lucide-react';
+import { Download, Upload, Eye, PenTool, Trash2, Layers, Factory, Ruler, Undo2, Redo2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function FloorPlanBuilder() {
   const [floorPlan, setFloorPlan] = useState<FloorPlan>(createDefaultFloorPlan());
   const [activeView, setActiveView] = useState<ViewMode>('2d');
 
+  const historyRef = useRef<HistoryManager<FloorPlan> | null>(null);
+  const isRestoringRef = useRef(false);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  const syncHistoryFlags = () => {
+    const h = historyRef.current;
+    setCanUndo(Boolean(h?.canUndo()));
+    setCanRedo(Boolean(h?.canRedo()));
+  };
+
+  useEffect(() => {
+    if (!historyRef.current) {
+      historyRef.current = new HistoryManager<FloorPlan>(50);
+      historyRef.current.saveState(floorPlan);
+      syncHistoryFlags();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const isMac = navigator.platform.toLowerCase().includes('mac');
+      const mod = isMac ? e.metaKey : e.ctrlKey;
+
+      if (!mod) return;
+
+      // Ctrl/Cmd+Z => undo
+      if (e.key.toLowerCase() === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      }
+
+      // Ctrl/Cmd+Shift+Z or Ctrl+Y => redo
+      if ((e.key.toLowerCase() === 'z' && e.shiftKey) || e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canUndo, canRedo, floorPlan]);
+
   const handleFloorPlanChange = (updatedFloorPlan: FloorPlan) => {
-    setFloorPlan({
+    const next = {
       ...updatedFloorPlan,
       metadata: {
         ...updatedFloorPlan.metadata!,
         updatedAt: new Date().toISOString(),
       },
-    });
+    };
+
+    setFloorPlan(next);
+
+    if (!isRestoringRef.current) {
+      historyRef.current?.saveState(next);
+      syncHistoryFlags();
+    }
+  };
+
+  const handleUndo = () => {
+    if (!historyRef.current?.canUndo()) return;
+    isRestoringRef.current = true;
+    const prev = historyRef.current.undo();
+    if (prev) {
+      setFloorPlan(prev);
+      toast.message('Undo');
+    }
+    isRestoringRef.current = false;
+    syncHistoryFlags();
+  };
+
+  const handleRedo = () => {
+    if (!historyRef.current?.canRedo()) return;
+    isRestoringRef.current = true;
+    const next = historyRef.current.redo();
+    if (next) {
+      setFloorPlan(next);
+      toast.message('Redo');
+    }
+    isRestoringRef.current = false;
+    syncHistoryFlags();
   };
 
   const handleScaleChange = (value: ScaleOption) => {
@@ -67,6 +144,9 @@ export default function FloorPlanBuilder() {
         const jsonString = e.target?.result as string;
         const importedFloorPlan = importFloorPlan(jsonString);
         setFloorPlan(importedFloorPlan);
+        historyRef.current?.clear();
+        historyRef.current?.saveState(importedFloorPlan);
+        syncHistoryFlags();
         toast.success('Floor plan imported successfully!');
       } catch (error) {
         toast.error('Failed to import floor plan. Invalid file format.');
@@ -78,7 +158,11 @@ export default function FloorPlanBuilder() {
 
   const handleClear = () => {
     if (confirm('Are you sure you want to clear the floor plan?')) {
-      setFloorPlan(createDefaultFloorPlan());
+      const next = createDefaultFloorPlan();
+      setFloorPlan(next);
+      historyRef.current?.clear();
+      historyRef.current?.saveState(next);
+      syncHistoryFlags();
       toast.success('Floor plan cleared');
     }
   };
@@ -116,6 +200,16 @@ export default function FloorPlanBuilder() {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <Button variant="outline" size="sm" onClick={handleUndo} disabled={!canUndo}>
+                    <Undo2 className="w-4 h-4 mr-2" />
+                    Undo
+                  </Button>
+
+                  <Button variant="outline" size="sm" onClick={handleRedo} disabled={!canRedo}>
+                    <Redo2 className="w-4 h-4 mr-2" />
+                    Redo
+                  </Button>
                   
                   <Button variant="outline" size="sm" onClick={handleExport}>
                     <Download className="w-4 h-4 mr-2" />
