@@ -21,7 +21,7 @@ app
 favicon.ico
 
 $env:SHADCNUI_PACKAGE_MANAGER="npm"
-npx shadcn@latest add tabs.tsx
+npm shadcn@latest add tabs.tsx
 npx shadcn@latest add sonner.tsx
 npx shadcn@latest add card.tsx
 npx shadcn@latest add button.tsx

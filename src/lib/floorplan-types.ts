@@ -1,4 +1,5 @@
 import { ScaleOption } from '@/lib/unified-scale-utils';
+import type { FinishId, HardwareId } from '@/lib/finish-hardware';
 
 export interface Point {
   x: number;
@@ -55,6 +56,8 @@ export interface Cabinet {
   height: number;
   color: string;
   mountHeight?: number;
+  finishId?: FinishId;
+  hardwareId?: HardwareId;
 }
 
 export interface Model3D {
