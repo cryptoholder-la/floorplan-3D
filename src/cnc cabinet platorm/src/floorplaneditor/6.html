@@ -1,0 +1,2722 @@
+1. Duplicate Three.js Initialization
+❌ Problem: Multiple Three.js scene/camera/renderer initializations causing conflicts ✅ Fix: Consolidate into a single initialization block
+
+// Before
+const scene = new THREE.Scene();
+// ...redeclared later
+
+// After (Global State)
+window.AppState = {
+  scene: new THREE.Scene(),
+  camera: new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000),
+  renderer: new THREE.WebGLRenderer({ antialias: true }),
+  // ...
+};
+CopyInsert
+2. Improper Module Usage
+❌ Problem: Mixing ES modules with global scripts ✅ Fix: Use either modules or script tags consistently
+
+<!-- Remove this -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<!-- Keep only -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://esm.sh/three@0.160.0",
+    // ...
+  }
+}
+</script>
+CopyInsert
+3. Event Listener Conflicts
+❌ Problem: Multiple click handlers for panorama toggle ✅ Fix: Consolidate event delegation
+
+// Replace multiple listeners with
+document.body.addEventListener('click', e => {
+  if(e.target.closest('[data-action="toggle-panorama"]')) {
+    togglePanorama3D();
+  }
+});
+CopyInsert
+4. Memory Leaks
+❌ Problem: No cleanup of Three.js objects ✅ Fix: Add disposal logic
+
+function clearScene() {
+  while(AppState.scene.children.length > 0) { 
+    const obj = AppState.scene.children[0];
+    if(obj.geometry) obj.geometry.dispose();
+    if(obj.material) obj.material.dispose();
+    AppState.scene.remove(obj);
+  }
+}
+CopyInsert
+5. Touch Handling
+❌ Problem: Missing touch handler implementation ✅ Fix: Add proper touch handling
+
+function handleTouch(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const mouseEvent = new MouseEvent("mousedown", {
+    clientX: touch.clientX,
+    clientY: touch.clientY
+  });
+  canvas2D.dispatchEvent(mouseEvent);
+}
+CopyInsert
+6. View Management
+❌ Problem: Conflicting view state management ✅ Fix: Implement proper state machine
+
+const ViewStates = {
+  '2D': {
+    enter: () => {
+      document.getElementById('view-2d').style.display = 'block';
+      init2DCanvas();
+    },
+    exit: () => {
+      document.getElementById('view-2d').style.display = 'none';
+    }
+  },
+  '3D': {
+    enter: () => {
+      document.getElementById('view-3d').style.display = 'block';
+      init3DView();
+    },
+    exit: () => {
+      document.getElementById('view-3d').style.display = 'none';
+    }
+  }
+};
+ExpandCopyInsert
+7. Performance Optimization
+❌ Problem: Multiple animation loops ✅ Fix: Single animation loop with conditionals
+
+function animate() {
+  requestAnimationFrame(animate);
+  
+  if(AppState.currentView === '3D') {
+    AppState.controls.update();
+    AppState.renderer.render(AppState.scene, AppState.camera);
+  }
+  
+  if(AppState.currentView === '2D') {
+    // Update 2D canvas logic
+  }
+}
+ExpandCopyInsert
+8. Export Functionality
+❌ Problem: Broken export handlers ✅ Fix: Unified export system
+
+const ExportManager = {
+  export(format) {
+    switch(format) {
+      case 'gltf':
+        new GLTFExporter().parse(AppState.scene, result => {
+          this.saveFile(result, 'model.glb');
+        });
+        break;
+      case 'png':
+        const link = document.createElement('a');
+        link.download = 'blueprint.png';
+        link.href = document.getElementById('blueprint-canvas').toDataURL();
+        link.click();
+        break;
+    }
+  },
+  saveFile(data, filename) {
+    const blob = new Blob([data], {type: 'application/octet-stream'});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = url;
+    link.click();
+  }
+};
+ExpandCopyInsert
+9. Final Structure Recommendation
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Head content... -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://esm.sh/three@0.160.0",
+      "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/",
+      "nipplejs": "https://esm.sh/nipplejs@0.10.1"
+    }
+  }
+  </script>
+</head>
+<body>
+  <!-- UI elements -->
+
+  <script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+
+  // Global state
+  window.AppState = {
+    currentView: '2D',
+    scene: new THREE.Scene(),
+    camera: null,
+    renderer: null,
+    controls: null,
+    // ...
+  };
+
+  // Initialization
+  function init() {
+    init2DCanvas();
+    init3DView();
+    setupEventListeners();
+  }
+
+  // 2D/3D view management
+  function setView(view) { /* ... */ }
+
+  // Main animation loop
+  function animate() { /* ... */ }
+
+  // Startup
+  document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
+ExpandCopyInsert
+Key Recommendations:
+Use Proper Three.js Disposal:
+function disposeObject(obj) {
+  if(obj.geometry) obj.geometry.dispose();
+  if(obj.material) {
+    Object.values(obj.material).forEach(val => {
+      if(val instanceof THREE.Texture) val.dispose();
+    });
+    obj.material.dispose();
+  }
+}
+CopyInsert
+Implement Proper Touch Handling:
+const touchManager = {
+  startPos: null,
+  handleStart(e) {
+    this.startPos = this.getTouchPos(e);
+  },
+  handleMove(e) {
+    // Calculate delta from startPos
+  },
+  getTouchPos(e) {
+    return {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY
+    };
+  }
+};
+ExpandCopyInsert
+Optimize Render Loop:
+let lastFrameTime = 0;
+const targetFPS = 60;
+
+function animate(timestamp) {
+  const deltaTime = timestamp - lastFrameTime;
+  
+  if(deltaTime > 1000/targetFPS) {
+    // Update logic here
+    lastFrameTime = timestamp;
+  }
+  
+  requestAnimationFrame(animate);
+}
+ExpandCopyInsert
+Implement Proper Error Handling:
+window.addEventListener('error', e => {
+  console.error('Application Error:', e);
+  showErrorModal(`Fatal Error: ${e.message}`);
+});
+
+function showErrorModal(message) {
+  // Display user-friendly error message
+}
+CopyInsert
+This refactored structure will provide:
+
+Clean separation of concerns
+Proper memory management
+Consistent view state handling
+Unified input management
+Optimized rendering performance
+Better error handling
+The code needs proper organization into components/modules and should be tested incre
+
+<!DOCTYPE html>
+<html lang="en" class="h-full dark">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floorplan Editor</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/exporters/GLTFExporter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/exporters/OBJExporter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.10.1/dist/nipplejs.min.js"></script>
+</head>
+<style>
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    canvas {
+        outline: none;
+    }
+
+    .tool-btn.active {
+        background-color: #eff6ff;
+        color: #13a4ec;
+        border-color: #13a4ec;
+    }
+
+    .dark ::-webkit-scrollbar-thumb {
+        background: #475569;
+    }
+
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+    }
+</style>
+</head>
+
+
+
+<body class="font-display bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 overflow-hidden">
+    <div class="relative flex min-h-screen w-full flex-col">
+        <header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
+            <nav
+                class="container mx-auto flex items-center justify-between whitespace-nowrap border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+                <div class="flex items-center gap-4 text-gray-900 dark:text-white">
+                    <span class="material-symbols-outlined text-primary text-3xl">view_in_ar</span>
+                    <h2 class="text-xl font-bold tracking-[-0.015em]">Blueprint Editor</h2>
+                </div>
+                <div class="hidden md:flex flex-1 justify-center items-center gap-6">
+                    <div class="flex items-center gap-1 rounded-lg bg-gray-200 dark:bg-gray-800 p-1">
+                        <button onclick="window.undo()" aria-label="Undo"
+                            class="flex h-8 w-8 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                            title="Undo (Ctrl+Z)">
+                            <span class="material-symbols-outlined text-xl">undo</span>
+                        </button>
+                        <button onclick="window.redo()" aria-label="Redo"
+                            class="flex h-8 w-8 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                            title="Redo (Ctrl+Shift+Z)">
+                            <span class="material-symbols-outlined text-xl">redo</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Panorama</span>
+                        <label class="relative inline-flex cursor-pointer items-center">
+                            <input class="peer sr-only" type="checkbox" id="view-toggle" />
+                            <div
+                                class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-gray-600 dark:bg-gray-700">
+                            </div>
+                        </label>
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">3D</span>
+                    </div>
+
+                    <button id="walk-btn"
+                        class="hidden ml-2 items-center justify-center rounded-lg h-8 px-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-white transition-colors text-xs font-bold uppercase tracking-wider gap-1">
+                        <span class="material-symbols-outlined text-sm">directions_walk</span>
+                        Walk
+                    </button>
+
+                    <div class="flex items-center gap-2 border-l border-gray-300 dark:border-gray-700 pl-4">
+                        <!-- Story Controls -->
+                        <div class="flex items-center gap-2 mr-2">
+                            <select id="story-select" onchange="window.switchStory(this.value)"
+                                class="h-8 text-xs rounded border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
+                                <option value="0">Ground Floor</option>
+                            </select>
+                            <button onclick="window.addStory()"
+                                class="h-8 w-8 flex items-center justify-center rounded bg-primary text-white hover:bg-primary/90"
+                                title="Add Floor">
+                                <span class="material-symbols-outlined text-sm">add</span>
+                            </button>
+                        </div>
+
+                        <label class="flex items-center gap-2 cursor-pointer select-none" title="Toggle Dimensions">
+                            <div class="relative">
+                                <input type="checkbox" class="sr-only peer" checked
+                                    onchange="window.toggleDimensions()">
+                                <div
+                                    class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Dims</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer select-none" title="Toggle Ceiling">
+                            <div class="relative">
+                                <input type="checkbox" id="ceiling-toggle" class="sr-only peer"
+                                    onchange="window.toggleCeiling()">
+                                <div
+                                    class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Ceiling</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer select-none" title="Toggle Roof">
+                            <div class="relative">
+                                <input type="checkbox" id="roof-toggle" class="sr-only peer"
+                                    onchange="window.toggleRoof()">
+                                <div
+                                    class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Roof</span>
+                        </label>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="window.location.href='index.html'"
+                            class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 text-gray-800 dark:text-white text-sm font-bold tracking-[0.015em] hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors gap-2">
+                            <span class="material-symbols-outlined text-base">arrow_back</span>
+                            <span class="truncate">Back to Home</span>
+                        </button>
+                    </div>
+            </nav>
+        </header>
+        <main class="flex h-full grow overflow-hidden">
+            <aside
+                class="w-64 flex-shrink-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark/50 p-4 flex flex-col gap-4 overflow-y-auto">
+                <!-- File Upload Section -->
+                <div class="item-category">
+                    <div class="item-category-header">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Import/Export</h3>
+                    </div>
+                    <div class="space-y-2 mt-2">
+                        <button onclick="document.getElementById('file-upload').click()"
+                            class="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                            <span class="material-symbols-outlined text-primary">upload_file</span>
+                            <span class="font-medium text-sm">Import File</span>
+                        </button>
+                        <input type="file" id="file-upload" accept="image/*,.pdf,.json" style="display: none;">
+                        <button onclick="document.getElementById('kitchen-photo-upload').click()"
+                            class="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-primary/10 dark:bg-primary/20 cursor-pointer hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors">
+                            <span class="material-symbols-outlined text-primary">photo_camera</span>
+                            <span class="font-medium text-sm text-primary">Scan Kitchen Photo</span>
+                        </button>
+                        <input type="file" id="kitchen-photo-upload" accept="image/*" style="display: none;">
+                        <button onclick="exportProject()"
+                            class="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                            <span class="material-symbols-outlined text-primary">download</span>
+                            <span class="font-medium text-sm">Export Project JSON</span>
+                        </button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="window.export3D('obj')"
+                                class="flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                                <span class="font-medium text-sm">Export OBJ</span>
+                            </button>
+                            <button onclick="window.export3D('gltf')"
+                                class="flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                                <span class="font-medium text-sm">Export GLTF</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Drawing Tools</h3>
+                <ul class="space-y-2">
+                    <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        data-item="wall" title="Draw walls by clicking start and end points">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">line_axis</span>
+                            <span class="font-medium text-sm">Wall</span>
+                        </div>
+                        <span class="material-symbols-outlined text-primary">add</span>
+                    </li>
+
+                    <!-- Added Structural Items -->
+                    <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        data-item="door" title="Place a door">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">door_front</span>
+                            <span class="font-medium text-sm">Door</span>
+                        </div>
+                        <span class="material-symbols-outlined text-primary">add</span>
+                    </li>
+                    <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        data-item="window" title="Place a window">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">window</span>
+                            <span class="font-medium text-sm">Window</span>
+                        </div>
+                        <span class="material-symbols-outlined text-primary">add</span>
+                    </li>
+                    <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        data-item="round_window" title="Place a round window">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">circle</span>
+                            <span class="font-medium text-sm">Round Window</span>
+                        </div>
+                        <span class="material-symbols-outlined text-primary">add</span>
+                    </li>
+                </ul>
+
+                <!-- Bathroom Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('bathroom-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Bathroom Items</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="bathroom-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content" id="bathroom-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="bathtub" title="Place a bathtub fixture">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">bathtub</span>
+                                    <span class="font-medium text-sm">Bathtub</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="toilet" title="Place a toilet fixture">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">wc</span>
+                                    <span class="font-medium text-sm">Toilet</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="sink" title="Place a sink fixture">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">bathroom</span>
+                                    <span class="font-medium text-sm">Sink</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="shower" title="Place a shower fixture">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">shower</span>
+                                    <span class="font-medium text-sm">Shower</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Kitchen Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('kitchen-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Kitchen Items</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="kitchen-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="kitchen-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="kitchen_cabinet">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">kitchen</span>
+                                    <span class="font-medium text-sm">Cabinet</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="kitchen_sink">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">water_drop</span>
+                                    <span class="font-medium text-sm">Sink Unit</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="stove">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">oven_gen</span>
+                                    <span class="font-medium text-sm">Stove</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="fridge">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">kitchen</span>
+                                    <span class="font-medium text-sm">Fridge</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="kitchen_island">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">countertops</span>
+                                    <span class="font-medium text-sm">Island</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Living Room Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('living-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Living Room</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="living-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="living-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="sofa">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">chair</span>
+                                    <span class="font-medium text-sm">Sofa</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="armchair">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">chair_alt</span>
+                                    <span class="font-medium text-sm">Armchair</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="coffee_table">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">table_bar</span>
+                                    <span class="font-medium text-sm">Coffee Table</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="tv_stand">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">tv</span>
+                                    <span class="font-medium text-sm">TV Stand</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Bedroom Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('bedroom-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Bedroom</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="bedroom-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="bedroom-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="bed_queen">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">bed</span>
+                                    <span class="font-medium text-sm">Queen Bed</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="bed_single">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">single_bed</span>
+                                    <span class="font-medium text-sm">Single Bed</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="wardrobe">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">door_sliding</span>
+                                    <span class="font-medium text-sm">Wardrobe</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="nightstand">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">inventory_2</span>
+                                    <span class="font-medium text-sm">Nightstand</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Office Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('office-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Office</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="office-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="office-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="desk">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">desk</span>
+                                    <span class="font-medium text-sm">Desk</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="office_chair">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">chair</span>
+                                    <span class="font-medium text-sm">Office Chair</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="bookshelf">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">shelves</span>
+                                    <span class="font-medium text-sm">Bookshelf</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Dining Room Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('dining-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Dining Room</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="dining-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="dining-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="dining_table">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">table_restaurant</span>
+                                    <span class="font-medium text-sm">Dining Table</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="dining_chair">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">chair</span>
+                                    <span class="font-medium text-sm">Dining Chair</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="sideboard">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">countertops</span>
+                                    <span class="font-medium text-sm">Sideboard</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Decor Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('decor-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Decor & Lighting</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="decor-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="decor-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="rug_large">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">texture</span>
+                                    <span class="font-medium text-sm">Large Rug</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="floor_lamp">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">wb_iridescent</span>
+                                    <span class="font-medium text-sm">Floor Lamp</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="potted_plant">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">potted_plant</span>
+                                    <span class="font-medium text-sm">Plant</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="painting">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">image</span>
+                                    <span class="font-medium text-sm">Wall Painting</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Outdoor Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('outdoor-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Outdoor</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="outdoor-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="outdoor-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="patio_table">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">deck</span>
+                                    <span class="font-medium text-sm">Patio Table</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="patio_chair">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">chair_alt</span>
+                                    <span class="font-medium text-sm">Patio Chair</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="lounger">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">beach_access</span>
+                                    <span class="font-medium text-sm">Lounger</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-auto">
+                    <button id="delete-button"
+                        class="w-full flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-red-500/20 text-red-500 dark:bg-red-500/30 text-sm font-bold tracking-[0.015em] hover:bg-red-500/30 dark:hover:bg-red-500/40 transition-colors gap-2">
+                        <span class="material-symbols-outlined text-base">delete</span>
+                        <span class="truncate">Delete Mode</span>
+                    </button>
+                </div>
+            </aside>
+            <div class="flex-1 relative bg-gray-100 dark:bg-gray-900">
+                <div id="viewport-container">
+                    <div id="blueprint-view">
+                        <canvas id="blueprint-canvas"></canvas>
+                    </div>
+                    <div id="panorama-3d-view">
+                        <canvas id="cv"></canvas>
+                        <div id="render-3d-view"></div>
+                    </div>
+                </div>
+            </div>
+            <aside
+                class="w-72 flex-shrink-0 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark/50 p-4 flex flex-col gap-6 overflow-y-auto">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Customize Selection</h3>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Textures</h4>
+                        <div class="flex bg-gray-200 dark:bg-gray-700 rounded-md p-0.5">
+                            <button id="target-wall"
+                                class="px-2 py-0.5 text-xs font-medium rounded-sm bg-white dark:bg-gray-600 text-gray-800 dark:text-gray-200 shadow-sm transition-all">Walls</button>
+                            <button id="target-floor"
+                                class="px-2 py-0.5 text-xs font-medium rounded-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all">Floor</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button
+                            class="texture-button aspect-square rounded-md bg-gray-200 border border-transparent hover:border-primary transition-colors"
+                            data-texture="marble" title="Marble texture">
+                            <span class="text-xs">Marble</span>
+                        </button>
+                        <button
+                            class="texture-button aspect-square rounded-md bg-amber-100 border border-transparent hover:border-primary transition-colors"
+                            data-texture="wood" title="Wood texture">
+                            <span class="text-xs">Wood</span>
+                        </button>
+                        <button
+                            class="texture-button aspect-square rounded-md bg-blue-100 border border-transparent hover:border-primary transition-colors"
+                            data-texture="tile" title="Ceramic tile texture">
+                            <span class="text-xs">Tile</span>
+                        </button>
+                        <button
+                            class="texture-button aspect-square rounded-md bg-gray-400 border border-transparent hover:border-primary transition-colors"
+                            data-texture="concrete" title="Concrete texture">
+                            <span class="text-xs">Concrete</span>
+                        </button>
+                        <button
+                            class="texture-button aspect-square rounded-md bg-stone-300 border border-transparent hover:border-primary transition-colors"
+                            data-texture="stone" title="Stone texture">
+                            <span class="text-xs">Stone</span>
+                        </button>
+                        <button
+                            class="texture-button aspect-square rounded-md bg-green-200 border border-transparent hover:border-primary transition-colors"
+                            data-texture="carpet" title="Carpet texture">
+                            <span class="text-xs">Carpet</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <h4 class="text-sm font-semibold mb-2 text-gray-600 dark:text-gray-400">Custom Maps</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Diffuse / Color</label>
+                            <input type="file" id="custom-diffuse" accept="image/*"
+                                class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Normal Map</label>
+                            <input type="file" id="custom-normal" accept="image/*"
+                                class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Roughness Map</label>
+                            <input type="file" id="custom-roughness" accept="image/*"
+                                class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-semibold mb-2 text-gray-600 dark:text-gray-400">Materials</h4>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button
+                            class="material-button aspect-square rounded-md bg-gray-300 border border-transparent hover:border-primary flex items-center justify-center text-xs font-bold text-gray-600 transition-colors"
+                            data-material="matte">Matte</button>
+                        <button
+                            class="material-button aspect-square rounded-md bg-gray-100 border-2 border-primary flex items-center justify-center text-xs font-bold text-gray-800 transition-colors"
+                            data-material="gloss"
+                            style="background-image: linear-gradient(45deg, #e0e0e0, #ffffff, #e0e0e0);">Gloss</button>
+                        <button
+                            class="material-button aspect-square rounded-md bg-gray-400 border border-transparent hover:border-primary flex items-center justify-center text-xs font-bold text-white transition-colors"
+                            data-material="metal"
+                            style="background-image: linear-gradient(45deg, #a0a0a0, #d0d0d0, #a0a0a0);">Metal</button>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold mb-2 text-gray-600 dark:text-gray-400">Colors</h4>
+                    <div class="grid grid-cols-5 gap-2">
+                        <button class="color-button aspect-square rounded-full bg-white border-2 border-primary"
+                            data-color="#ffffff" aria-label="White" title="White"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-gray-200 border border-transparent hover:border-primary transition-colors"
+                            data-color="#e5e7eb" aria-label="Light Gray" title="Light Gray"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-gray-800 border border-transparent hover:border-primary transition-colors"
+                            data-color="#1f2937" aria-label="Charcoal" title="Charcoal"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-blue-200 border border-transparent hover:border-primary transition-colors"
+                            data-color="#bfdbfe" aria-label="Light Blue" title="Light Blue"></button>
+                        <button
+                            class="color-button aspect-square rounded-full border border-transparent hover:border-primary transition-colors"
+                            data-color="#f5f5dc" aria-label="Beige" title="Beige"
+                            style="background-color: #f5f5dc;"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-slate-400 border border-transparent hover:border-primary transition-colors"
+                            data-color="#94a3b8" aria-label="Slate" title="Slate"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-teal-600 border border-transparent hover:border-primary transition-colors"
+                            data-color="#0d9488" aria-label="Teal" title="Teal"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-rose-300 border border-transparent hover:border-primary transition-colors"
+                            data-color="#fda4af" aria-label="Rose" title="Rose"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-amber-500 border border-transparent hover:border-primary transition-colors"
+                            data-color="#f59e0b" aria-label="Amber" title="Amber"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-emerald-500 border border-transparent hover:border-primary transition-colors"
+                            data-color="#10b981" aria-label="Emerald" title="Emerald"></button>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="text-xs text-gray-600 dark:text-gray-400">
+                        <span class="material-symbols-outlined"
+                            style="font-size: 14px; vertical-align: middle;">info</span>
+                        Select an item on the blueprint to customize its appearance
+                    </p>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+    <div id="nipple-container"
+        style="position: absolute; bottom: 20px; left: 20px; width: 150px; height: 150px; z-index: 100; display: none;">
+    </div>
+    <div id="walk-instructions"
+        style="position: absolute; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 10px 20px; border-radius: 20px; pointer-events: none; display: none; z-index: 100;">
+        WASD to Move • Mouse to Look • ESC to Exit
+    </div>
+
+    <script type="importmap">
+  {
+    "imports": {
+      "three": "https://esm.sh/three@0.160.0",
+      "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/",
+      "three/nodes": "https://esm.sh/three@0.160.0/examples/jsm/nodes/Nodes.js",
+      "nipplejs": "https://esm.sh/nipplejs@0.10.1"
+    }
+  }
+  </script>
+
+    <script type="module" src="main.js"></script>
+    <script type="module">
+        // Three.js Integration
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+        import { OBJExporter } from 'three/addons/exporters/OBJExporter.js';
+        import nipplejs from 'nipplejs';
+
+
+        document.body.addEventListener('click', e => {
+            if (e.target.closest('[data-action="export"]')) {
+                this.handleExport(e.target.dataset.format);
+            }
+        });
+        handleExport(format); {
+            const exporter = format === 'gltf' ? new GLTFExporter() : new OBJExporter();
+            exporter.parse(AppState.scene, (result) => {
+                const blob = new Blob([result], { type: 'application/octet-stream' });
+                const link = document.createElement('a');
+                link.download = `floorplan.${format}`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+            });
+        }
+
+        window.addEventListener('error', e => {
+            console.error('Application Error:', e);
+            alert(`Fatal Error: ${e.message}`);
+        });
+        // Category toggle
+        function toggleCategory(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById(id + '-icon');
+            content.classList.toggle('collapsed');
+            icon.style.transform = content.classList.contains('collapsed') ? 'rotate(-90deg)' : 'rotate(0deg)';
+        }
+
+        // Tooltips
+        document.querySelectorAll('[title]').forEach(el => {
+            el.addEventListener('mouseenter', (e) => {
+                const tooltip = document.getElementById('tooltip');
+                tooltip.textContent = el.getAttribute('title');
+                tooltip.classList.add('active');
+                const rect = el.getBoundingClientRect();
+                tooltip.style.left = rect.left + 'px';
+                tooltip.style.top = (rect.top - 35) + 'px';
+            });
+
+            el.addEventListener('mouseleave', () => {
+                document.getElementById('tooltip').classList.remove('active');
+            });
+        },
+        );
+
+        // Nipple.js
+        const Nipple = nipplejs.create({
+            zone: document.getElementById('view-2d'),
+            mode: 'dynamic',
+            color: 'white',
+            size: 100,
+            position: { left: '50%', top: '50%' },
+            restDistance: 100,
+            threshold: 0.5,
+            multitouch: true,
+            maxNumberOfNipples: 1,
+            dataOnly: true
+        });
+
+        // Floorplan
+        const floorplan = {
+            walls: [],
+            windows: [],
+            doors: []
+        };
+
+
+
+
+        // Three.js setup
+        const loader = new THREE.TextureLoader();
+        const texture = loader.load('https://i.imgur.com/y5y5y5y.jpg');
+        const geometry = new THREE.BoxGeometry(100, 100, 100);
+        const material = new THREE.MeshBasicMaterial({ map: texture });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Three.js controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.1;
+        controls.enableZoom = true;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.5;
+        controls.rotateSpeed = 0.5;
+        controls.maxPolarAngle = Math.PI / 2;
+        controls.minDistance = 10;
+        controls.maxDistance = 100;
+        controls.update();
+
+        // Three.js render
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Three.js export
+        function handleExport(format) {
+            const exporter = format === 'gltf' ? new GLTFExporter() : new OBJExporter();
+            exporter.parse(scene, (result) => {
+                const blob = new Blob([result], { type: 'application/octet-stream' });
+                const link = document.createElement('a');
+                link.download = `floorplan.${format}`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+            });
+        }
+
+        // Three.js floorplan
+        function addWall() {
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+            scene.add(wall);
+            floorplan.walls.push(wall);
+        }
+
+        function addWindow() {
+            const window = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+            scene.add(window);
+            floorplan.windows.push(window);
+        }
+
+        function addDoor() {
+            const door = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+            scene.add(door);
+            floorplan.doors.push(door);
+        }
+
+        function removeWall() {
+            if (floorplan.walls.length > 0) {
+                const wall = floorplan.walls.pop();
+                scene.remove(wall);
+            }
+        }
+
+        function removeWindow() {
+            if (floorplan.windows.length > 0) {
+                const window = floorplan.windows.pop();
+                scene.remove(window);
+            }
+        }
+
+        function removeDoor() {
+            if (floorplan.doors.length > 0) {
+                const door = floorplan.doors.pop();
+                scene.remove(door);
+            }
+        }
+
+        // Three.js floorplan controls
+        const wallControls = new THREE.TransformControls(camera, renderer.domElement);
+        wallControls.addEventListener('change', () => {
+            const position = new THREE.Vector3();
+            wallControls.object.getWorldPosition(position);
+            wallHelper.position.copy(position);
+        });
+        const windowControls = new THREE.TransformControls(camera, renderer.domElement);
+        windowControls.addEventListener('change', () => {
+            const position = new THREE.Vector3();
+            windowControls.object.getWorldPosition(position);
+            windowHelper.position.copy(position);
+        });
+        const doorControls = new THREE.TransformControls(camera, renderer.domElement);
+        doorControls.addEventListener('change', () => {
+            const position = new THREE.Vector3();
+            doorControls.object.getWorldPosition(position);
+            doorHelper.position.copy(position);
+        });
+
+        // Three.js floorplan helpers
+  
+        // Three.js floorplan nipples
+        const wallNipple = new Nipple(wallNippleOptions);
+        wallNipple.on('move', (evt) => {
+            const position = new THREE.Vector3();
+            wallControls.object.getWorldPosition(position);
+            const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+            const distance = 100 * evt.detail.distance;
+            const ray = new THREE.Raycaster(position, direction);
+            const intersects = ray.intersectObjects([wallMesh], true);
+            if (intersects.length > 0) {
+                const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                wallControls.object.position.copy(point);
+                wallHelper.position.copy(point);
+            }
+        });
+        wallNipple.on('end', () => {
+            wallNipple.destroy();
+            wallControls.detach();
+            scene.remove(wallControls);
+            scene.remove(wallHelper);
+            floorplan.walls.pop();
+        });
+        const windowNipple = new Nipple(windowNippleOptions);
+        windowNipple.on('move', (evt) => {
+            const position = new THREE.Vector3();
+            windowControls.object.getWorldPosition(position);
+            const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+            const distance = 100 * evt.detail.distance;
+            const ray = new THREE.Raycaster(position, direction);
+            const intersects = ray.intersectObjects([windowMesh], true);
+            if (intersects.length > 0) {
+                const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                windowControls.object.position.copy(point);
+                windowHelper.position.copy(point);
+            }
+        });
+        windowNipple.on('end', () => {
+            windowNipple.destroy();
+            windowControls.detach();
+            scene.remove(windowControls);
+            scene.remove(windowHelper);
+            floorplan.windows.pop();
+        });
+        const doorNipple = new Nipple(doorNippleOptions);
+        doorNipple.on('move', (evt) => {
+            const position = new THREE.Vector3();
+            doorControls.object.getWorldPosition(position);
+            const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+            const distance = 100 * evt.detail.distance;
+            const ray = new THREE.Raycaster(position, direction);
+            const intersects = ray.intersectObjects([doorMesh], true);
+            if (intersects.length > 0) {
+                const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                doorControls.object.position.copy(point);
+                doorHelper.position.copy(point);
+            }
+        });
+        doorNipple.on('end', () => {
+            doorNipple.destroy();
+            doorControls.detach();
+            scene.remove(doorControls);
+            scene.remove(doorHelper);
+            floorplan.doors.pop();
+        });
+
+        // Three.js floorplan controls
+      
+        const clock = new THREE.Clock();
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('render-3d-view').appendChild(renderer.domElement);
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.1;
+        controls.enableZoom = true;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.5;
+        controls.rotateSpeed = 0.5;
+        controls.maxPolarAngle = Math.PI / 2;
+        controls.minDistance = 10;
+        controls.maxDistance = 100;
+        controls.update();
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+        const windowMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+        const doorMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+        const wallGeometry = new THREE.BoxGeometry(1, 1, 1);
+        const windowGeometry = new THREE.BoxGeometry(1, 1, 1);
+        const doorGeometry = new THREE.BoxGeometry(1, 1, 1);
+        let wallMesh = null;
+        let windowMesh = null;
+        let doorMesh = null;
+        let wallHelper = null;
+        let windowHelper = null;
+        let doorHelper = null;
+
+        const wallNippleOptions = {
+            zone: document.getElementById('view-2d'),
+            mode: 'dynamic',
+            color: 'white',
+            size: 100,
+            position: { left: '50%', top: '50%' },
+            restDistance: 100,
+            threshold: 0.5,
+            multitouch: true,
+            maxNumberOfNipples: 1,
+            dataOnly: true
+        };
+        const windowNippleOptions = {
+            zone: document.getElementById('view-2d'),
+            mode: 'dynamic',
+            color: 'white',
+            size: 100,
+            position: { left: '50%', top: '50%' },
+            restDistance: 100,
+            threshold: 0.5,
+            multitouch: true,
+            maxNumberOfNipples: 1,
+            dataOnly: true
+        };
+        const doorNippleOptions = {
+            zone: document.getElementById('view-2d'),
+            mode: 'dynamic',
+            color: 'white',
+            size: 100,
+            position: { left: '50%', top: '50%' },
+            restDistance: 100,
+            threshold: 0.5,
+            multitouch: true,
+            maxNumberOfNipples: 1,
+            dataOnly: true
+        };
+        let currentView = '2d';
+
+        function setView(view) {
+            if (view === '2d') {
+                document.getElementById('view-2d').classList.remove('hidden');
+                document.getElementById('view-3d').classList.add('hidden');
+                currentView = '2d';
+            } else {
+                document.getElementById('view-2d').classList.add('hidden');
+                document.getElementById('view-3d').classList.remove('hidden');
+                currentView = '3d';
+            }
+        }
+
+        function togglePanorama3D() {
+            const cv = document.getElementById('cv');
+            const r3d = document.getElementById('render-3d-view');
+            if (r3d.style.display !== 'none') {
+                r3d.style.display = 'none';
+                cv.style.display = 'block';
+                if (window.AppState) window.AppState.currentView = 'panorama';
+            } else {
+                r3d.style.display = 'block';
+                cv.style.display = 'none';
+                if (window.AppState) window.AppState.currentView = '3d';
+                // Trigger update in main.js if available
+                if (window.update3DFloorplan) window.update3DFloorplan();
+            }
+        }
+
+        function toggleWalk() {
+            isFirstPerson = !isFirstPerson;
+            if (isFirstPerson) {
+                document.getElementById('view-3d').classList.add('first-person');
+                document.getElementById('walk-btn').textContent = '3D View';
+            } else {
+                document.getElementById('view-3d').classList.remove('first-person');
+                document.getElementById('walk-btn').textContent = 'First Person';
+            }
+        }
+
+        function toggleTools() {
+            isToolsOpen = !isToolsOpen;
+        }
+
+        function addWall() {
+            const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+            scene.add(wall);
+            floorplan.walls.push(wall);
+            wallMesh = wall;
+            wallHelper = new THREE.Mesh(new THREE.BoxHelper(wallMesh, 0xFFFFFF), new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+            scene.add(wallHelper);
+            wallControls = new THREE.TransformControls(camera, renderer.domElement);
+            wallControls.attach(wallMesh);
+            scene.add(wallControls);
+            wallNipple = new Nipple(wallNippleOptions);
+            wallNipple.on('move', (evt) => {
+                const position = new THREE.Vector3();
+                wallControls.object.getWorldPosition(position);
+                const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                const distance = 100 * evt.detail.distance;
+                const ray = new THREE.Raycaster(position, direction);
+                const intersects = ray.intersectObjects([wallMesh], true);
+                if (intersects.length > 0) {
+                    const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                    wallControls.object.position.copy(point);
+                    wallHelper.position.copy(point);
+                }
+            });
+            wallNipple.on('end', () => {
+                wallNipple.destroy();
+                wallControls.detach();
+                scene.remove(wallControls);
+                scene.remove(wallHelper);
+                floorplan.walls.pop();
+            });
+        }
+
+        function addWindow() {
+            const window = new THREE.Mesh(windowGeometry, windowMaterial);
+            scene.add(window);
+            floorplan.windows.push(window);
+            windowMesh = window;
+            windowHelper = new THREE.Mesh(new THREE.BoxHelper(windowMesh, 0xFFFFFF), new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+            scene.add(windowHelper);
+            windowControls = new THREE.TransformControls(camera, renderer.domElement);
+            windowControls.attach(windowMesh);
+            scene.add(windowControls);
+            windowNipple = new Nipple(windowNippleOptions);
+            windowNipple.on('move', (evt) => {
+                const position = new THREE.Vector3();
+                windowControls.object.getWorldPosition(position);
+                const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                const distance = 100 * evt.detail.distance;
+                const ray = new THREE.Raycaster(position, direction);
+                const intersects = ray.intersectObjects([windowMesh], true);
+                if (intersects.length > 0) {
+                    const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                    windowControls.object.position.copy(point);
+                    windowHelper.position.copy(point);
+                }
+            });
+            windowNipple.on('end', () => {
+                windowNipple.destroy();
+                windowControls.detach();
+                scene.remove(windowControls);
+                scene.remove(windowHelper);
+                floorplan.windows.pop();
+            });
+        }
+
+        function addDoor() {
+            const door = new THREE.Mesh(doorGeometry, doorMaterial);
+            scene.add(door);
+            floorplan.doors.push(door);
+            doorMesh = door;
+            doorHelper = new THREE.Mesh(new THREE.BoxHelper(doorMesh, 0xFFFFFF), new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+            scene.add(doorHelper);
+            doorControls = new THREE.TransformControls(camera, renderer.domElement);
+            doorControls.attach(doorMesh);
+            scene.add(doorControls);
+            doorNipple = new Nipple(doorNippleOptions);
+            doorNipple.on('move', (evt) => {
+                const position = new THREE.Vector3();
+                doorControls.object.getWorldPosition(position);
+                const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                const distance = 100 * evt.detail.distance;
+                const ray = new THREE.Raycaster(position, direction);
+                const intersects = ray.intersectObjects([doorMesh], true);
+                if (intersects.length > 0) {
+                    const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                    doorControls.object.position.copy(point);
+                    doorHelper.position.copy(point);
+                }
+            });
+            doorNipple.on('end', () => {
+                doorNipple.destroy();
+                doorControls.detach();
+                scene.remove(doorControls);
+                scene.remove(doorHelper);
+                floorplan.doors.pop();
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function init() {
+            const floorplan = { walls: [], windows: [], doors: [] };
+            const loader = new THREE.TextureLoader();
+            const texture = loader.load('https://cdn.glitch.com/a0a0a0a0-a0a0-a0a0a0a0a0a0/floorplan.jpg');
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshBasicMaterial({ map: texture }));
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+            const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.5);
+            directionalLight.position.set(0, 1, 0);
+            scene.add(directionalLight);
+            const lightHelper = new THREE.PointLightHelper(directionalLight, 0.5);
+            scene.add(lightHelper);
+            const gridHelper = new THREE.GridHelper(100, 10);
+            scene.add(gridHelper);
+            const axesHelper = new THREE.AxesHelper(5);
+            scene.add(axesHelper);
+            const floorplanControls = new THREE.TransformControls(camera, renderer.domElement);
+            floorplanControls.addEventListener('change', () => {
+                floorplan.walls.forEach(wall => {
+                    wall.position.copy(floorplanControls.object.position);
+                    wall.quaternion.copy(floorplanControls.object.quaternion);
+                });
+                floorplan.windows.forEach(window => {
+                    window.position.copy(floorplanControls.object.position);
+                    window.quaternion.copy(floorplanControls.object.quaternion);
+                });
+                floorplan.doors.forEach(door => {
+                    door.position.copy(floorplanControls.object.position);
+                    door.quaternion.copy(floorplanControls.object.quaternion);
+                });
+            });
+            scene.add(floorplanControls);
+            const floorplanHelper = new THREE.Mesh(new THREE.BoxHelper(floorplanControls.object, 0xFFFFFF), new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+            scene.add(floorplanHelper);
+            const floorplanNipple = new Nipple(wallNippleOptions);
+            floorplanNipple.on('move', (evt) => {
+                const position = new THREE.Vector3();
+                floorplanControls.object.getWorldPosition(position);
+                const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                const distance = 100 * evt.detail.distance;
+                const ray = new THREE.Raycaster(position, direction);
+                const intersects = ray.intersectObjects([floorplanControls.object], true);
+                if (intersects.length > 0) {
+                    const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                    floorplanControls.object.position.copy(point);
+                    floorplanHelper.position.copy(point);
+                }
+            });
+            floorplanNipple.on('end', () => {
+                floorplanNipple.destroy();
+                floorplanControls.detach();
+                scene.remove(floorplanControls);
+                scene.remove(floorplanHelper);
+            });
+            const wallBtn = document.getElementById('wall-btn');
+            const windowBtn = document.getElementById('window-btn');
+            const doorBtn = document.getElementById('door-btn');
+            wallBtn.addEventListener('click', () => {
+                addWall();
+            });
+            windowBtn.addEventListener('click', () => {
+                addWindow();
+            });
+            doorBtn.addEventListener('click', () => {
+                addDoor();
+            });
+            const view2dBtn = document.getElementById('view-2d-btn');
+            const view3dBtn = document.getElementById('view-3d-btn');
+            view2dBtn.addEventListener('click', () => {
+                setView('2d');
+            });
+            view3dBtn.addEventListener('click', () => {
+                setView('3d');
+            });
+            const walkBtn = document.getElementById('walk-btn');
+            walkBtn.addEventListener('click', () => {
+                toggleWalk();
+            });
+            const toolsBtn = document.getElementById('tools-btn');
+            toolsBtn.addEventListener('click', () => {
+                toggleTools();
+            });
+            const panoramaBtn = document.getElementById('panorama-btn');
+            panoramaBtn.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv = document.getElementById('cv');
+            cv.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const r3d = document.getElementById('render-3d-view');
+            r3d.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv2 = document.getElementById('cv2');
+            cv2.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const r3d2 = document.getElementById('render-3d-view2');
+            r3d2.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv3 = document.getElementById('cv3');
+            cv3.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const r3d3 = document.getElementById('render-3d-view3');
+            r3d3.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv4 = document.getElementById('cv4');
+            cv4.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const r3d4 = document.getElementById('render-3d-view4');
+            r3d4.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv5 = document.getElementById('cv5');
+            cv5.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const r3d5 = document.getElementById('render-3d-view5');
+            r3d5.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv6 = document.getElementById('cv6');
+            cv6.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const r3d6 = document.getElementById('render-3d-view6');
+            r3d6.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv7 = document.getElementById('cv7');
+            cv7.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const r3d7 = document.getElementById('render-3d-view7');
+            r3d7.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv8 = document.getElementById('cv8');
+            cv8.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const r3d8 = document.getElementById('render-3d-view8');
+            r3d8.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv9 = document.getElementById('cv9');
+            cv9.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const r3d9 = document.getElementById('render-3d-view9');
+            r3d9.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv10 = document.getElementById('cv10');
+            cv10.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const r3d10 = document.getElementById('render-3d-view10');
+            r3d10.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv11 = document.getElementById('cv11');
+            cv11.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const r3d11 = document.getElementById('render-3d-view11');
+            r3d11.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv12 = document.getElementById('cv12');
+            cv12.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const r3d12 = document.getElementById('render-3d-view12');
+            r3d12.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+            const cv13 = document.getElementById('cv13');
+            cv13.addEventListener('click', () => {
+                togglePanorama3D();
+            });
+
+
+
+
+
+
+            const AppState = {
+                floorplan: {
+                    walls: [],
+                    windows: [],
+                    doors: []
+                },
+                is3DView: true,
+                isFirstPerson: false,
+                isToolsOpen: false,
+                scene: null,
+                camera: null,
+                renderer: null,
+                controls: null,
+                raycaster: new THREE.Raycaster(),
+                mouse: new THREE.Vector2(),
+                wall: null,
+                window: null,
+                door: null,
+                wallMaterial: new THREE.MeshStandardMaterial({ color: 0xFFFFFF }),
+                windowMaterial: new THREE.MeshStandardMaterial({ color: 0xFFFFFF }),
+                doorMaterial: new THREE.MeshStandardMaterial({ color: 0xFFFFFF }),
+                wallGeometry: new THREE.BoxGeometry(1, 1, 1),
+                windowGeometry: new THREE.BoxGeometry(1, 1, 1),
+                doorGeometry: new THREE.BoxGeometry(1, 1, 1),
+                wallMesh: null,
+                windowMesh: null,
+                doorMesh: null,
+                wallControls: null,
+                windowControls: null,
+                doorControls: null,
+                wallHelper: null,
+                windowHelper: null,
+                doorHelper: null,
+                wallNipple: null,
+                windowNipple: null,
+                doorNipple: null,
+                wallNippleOptions: {
+                    zone: document.getElementById('view-2d'),
+                    mode: 'dynamic',
+                    color: 'white',
+                    size: 100,
+                    position: { left: '50%', top: '50%' },
+                    restDistance: 100,
+                    threshold: 0.5,
+                    multitouch: true,
+                    maxNumberOfNipples: 1,
+                    dataOnly: true
+                },
+                windowNippleOptions: {
+                    zone: document.getElementById('view-2d'),
+                    mode: 'dynamic',
+                    color: 'white',
+                    size: 100,
+                    position: { left: '50%', top: '50%' },
+                    restDistance: 100,
+                    threshold: 0.5,
+                    multitouch: true,
+                    maxNumberOfNipples: 1,
+                    dataOnly: true
+                },
+                doorNippleOptions: {
+                    zone: document.getElementById('view-2d'),
+                    mode: 'dynamic',
+                    color: 'white',
+                    size: 100,
+                    position: { left: '50%', top: '50%' },
+                    restDistance: 100,
+                    threshold: 0.5,
+                    multitouch: true,
+                    maxNumberOfNipples: 1,
+                    dataOnly: true
+                },
+                currentView: '2d'
+            };
+
+            function setView(view) {
+                if (view === '2d') {
+                    document.getElementById('view-2d').classList.remove('hidden');
+                    document.getElementById('view-3d').classList.add('hidden');
+                    AppState.currentView = '2d';
+                } else {
+                    document.getElementById('view-2d').classList.add('hidden');
+                    document.getElementById('view-3d').classList.remove('hidden');
+                    AppState.currentView = '3d';
+                }
+            }
+
+            function togglePanorama3D() {
+                const cv = document.getElementById('cv');
+                const r3d = document.getElementById('render-3d-view');
+                if (r3d.style.display !== 'none') {
+                    r3d.style.display = 'none';
+                    cv.style.display = 'block';
+                    if (window.AppState) window.AppState.currentView = 'panorama';
+                } else {
+                    r3d.style.display = 'block';
+                    cv.style.display = 'none';
+                    if (window.AppState) window.AppState.currentView = '3d';
+                    // Trigger update in main.js if available
+                    if (window.update3DFloorplan) window.update3DFloorplan();
+                }
+            }
+
+            function toggleWalk() {
+                AppState.isFirstPerson = !AppState.isFirstPerson;
+                if (AppState.isFirstPerson) {
+                    document.getElementById('view-3d').classList.add('first-person');
+                    document.getElementById('walk-btn').textContent = '3D View';
+                } else {
+                    document.getElementById('view-3d').classList.remove('first-person');
+                    document.getElementById('walk-btn').textContent = 'First Person';
+                }
+            }
+
+            function toggleTools() {
+                AppState.isToolsOpen = !AppState.isToolsOpen;
+            }
+
+            function addWall() {
+                const wall = new THREE.Mesh(AppState.wallGeometry, AppState.wallMaterial);
+                AppState.scene.add(wall);
+                AppState.floorplan.walls.push(wall);
+                AppState.wallMesh = wall;
+                AppState.wallHelper = new THREE.Mesh(new THREE.BoxHelper(AppState.wallMesh, 0xFFFFFF), new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+                AppState.scene.add(AppState.wallHelper);
+                AppState.wallControls = new THREE.TransformControls(AppState.camera, AppState.renderer.domElement);
+                AppState.wallControls.attach(AppState.wallMesh);
+                AppState.scene.add(AppState.wallControls);
+                AppState.wallNipple = new Nipple(AppState.wallNippleOptions);
+                AppState.wallNipple.on('move', (evt) => {
+                    const position = new THREE.Vector3();
+                    AppState.wallControls.object.getWorldPosition(position);
+                    const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                    const distance = 100 * evt.detail.distance;
+                    const ray = new THREE.Raycaster(position, direction);
+                    const intersects = ray.intersectObjects([AppState.wallMesh], true);
+                    if (intersects.length > 0) {
+                        const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                        AppState.wallMesh.position.copy(point);
+                        AppState.wallHelper.position.copy(point);
+                    }
+                });
+                AppState.scene.add(AppState.wallNipple.container);
+            }
+
+            function addWindow() {
+                const window = new THREE.Mesh(AppState.windowGeometry, AppState.windowMaterial);
+                AppState.scene.add(window);
+                AppState.floorplan.windows.push(window);
+                AppState.windowMesh = window;
+                AppState.windowHelper = new THREE.Mesh(new THREE.BoxHelper(AppState.windowMesh, 0xFFFFFF), new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+                AppState.scene.add(AppState.windowHelper);
+                AppState.windowControls = new THREE.TransformControls(AppState.camera, AppState.renderer.domElement);
+                AppState.windowControls.attach(AppState.windowMesh);
+                AppState.scene.add(AppState.windowControls);
+                AppState.windowNipple = new Nipple(AppState.windowNippleOptions);
+                AppState.windowNipple.on('move', (evt) => {
+                    const position = new THREE.Vector3();
+                    AppState.windowControls.object.getWorldPosition(position);
+                    const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                    const distance = 100 * evt.detail.distance;
+                    const ray = new THREE.Raycaster(position, direction);
+                    const intersects = ray.intersectObjects([AppState.windowMesh], true);
+                    if (intersects.length > 0) {
+                        const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                        AppState.windowMesh.position.copy(point);
+                        AppState.windowHelper.position.copy(point);
+                    }
+                });
+                AppState.scene.add(AppState.windowNipple.container);
+            }
+
+            function addDoor() {
+                const door = new THREE.Mesh(AppState.doorGeometry, AppState.doorMaterial);
+                AppState.scene.add(door);
+                AppState.floorplan.doors.push(door);
+                AppState.doorMesh = door;
+                AppState.doorHelper = new THREE.Mesh(new THREE.BoxHelper(AppState.doorMesh, 0xFFFFFF), new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+                AppState.scene.add(AppState.doorHelper);
+                AppState.doorControls = new THREE.TransformControls(AppState.camera, AppState.renderer.domElement);
+                AppState.doorControls.attach(AppState.doorMesh);
+                AppState.scene.add(AppState.doorControls);
+                AppState.doorNipple = new Nipple(AppState.doorNippleOptions);
+                AppState.doorNipple.on('move', (evt) => {
+                    const position = new THREE.Vector3();
+                    AppState.doorControls.object.getWorldPosition(position);
+                    const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                    const distance = 100 * evt.detail.distance;
+                    const ray = new THREE.Raycaster(position, direction);
+                    const intersects = ray.intersectObjects([AppState.doorMesh], true);
+                    if (intersects.length > 0) {
+                        const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                        AppState.doorMesh.position.copy(point);
+                        AppState.doorHelper.position.copy(point);
+                    }
+                });
+                AppState.scene.add(AppState.doorNipple.container);
+            }
+
+            function removeWall() {
+                if (AppState.wallMesh) {
+                    AppState.scene.remove(AppState.wallMesh);
+                    AppState.scene.remove(AppState.wallHelper);
+                    AppState.scene.remove(AppState.wallControls);
+                    AppState.scene.remove(AppState.wallNipple.container);
+                    AppState.floorplan.walls.splice(AppState.floorplan.walls.indexOf(AppState.wallMesh), 1);
+                    AppState.wallMesh = null;
+                    AppState.wallHelper = null;
+                    AppState.wallControls = null;
+                    AppState.wallNipple = null;
+                }
+            }
+
+            function removeWindow() {
+                if (AppState.windowMesh) {
+                    AppState.scene.remove(AppState.windowMesh);
+                    AppState.scene.remove(AppState.windowHelper);
+                    AppState.scene.remove(AppState.windowControls);
+                    AppState.scene.remove(AppState.windowNipple.container);
+                    AppState.floorplan.windows.splice(AppState.floorplan.windows.indexOf(AppState.windowMesh), 1);
+                    AppState.windowMesh = null;
+                    AppState.windowHelper = null;
+                    AppState.windowControls = null;
+                    AppState.windowNipple = null;
+                }
+            }
+
+            function removeDoor() {
+                if (AppState.doorMesh) {
+                    AppState.scene.remove(AppState.doorMesh);
+                    AppState.scene.remove(AppState.doorHelper);
+                    AppState.scene.remove(AppState.doorControls);
+                    AppState.scene.remove(AppState.doorNipple.container);
+                    AppState.floorplan.doors.splice(AppState.floorplan.doors.indexOf(AppState.doorMesh), 1);
+                    AppState.doorMesh = null;
+                    AppState.doorHelper = null;
+                    AppState.doorControls = null;
+                    AppState.doorNipple = null;
+                }
+            }
+
+            function init3DView() {
+                const cv = document.getElementById('cv');
+                const r3d = document.getElementById('render-3d-view');
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                r3d.appendChild(renderer.domElement);
+                const controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.1;
+                controls.enableZoom = true;
+                controls.autoRotate = true;
+                controls.autoRotateSpeed = 0.5;
+                controls.rotateSpeed = 0.5;
+                controls.maxPolarAngle = Math.PI / 2;
+                controls.minDistance = 10;
+                controls.maxDistance = 100;
+                controls.panSpeed = 0.5;
+                controls.screenSpacePanning = true;
+                controls.target.set(0, 0, 0);
+                const floorplan = new THREE.Group();
+                const floorGeometry = new THREE.PlaneGeometry(100, 100);
+                const floorMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+                const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+                floor.rotation.x = -Math.PI / 2;
+                floorplan.add(floor);
+                const wallGeometry = new THREE.BoxGeometry(1, 1, 1);
+                const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+                const windowGeometry = new THREE.BoxGeometry(1, 1, 1);
+                const windowMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+                const doorGeometry = new THREE.BoxGeometry(1, 1, 1);
+                const doorMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+                const walls = [];
+                const windows = [];
+                const doors = [];
+                const wallHelpers = [];
+                const windowHelpers = [];
+                const doorHelpers = [];
+                const wallControls = [];
+                const windowControls = [];
+                const doorControls = [];
+                const wallNipples = [];
+                const windowNipples = [];
+                const doorNipples = [];
+                const wallNippleOptions = {
+                    zone: document.getElementById('view-3d'),
+                    mode: 'dynamic',
+                    color: 'white',
+                    size: 100,
+                    position: { left: '50%', top: '50%' },
+                    restDistance: 100,
+                    threshold: 0.5,
+                    multitouch: true,
+                    maxNumberOfNipples: 1,
+                    dataOnly: true
+                };
+                const windowNippleOptions = {
+                    zone: document.getElementById('view-3d'),
+                    mode: 'dynamic',
+                    color: 'white',
+                    size: 100,
+                    position: { left: '50%', top: '50%' },
+                    restDistance: 100,
+                    threshold: 0.5,
+                    multitouch: true,
+                    maxNumberOfNipples: 1,
+                    dataOnly: true
+                };
+                const doorNippleOptions = {
+                    zone: document.getElementById('view-3d'),
+                    mode: 'dynamic',
+                    color: 'white',
+                    size: 100,
+                    position: { left: '50%', top: '50%' },
+                    restDistance: 100,
+                    threshold: 0.5,
+                    multitouch: true,
+                    maxNumberOfNipples: 1,
+                    dataOnly: true
+                };
+                const wallNipple = new Nipple(wallNippleOptions);
+                const windowNipple = new Nipple(windowNippleOptions);
+                const doorNipple = new Nipple(doorNippleOptions);
+                wallNipple.on('move', (evt) => {
+                    const position = new THREE.Vector3();
+                    wallControls[walls.indexOf(AppState.wallMesh)].object.getWorldPosition(position);
+                    const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                    const distance = 100 * evt.detail.distance;
+                    const ray = new THREE.Raycaster(position, direction);
+                    const intersects = ray.intersectObjects([AppState.wallMesh], true);
+                    if (intersects.length > 0) {
+                        const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                        AppState.wallMesh.position.copy(point);
+                        wallHelpers[walls.indexOf(AppState.wallMesh)].position.copy(point);
+                    }
+                });
+                windowNipple.on('move', (evt) => {
+                    const position = new THREE.Vector3();
+                    windowControls[windows.indexOf(AppState.windowMesh)].object.getWorldPosition(position);
+                    const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                    const distance = 100 * evt.detail.distance;
+                    const ray = new THREE.Raycaster(position, direction);
+                    const intersects = ray.intersectObjects([AppState.windowMesh], true);
+                    if (intersects.length > 0) {
+                        const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                        AppState.windowMesh.position.copy(point);
+                        windowHelpers[windows.indexOf(AppState.windowMesh)].position.copy(point);
+                    }
+                });
+                doorNipple.on('move', (evt) => {
+                    const position = new THREE.Vector3();
+                    doorControls[doors.indexOf(AppState.doorMesh)].object.getWorldPosition(position);
+                    const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                    const distance = 100 * evt.detail.distance;
+                    const ray = new THREE.Raycaster(position, direction);
+                    const intersects = ray.intersectObjects([AppState.doorMesh], true);
+                    if (intersects.length > 0) {
+                        const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                        AppState.doorMesh.position.copy(point);
+                        doorHelpers[doors.indexOf(AppState.doorMesh)].position.copy(point);
+                    }
+                });
+                AppState.scene = scene;
+                AppState.camera = camera;
+                AppState.renderer = renderer;
+                AppState.controls = controls;
+                AppState.floorplan = floorplan;
+                AppState.wallGeometry = wallGeometry;
+                AppState.wallMaterial = wallMaterial;
+                AppState.windowGeometry = windowGeometry;
+                AppState.windowMaterial = windowMaterial;
+                AppState.doorGeometry = doorGeometry;
+                AppState.doorMaterial = doorMaterial;
+                AppState.walls = walls;
+                AppState.windows = windows;
+                AppState.doors = doors;
+                AppState.wallHelpers = wallHelpers;
+                AppState.windowHelpers = windowHelpers;
+                AppState.doorHelpers = doorHelpers;
+                AppState.wallControls = wallControls;
+                AppState.windowControls = windowControls;
+                AppState.doorControls = doorControls;
+                AppState.wallNipples = wallNipples;
+                AppState.windowNipples = windowNipples;
+                AppState.doorNipples = doorNipples;
+                AppState.wallNippleOptions = wallNippleOptions;
+                AppState.windowNippleOptions = windowNippleOptions;
+                AppState.doorNippleOptions = doorNippleOptions;
+                AppState.wallNipple = wallNipple;
+                AppState.windowNipple = windowNipple;
+                AppState.doorNipple = doorNipple;
+                AppState.wallMesh = null;
+                AppState.windowMesh = null;
+                AppState.doorMesh = null;
+                AppState.wallHelper = null;
+                AppState.windowHelper = null;
+                AppState.doorHelper = null;
+                AppState.isFirstPerson = false;
+                AppState.isToolsOpen = false;
+                AppState.currentView = '3d';
+                AppState.scene.add(floorplan);
+                AppState.scene.add(camera);
+                AppState.scene.add(controls);
+                AppState.scene.add(new THREE.AmbientLight(0xFFFFFF));
+                const light = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light.position.set(5, 5, 5);
+                AppState.scene.add(light);
+                const light2 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light2.position.set(-5, -5, -5);
+                AppState.scene.add(light2);
+                const light3 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light3.position.set(0, 0, 10);
+                AppState.scene.add(light3);
+                const light4 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light4.position.set(0, 0, -10);
+                AppState.scene.add(light4);
+                const light5 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light5.position.set(10, 0, 0);
+                AppState.scene.add(light5);
+                const light6 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light6.position.set(-10, 0, 0);
+                AppState.scene.add(light6);
+                const light7 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light7.position.set(0, 10, 0);
+                AppState.scene.add(light7);
+                const light8 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light8.position.set(0, -10, 0);
+                AppState.scene.add(light8);
+                const light9 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light9.position.set(0, 0, 10);
+                AppState.scene.add(light9);
+                const light10 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light10.position.set(0, 0, -10);
+                AppState.scene.add(light10);
+                const light11 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light11.position.set(10, 0, 0);
+                AppState.scene.add(light11);
+                const light12 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light12.position.set(-10, 0, 0);
+                AppState.scene.add(light12);
+                const light13 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light13.position.set(0, 10, 0);
+                AppState.scene.add(light13);
+                const light14 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light14.position.set(0, -10, 0);
+                AppState.scene.add(light14);
+                const light15 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light15.position.set(0, 0, 10);
+                AppState.scene.add(light15);
+                const light16 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light16.position.set(0, 0, -10);
+                AppState.scene.add(light16);
+                const light17 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light17.position.set(10, 0, 0);
+                AppState.scene.add(light17);
+                const light18 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light18.position.set(-10, 0, 0);
+                AppState.scene.add(light18);
+                const light19 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light19.position.set(0, 10, 0);
+                AppState.scene.add(light19);
+                const light20 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light20.position.set(0, -10, 0);
+                AppState.scene.add(light20);
+                const light21 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light21.position.set(0, 0, 10);
+                AppState.scene.add(light21);
+                const light22 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light22.position.set(0, 0, -10);
+                AppState.scene.add(light22);
+                const light23 = new THREE.PointLight(0xFFFFFF, 1, 100);
+                light23.position.set(10, 0, 0);
+                AppState.scene.add(light23);
+
+                const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+                const wallHelper = new THREE.Mesh(wallGeometry, wallMaterial);
+                wallHelper.visible = false;
+                const window = new THREE.Mesh(windowGeometry, windowMaterial);
+                const windowHelper = new THREE.Mesh(windowGeometry, windowMaterial);
+                windowHelper.visible = false;
+                const door = new THREE.Mesh(doorGeometry, doorMaterial);
+                const doorHelper = new THREE.Mesh(doorGeometry, doorMaterial);
+                doorHelper.visible = false;
+                const wallControl = new THREE.TransformControls(camera, AppState.renderer.domElement);
+                const windowControl = new THREE.TransformControls(camera, AppState.renderer.domElement);
+                const doorControl = new THREE.TransformControls(camera, AppState.renderer.domElement);
+                wallControl.visible = false;
+                windowControl.visible = false;
+                doorControl.visible = false;
+                const wallNippleInstance = wallNipple.create(AppState.renderer.domElement);
+                const windowNippleInstance = windowNipple.create(AppState.renderer.domElement);
+                const doorNippleInstance = doorNipple.create(AppState.renderer.domElement);
+                wallNippleInstance.visible = false;
+                windowNippleInstance.visible = false;
+                doorNippleInstance.visible = false;
+                AppState.wallMesh = wall;
+                AppState.windowMesh = window;
+                AppState.doorMesh = door;
+                AppState.wallHelper = wallHelper;
+                AppState.windowHelper = windowHelper;
+                AppState.doorHelper = doorHelper;
+                AppState.wallControl = wallControl;
+                AppState.windowControl = windowControl;
+                AppState.doorControl = doorControl;
+                AppState.wallNippleInstance = wallNippleInstance;
+                AppState.windowNippleInstance = windowNippleInstance;
+                AppState.doorNippleInstance = doorNippleInstance;
+                AppState.scene.add(wall);
+                AppState.scene.add(window);
+                AppState.scene.add(door);
+                AppState.scene.add(wallHelper);
+                AppState.scene.add(windowHelper);
+                AppState.scene.add(doorHelper);
+                AppState.scene.add(wallControl);
+                AppState.scene.add(windowControl);
+                AppState.scene.add(doorControl);
+                AppState.walls.push(wall);
+                AppState.windows.push(window);
+                AppState.doors.push(door);
+                AppState.wallHelpers.push(wallHelper);
+                AppState.windowHelpers.push(windowHelper);
+                AppState.doorHelpers.push(doorHelper);
+                AppState.wallControls.push(wallControl);
+                AppState.windowControls.push(windowControl);
+                AppState.doorControls.push(doorControl);
+                AppState.wallNipples.push(wallNippleInstance);
+                AppState.windowNipples.push(windowNippleInstance);
+                AppState.doorNipples.push(doorNippleInstance);
+                wallControl.attach(wall);
+                windowControl.attach(window);
+                doorControl.attach(door);
+                wallNippleInstance.on('move', (evt) => {
+                    const position = new THREE.Vector3();
+                    wallControl.object.getWorldPosition(position);
+                    const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                    const distance = 100 * evt.detail.distance;
+                    const ray = new THREE.Raycaster(position, direction);
+                    const intersects = ray.intersectObjects([wall], true);
+                    if (intersects.length > 0) {
+                        const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                        wall.position.copy(point);
+                        wallHelper.position.copy(point);
+                    }
+                });
+                windowNippleInstance.on('move', (evt) => {
+                    const position = new THREE.Vector3();
+                    windowControl.object.getWorldPosition(position);
+                    const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                    const distance = 100 * evt.detail.distance;
+                    const ray = new THREE.Raycaster(position, direction);
+                    const intersects = ray.intersectObjects([window], true);
+                    if (intersects.length > 0) {
+                        const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                        window.position.copy(point);
+                        windowHelper.position.copy(point);
+                    }
+                });
+                doorNippleInstance.on('move', (evt) => {
+                    const position = new THREE.Vector3();
+                    doorControl.object.getWorldPosition(position);
+                    const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                    const distance = 100 * evt.detail.distance;
+                    const ray = new THREE.Raycaster(position, direction);
+                    const intersects = ray.intersectObjects([door], true);
+                    if (intersects.length > 0) {
+                        const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                        door.position.copy(point);
+                        doorHelper.position.copy(point);
+                    }
+                });
+                AppState.wallMesh.position.set(0, 0, 0);
+                AppState.windowMesh.position.set(0, 0, 0);
+                AppState.doorMesh.position.set(0, 0, 0);
+                AppState.wallHelper.position.set(0, 0, 0);
+                AppState.windowHelper.position.set(0, 0, 0);
+                AppState.doorHelper.position.set(0, 0, 0);
+                AppState.wallControl.object = AppState.wallMesh;
+                AppState.windowControl.object = AppState.windowMesh;
+                AppState.doorControl.object = AppState.doorMesh;
+                AppState.wallNippleInstance.options.mode = 'dynamic';
+                AppState.windowNippleInstance.options.mode = 'dynamic';
+                AppState.doorNippleInstance.options.mode = 'dynamic';
+                AppState.wallNippleInstance.on('start', () => {
+                    AppState.wallControl.visible = true;
+                    AppState.wallHelper.visible = true;
+                });
+                AppState.windowNippleInstance.on('start', () => {
+                    AppState.windowControl.visible = true;
+                    AppState.windowHelper.visible = true;
+                });
+                AppState.doorNippleInstance.on('start', () => {
+                    AppState.doorControl.visible = true;
+                    AppState.doorHelper.visible = true;
+                });
+                AppState.wallNippleInstance.on('end', () => {
+                    AppState.wallControl.visible = false;
+                    AppState.wallHelper.visible = false;
+                });
+                AppState.windowNippleInstance.on('end', () => {
+                    AppState.windowControl.visible = false;
+                    AppState.windowHelper.visible = false;
+                });
+                AppState.doorNippleInstance.on('end', () => {
+                    AppState.doorControl.visible = false;
+                    AppState.doorHelper.visible = false;
+                });
+                AppState.wallNippleInstance.on('move', (evt) => {
+                    const position = new THREE.Vector3();
+                    AppState.wallControl.object.getWorldPosition(position);
+                    const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                    const distance = 100 * evt.detail.distance;
+                    const ray = new THREE.Raycaster(position, direction);
+                    const intersects = ray.intersectObjects([AppState.wallMesh], true);
+                    if (intersects.length > 0) {
+                        const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                        AppState.wallMesh.position.copy(point);
+                        AppState.wallHelper.position.copy(point);
+                    }
+                });
+                AppState.windowNippleInstance.on('move', (evt) => {
+                    const position = new THREE.Vector3();
+                    AppState.windowControl.object.getWorldPosition(position);
+                    const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                    const distance = 100 * evt.detail.distance;
+                    const ray = new THREE.Raycaster(position, direction);
+                    const intersects = ray.intersectObjects([AppState.windowMesh], true);
+                    if (intersects.length > 0) {
+                        const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                        AppState.windowMesh.position.copy(point);
+                        AppState.windowHelper.position.copy(point);
+                    }
+                });
+                AppState.doorNippleInstance.on('move', (evt) => {
+                    const position = new THREE.Vector3();
+                    AppState.doorControl.object.getWorldPosition(position);
+                    const direction = new THREE.Vector3(evt.detail.force.x, 0, evt.detail.force.y).normalize();
+                    const distance = 100 * evt.detail.distance;
+                    const ray = new THREE.Raycaster(position, direction);
+                    const intersects = ray.intersectObjects([AppState.doorMesh], true);
+                    if (intersects.length > 0) {
+                        const point = intersects[0].point.clone().add(direction.multiplyScalar(distance));
+                        AppState.doorMesh.position.copy(point);
+                        AppState.doorHelper.position.copy(point);
+                    }
+                });
+                AppState.wallControl.addEventListener('change', () => {
+                    AppState.wallMesh.position.copy(AppState.wallControl.object.position);
+                    AppState.wallHelper.position.copy(AppState.wallControl.object.position);
+                });
+                AppState.windowControl.addEventListener('change', () => {
+                    AppState.windowMesh.position.copy(AppState.windowControl.object.position);
+                    AppState.windowHelper.position.copy(AppState.windowControl.object.position);
+                });
+                AppState.doorControl.addEventListener('change', () => {
+                    AppState.doorMesh.position.copy(AppState.doorControl.object.position);
+                    AppState.doorHelper.position.copy(AppState.doorControl.object.position);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.setMode('translate');
+                });
+                AppState.windowControls.forEach(control => {
+                    control.setMode('translate');
+                });
+                AppState.doorControls.forEach(control => {
+                    control.setMode('translate');
+                });
+                AppState.wallControls.forEach(control => {
+                    control.setSize(0.5);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.setSize(0.5);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.setSize(0.5);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.setSpace('world');
+                });
+                AppState.windowControls.forEach(control => {
+                    control.setSpace('world');
+                });
+                AppState.doorControls.forEach(control => {
+                    control.setSpace('world');
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showX(false);
+                    control.showY(false);
+                    control.showZ(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showX(false);
+                    control.showY(false);
+                    control.showZ(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showX(false);
+                    control.showY(false);
+                    control.showZ(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showName(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showName(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showName(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showOff(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showOff(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showOff(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showOn(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showOn(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showOn(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showPlane(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showPlane(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showPlane(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showRotation(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showRotation(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showRotation(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showScale(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showScale(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showScale(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showScaleHandle(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showScaleHandle(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showScaleHandle(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showTranslateHandle(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showTranslateHandle(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showTranslateHandle(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showRotateHandle(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showRotateHandle(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showRotateHandle(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showDashedLine(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showDashedLine(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showDashedLine(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showNormal(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showNormal(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showNormal(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showPosition(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showPosition(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showPosition(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showTarget(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showTarget(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showTarget(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showColor(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showColor(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showColor(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showWireframe(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showWireframe(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showWireframe(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showHelpers(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showHelpers(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showHelpers(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showBoundingBox(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showBoundingBox(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showBoundingBox(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showAxes(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showAxes(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showAxes(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showGrid(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showGrid(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showGrid(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showNormalHelper(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showNormalHelper(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showNormalHelper(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showFaceNormals(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showFaceNormals(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showFaceNormals(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showVertexNormals(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showVertexNormals(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showVertexNormals(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showSkeleton(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showSkeleton(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showSkeleton(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showWireframeHelper(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showWireframeHelper(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showWireframeHelper(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showBoundingBoxHelper(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showBoundingBoxHelper(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showBoundingBoxHelper(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showAxesHelper(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showAxesHelper(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showAxesHelper(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showGridHelper(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showGridHelper(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showGridHelper(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showPointLight(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showPointLight(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showPointLight(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showHemisphereLight(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showHemisphereLight(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showHemisphereLight(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showDirectionalLight(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showDirectionalLight(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showDirectionalLight(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showSpotLight(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showSpotLight(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showSpotLight(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showAmbientLight(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showAmbientLight(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showAmbientLight(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showRectAreaLight(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showRectAreaLight(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showRectAreaLight(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showLightHelper(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showLightHelper(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showLightHelper(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showCameraHelper(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showCameraHelper(false);
+                });
+                AppState.doorControls.forEach(control => {
+                    control.showCameraHelper(false);
+                });
+                AppState.wallControls.forEach(control => {
+                    control.showControls(false);
+                });
+                AppState.windowControls.forEach(control => {
+                    control.showControls(false);
+                });
+
+            }
+
+
+
+
+
+        }
+    </script>
+</body>
+
+</html>
+
+
+

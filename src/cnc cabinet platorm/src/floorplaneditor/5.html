@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floorplan 3D - Designer Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        canvas {
+            outline: none;
+        }
+
+        .tool-btn.active {
+            background-color: #eff6ff;
+            color: #13a4ec;
+            border-color: #13a4ec;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+
+
+
+<body class="font-display bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 overflow-hidden">
+    <div class="relative flex min-h-screen w-full flex-col">
+        <header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
+            <nav
+                class="container mx-auto flex items-center justify-between whitespace-nowrap border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+                <div class="flex items-center gap-4 text-gray-900 dark:text-white">
+                    <span class="material-symbols-outlined text-primary text-3xl">view_in_ar</span>
+                    <h2 class="text-xl font-bold tracking-[-0.015em]">Blueprint Editor</h2>
+                </div>
+                <div class="hidden md:flex flex-1 justify-center items-center gap-6">
+                    <div class="flex items-center gap-1 rounded-lg bg-gray-200 dark:bg-gray-800 p-1">
+                        <button onclick="window.undo()" aria-label="Undo"
+                            class="flex h-8 w-8 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                            title="Undo (Ctrl+Z)">
+                            <span class="material-symbols-outlined text-xl">undo</span>
+                        </button>
+                        <button onclick="window.redo()" aria-label="Redo"
+                            class="flex h-8 w-8 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                            title="Redo (Ctrl+Shift+Z)">
+                            <span class="material-symbols-outlined text-xl">redo</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Panorama</span>
+                        <label class="relative inline-flex cursor-pointer items-center">
+                            <input class="peer sr-only" type="checkbox" id="view-toggle" />
+                            <div
+                                class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-gray-600 dark:bg-gray-700">
+                            </div>
+                        </label>
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">3D</span>
+                    </div>
+
+                    <button id="walk-btn"
+                        class="hidden ml-2 items-center justify-center rounded-lg h-8 px-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-white transition-colors text-xs font-bold uppercase tracking-wider gap-1">
+                        <span class="material-symbols-outlined text-sm">directions_walk</span>
+                        Walk
+                    </button>
+
+                    <div class="flex items-center gap-2 border-l border-gray-300 dark:border-gray-700 pl-4">
+                        <!-- Story Controls -->
+                        <div class="flex items-center gap-2 mr-2">
+                            <select id="story-select" onchange="window.switchStory(this.value)"
+                                class="h-8 text-xs rounded border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
+                                <option value="0">Ground Floor</option>
+                            </select>
+                            <button onclick="window.addStory()"
+                                class="h-8 w-8 flex items-center justify-center rounded bg-primary text-white hover:bg-primary/90"
+                                title="Add Floor">
+                                <span class="material-symbols-outlined text-sm">add</span>
+                            </button>
+                        </div>
+
+                        <label class="flex items-center gap-2 cursor-pointer select-none" title="Toggle Dimensions">
+                            <div class="relative">
+                                <input type="checkbox" class="sr-only peer" checked
+                                    onchange="window.toggleDimensions()">
+                                <div
+                                    class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Dims</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer select-none" title="Toggle Ceiling">
+                            <div class="relative">
+                                <input type="checkbox" id="ceiling-toggle" class="sr-only peer"
+                                    onchange="window.toggleCeiling()">
+                                <div
+                                    class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Ceiling</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer select-none" title="Toggle Roof">
+                            <div class="relative">
+                                <input type="checkbox" id="roof-toggle" class="sr-only peer"
+                                    onchange="window.toggleRoof()">
+                                <div
+                                    class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Roof</span>
+                        </label>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="window.location.href='index.html'"
+                            class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 text-gray-800 dark:text-white text-sm font-bold tracking-[0.015em] hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors gap-2">
+                            <span class="material-symbols-outlined text-base">arrow_back</span>
+                            <span class="truncate">Back to Home</span>
+                        </button>
+                    </div>
+            </nav>
+        </header>
+        <main class="flex h-full grow overflow-hidden">
+            <aside
+                class="w-64 flex-shrink-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark/50 p-4 flex flex-col gap-4 overflow-y-auto">
+                <!-- File Upload Section -->
+                <div class="item-category">
+                    <div class="item-category-header">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Import/Export</h3>
+                    </div>
+                    <div class="space-y-2 mt-2">
+                        <button onclick="document.getElementById('file-upload').click()"
+                            class="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                            <span class="material-symbols-outlined text-primary">upload_file</span>
+                            <span class="font-medium text-sm">Import File</span>
+                        </button>
+                        <input type="file" id="file-upload" accept="image/*,.pdf,.json" style="display: none;">
+                        <button onclick="document.getElementById('kitchen-photo-upload').click()"
+                            class="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-primary/10 dark:bg-primary/20 cursor-pointer hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors">
+                            <span class="material-symbols-outlined text-primary">photo_camera</span>
+                            <span class="font-medium text-sm text-primary">Scan Kitchen Photo</span>
+                        </button>
+                        <input type="file" id="kitchen-photo-upload" accept="image/*" style="display: none;">
+                        <button onclick="exportProject()"
+                            class="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                            <span class="material-symbols-outlined text-primary">download</span>
+                            <span class="font-medium text-sm">Export Project JSON</span>
+                        </button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="window.export3D('obj')"
+                                class="flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                                <span class="font-medium text-sm">Export OBJ</span>
+                            </button>
+                            <button onclick="window.export3D('gltf')"
+                                class="flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                                <span class="font-medium text-sm">Export GLTF</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Drawing Tools</h3>
+                <ul class="space-y-2">
+                    <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        data-item="wall" title="Draw walls by clicking start and end points">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">line_axis</span>
+                            <span class="font-medium text-sm">Wall</span>
+                        </div>
+                        <span class="material-symbols-outlined text-primary">add</span>
+                    </li>
+
+                    <!-- Added Structural Items -->
+                    <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        data-item="door" title="Place a door">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">door_front</span>
+                            <span class="font-medium text-sm">Door</span>
+                        </div>
+                        <span class="material-symbols-outlined text-primary">add</span>
+                    </li>
+                    <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        data-item="window" title="Place a window">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">window</span>
+                            <span class="font-medium text-sm">Window</span>
+                        </div>
+                        <span class="material-symbols-outlined text-primary">add</span>
+                    </li>
+                    <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        data-item="round_window" title="Place a round window">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">circle</span>
+                            <span class="font-medium text-sm">Round Window</span>
+                        </div>
+                        <span class="material-symbols-outlined text-primary">add</span>
+                    </li>
+                </ul>
+
+                <!-- Bathroom Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('bathroom-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Bathroom Items</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="bathroom-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content" id="bathroom-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="bathtub" title="Place a bathtub fixture">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">bathtub</span>
+                                    <span class="font-medium text-sm">Bathtub</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="toilet" title="Place a toilet fixture">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">wc</span>
+                                    <span class="font-medium text-sm">Toilet</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="sink" title="Place a sink fixture">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">bathroom</span>
+                                    <span class="font-medium text-sm">Sink</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="shower" title="Place a shower fixture">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">shower</span>
+                                    <span class="font-medium text-sm">Shower</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Kitchen Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('kitchen-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Kitchen Items</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="kitchen-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="kitchen-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="kitchen_cabinet">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">kitchen</span>
+                                    <span class="font-medium text-sm">Cabinet</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="kitchen_sink">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">water_drop</span>
+                                    <span class="font-medium text-sm">Sink Unit</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="stove">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">oven_gen</span>
+                                    <span class="font-medium text-sm">Stove</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="fridge">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">kitchen</span>
+                                    <span class="font-medium text-sm">Fridge</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="kitchen_island">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">countertops</span>
+                                    <span class="font-medium text-sm">Island</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Living Room Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('living-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Living Room</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="living-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="living-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="sofa">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">chair</span>
+                                    <span class="font-medium text-sm">Sofa</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="armchair">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">chair_alt</span>
+                                    <span class="font-medium text-sm">Armchair</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="coffee_table">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">table_bar</span>
+                                    <span class="font-medium text-sm">Coffee Table</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="tv_stand">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">tv</span>
+                                    <span class="font-medium text-sm">TV Stand</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Bedroom Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('bedroom-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Bedroom</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="bedroom-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="bedroom-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="bed_queen">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">bed</span>
+                                    <span class="font-medium text-sm">Queen Bed</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="bed_single">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">single_bed</span>
+                                    <span class="font-medium text-sm">Single Bed</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="wardrobe">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">door_sliding</span>
+                                    <span class="font-medium text-sm">Wardrobe</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="nightstand">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">inventory_2</span>
+                                    <span class="font-medium text-sm">Nightstand</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Office Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('office-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Office</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="office-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="office-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="desk">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">desk</span>
+                                    <span class="font-medium text-sm">Desk</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="office_chair">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">chair</span>
+                                    <span class="font-medium text-sm">Office Chair</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="bookshelf">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">shelves</span>
+                                    <span class="font-medium text-sm">Bookshelf</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Dining Room Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('dining-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Dining Room</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="dining-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="dining-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="dining_table">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">table_restaurant</span>
+                                    <span class="font-medium text-sm">Dining Table</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="dining_chair">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">chair</span>
+                                    <span class="font-medium text-sm">Dining Chair</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="sideboard">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">countertops</span>
+                                    <span class="font-medium text-sm">Sideboard</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Decor Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('decor-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Decor & Lighting</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="decor-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="decor-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="rug_large">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">texture</span>
+                                    <span class="font-medium text-sm">Large Rug</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="floor_lamp">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">wb_iridescent</span>
+                                    <span class="font-medium text-sm">Floor Lamp</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="potted_plant">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">potted_plant</span>
+                                    <span class="font-medium text-sm">Plant</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="painting">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">image</span>
+                                    <span class="font-medium text-sm">Wall Painting</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Outdoor Items Category -->
+                <div class="item-category">
+                    <div class="item-category-header" onclick="toggleCategory('outdoor-items')">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Outdoor</h3>
+                        <span class="material-symbols-outlined transition-transform"
+                            id="outdoor-items-icon">expand_more</span>
+                    </div>
+                    <div class="item-category-content collapsed" id="outdoor-items">
+                        <ul class="space-y-2 mt-2">
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="patio_table">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">deck</span>
+                                    <span class="font-medium text-sm">Patio Table</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="patio_chair">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">chair_alt</span>
+                                    <span class="font-medium text-sm">Patio Chair</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                            <li class="item-button flex items-center justify-between gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-gray-800 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                data-item="lounger">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-symbols-outlined text-gray-500 dark:text-gray-400">beach_access</span>
+                                    <span class="font-medium text-sm">Lounger</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary">add</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-auto">
+                    <button id="delete-button"
+                        class="w-full flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-red-500/20 text-red-500 dark:bg-red-500/30 text-sm font-bold tracking-[0.015em] hover:bg-red-500/30 dark:hover:bg-red-500/40 transition-colors gap-2">
+                        <span class="material-symbols-outlined text-base">delete</span>
+                        <span class="truncate">Delete Mode</span>
+                    </button>
+                </div>
+            </aside>
+            <div class="flex-1 relative bg-gray-100 dark:bg-gray-900">
+                <div id="viewport-container">
+                    <div id="blueprint-view">
+                        <canvas id="blueprint-canvas"></canvas>
+                    </div>
+                    <div id="panorama-3d-view">
+                        <canvas id="cv"></canvas>
+                        <div id="render-3d-view"></div>
+                    </div>
+                </div>
+            </div>
+            <aside
+                class="w-72 flex-shrink-0 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark/50 p-4 flex flex-col gap-6 overflow-y-auto">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Customize Selection</h3>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Textures</h4>
+                        <div class="flex bg-gray-200 dark:bg-gray-700 rounded-md p-0.5">
+                            <button id="target-wall"
+                                class="px-2 py-0.5 text-xs font-medium rounded-sm bg-white dark:bg-gray-600 text-gray-800 dark:text-gray-200 shadow-sm transition-all">Walls</button>
+                            <button id="target-floor"
+                                class="px-2 py-0.5 text-xs font-medium rounded-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all">Floor</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button
+                            class="texture-button aspect-square rounded-md bg-gray-200 border border-transparent hover:border-primary transition-colors"
+                            data-texture="marble" title="Marble texture">
+                            <span class="text-xs">Marble</span>
+                        </button>
+                        <button
+                            class="texture-button aspect-square rounded-md bg-amber-100 border border-transparent hover:border-primary transition-colors"
+                            data-texture="wood" title="Wood texture">
+                            <span class="text-xs">Wood</span>
+                        </button>
+                        <button
+                            class="texture-button aspect-square rounded-md bg-blue-100 border border-transparent hover:border-primary transition-colors"
+                            data-texture="tile" title="Ceramic tile texture">
+                            <span class="text-xs">Tile</span>
+                        </button>
+                        <button
+                            class="texture-button aspect-square rounded-md bg-gray-400 border border-transparent hover:border-primary transition-colors"
+                            data-texture="concrete" title="Concrete texture">
+                            <span class="text-xs">Concrete</span>
+                        </button>
+                        <button
+                            class="texture-button aspect-square rounded-md bg-stone-300 border border-transparent hover:border-primary transition-colors"
+                            data-texture="stone" title="Stone texture">
+                            <span class="text-xs">Stone</span>
+                        </button>
+                        <button
+                            class="texture-button aspect-square rounded-md bg-green-200 border border-transparent hover:border-primary transition-colors"
+                            data-texture="carpet" title="Carpet texture">
+                            <span class="text-xs">Carpet</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <h4 class="text-sm font-semibold mb-2 text-gray-600 dark:text-gray-400">Custom Maps</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Diffuse / Color</label>
+                            <input type="file" id="custom-diffuse" accept="image/*"
+                                class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Normal Map</label>
+                            <input type="file" id="custom-normal" accept="image/*"
+                                class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Roughness Map</label>
+                            <input type="file" id="custom-roughness" accept="image/*"
+                                class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-semibold mb-2 text-gray-600 dark:text-gray-400">Materials</h4>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button
+                            class="material-button aspect-square rounded-md bg-gray-300 border border-transparent hover:border-primary flex items-center justify-center text-xs font-bold text-gray-600 transition-colors"
+                            data-material="matte">Matte</button>
+                        <button
+                            class="material-button aspect-square rounded-md bg-gray-100 border-2 border-primary flex items-center justify-center text-xs font-bold text-gray-800 transition-colors"
+                            data-material="gloss"
+                            style="background-image: linear-gradient(45deg, #e0e0e0, #ffffff, #e0e0e0);">Gloss</button>
+                        <button
+                            class="material-button aspect-square rounded-md bg-gray-400 border border-transparent hover:border-primary flex items-center justify-center text-xs font-bold text-white transition-colors"
+                            data-material="metal"
+                            style="background-image: linear-gradient(45deg, #a0a0a0, #d0d0d0, #a0a0a0);">Metal</button>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold mb-2 text-gray-600 dark:text-gray-400">Colors</h4>
+                    <div class="grid grid-cols-5 gap-2">
+                        <button class="color-button aspect-square rounded-full bg-white border-2 border-primary"
+                            data-color="#ffffff" aria-label="White" title="White"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-gray-200 border border-transparent hover:border-primary transition-colors"
+                            data-color="#e5e7eb" aria-label="Light Gray" title="Light Gray"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-gray-800 border border-transparent hover:border-primary transition-colors"
+                            data-color="#1f2937" aria-label="Charcoal" title="Charcoal"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-blue-200 border border-transparent hover:border-primary transition-colors"
+                            data-color="#bfdbfe" aria-label="Light Blue" title="Light Blue"></button>
+                        <button
+                            class="color-button aspect-square rounded-full border border-transparent hover:border-primary transition-colors"
+                            data-color="#f5f5dc" aria-label="Beige" title="Beige"
+                            style="background-color: #f5f5dc;"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-slate-400 border border-transparent hover:border-primary transition-colors"
+                            data-color="#94a3b8" aria-label="Slate" title="Slate"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-teal-600 border border-transparent hover:border-primary transition-colors"
+                            data-color="#0d9488" aria-label="Teal" title="Teal"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-rose-300 border border-transparent hover:border-primary transition-colors"
+                            data-color="#fda4af" aria-label="Rose" title="Rose"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-amber-500 border border-transparent hover:border-primary transition-colors"
+                            data-color="#f59e0b" aria-label="Amber" title="Amber"></button>
+                        <button
+                            class="color-button aspect-square rounded-full bg-emerald-500 border border-transparent hover:border-primary transition-colors"
+                            data-color="#10b981" aria-label="Emerald" title="Emerald"></button>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="text-xs text-gray-600 dark:text-gray-400">
+                        <span class="material-symbols-outlined"
+                            style="font-size: 14px; vertical-align: middle;">info</span>
+                        Select an item on the blueprint to customize its appearance
+                    </p>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+    <div id="nipple-container"
+        style="position: absolute; bottom: 20px; left: 20px; width: 150px; height: 150px; z-index: 100; display: none;">
+    </div>
+    <div id="walk-instructions"
+        style="position: absolute; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 10px 20px; border-radius: 20px; pointer-events: none; display: none; z-index: 100;">
+        WASD to Move • Mouse to Look • ESC to Exit
+    </div>
+
+    <script type="importmap">
+{
+  "imports": {
+    "three": "https://esm.sh/three@0.160.0",
+    "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/",
+    "three/nodes": "https://esm.sh/three@0.160.0/examples/jsm/nodes/Nodes.js",
+    "nipplejs": "https://esm.sh/nipplejs@0.10.1"
+  }
+}
+</script>
+
+    <script type="module" src="main.js"></script>
+    <script type="module">
+        // Three.js Integration
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+        import { OBJExporter } from 'three/addons/exporters/OBJExporter.js';
+        import nipplejs from 'nipplejs';
+
+
+        // Category toggle
+        function toggleCategory(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById(id + '-icon');
+            content.classList.toggle('collapsed');
+            icon.style.transform = content.classList.contains('collapsed') ? 'rotate(-90deg)' : 'rotate(0deg)';
+        }
+
+        // Tooltips
+        document.querySelectorAll('[title]').forEach(el => {
+            el.addEventListener('mouseenter', (e) => {
+                const tooltip = document.getElementById('tooltip');
+                tooltip.textContent = el.getAttribute('title');
+                tooltip.classList.add('active');
+                const rect = el.getBoundingClientRect();
+                tooltip.style.left = rect.left + 'px';
+                tooltip.style.top = (rect.top - 35) + 'px';
+            });
+
+            el.addEventListener('mouseleave', () => {
+                document.getElementById('tooltip').classList.remove('active');
+            });
+        });
+
+
+
+
+
+        // App State
+        window.AppState = {
+            currentView: '2d',
+            isFirstPerson: false,
+            scene: new THREE.Scene(),
+            camera: null,
+            renderer: null,
+            controls: null,
+            floorplan: {
+                walls: [],
+                items: []
+            }
+        };
+
+        // Initialize 3D Viewer
+        function init3DView() {
+            const container = document.getElementById('panorama-3d-view');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Renderer
+            const renderer = new THREE.WebGLRenderer({
+                canvas: document.getElementById('cv'),
+                antialias: true
+            });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Camera
+            const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+            camera.position.set(10, 10, 10);
+
+            // Controls
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 10, 10);
+
+            AppState.scene.add(ambientLight, directionalLight);
+            AppState.camera = camera;
+            AppState.renderer = renderer;
+            AppState.controls = controls;
+
+            // Animation Loop
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(AppState.scene, camera);
+            }
+            animate();
+        }
+
+        // 2D Canvas Setup
+        const canvas2D = document.getElementById('blueprint-canvas');
+        const ctx2D = canvas2D.getContext('2d');
+        let isDrawing = false;
+        let lastPoint = { x: 0, y: 0 };
+
+        function init2DCanvas() {
+            canvas2D.width = canvas2D.offsetWidth;
+            canvas2D.height = canvas2D.offsetHeight;
+
+            canvas2D.addEventListener('mousedown', startDrawing);
+            canvas2D.addEventListener('mousemove', draw);
+            canvas2D.addEventListener('mouseup', stopDrawing);
+            canvas2D.addEventListener('touchstart', handleTouch);
+            canvas2D.addEventListener('touchmove', handleTouch);
+            canvas2D.addEventListener('touchend', stopDrawing);
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas2D.getBoundingClientRect();
+            lastPoint = getMousePos(e, rect);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas2D.getBoundingClientRect();
+            const pos = getMousePos(e, rect);
+
+            ctx2D.beginPath();
+            ctx2D.moveTo(lastPoint.x, lastPoint.y);
+            ctx2D.lineTo(pos.x, pos.y);
+            ctx2D.strokeStyle = '#13a4ec';
+            ctx2D.lineWidth = 2;
+            ctx2D.stroke();
+
+            lastPoint = pos;
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function getMousePos(e, rect) {
+            return {
+                x: (e.clientX || e.touches[0].clientX) - rect.left,
+                y: (e.clientY || e.touches[0].clientY) - rect.top
+            };
+        }
+
+        // UI Event Handlers
+        window.togglePanorama3D = function () {
+            const cv = document.getElementById('cv');
+            const r3d = document.getElementById('render-3d-view');
+            r3d.style.display = r3d.style.display === 'none' ? 'block' : 'none';
+            cv.style.display = cv.style.display === 'none' ? 'block' : 'none';
+        };
+
+        window.export3D = function (format) {
+            const exporter = format === 'gltf' ? new GLTFExporter() : new OBJExporter();
+            exporter.parse(AppState.scene, (result) => {
+                const blob = new Blob([result], { type: 'application/octet-stream' });
+                const link = document.createElement('a');
+                link.download = `floorplan.${format}`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+            });
+        };
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            init2DCanvas();
+            init3DView();
+            window.addEventListener('resize', () => {
+                canvas2D.width = canvas2D.offsetWidth;
+                canvas2D.height = canvas2D.offsetHeight;
+
+                if (AppState.renderer) {
+                    AppState.renderer.setSize(
+                        AppState.renderer.domElement.clientWidth,
+                        AppState.renderer.domElement.clientHeight
+                    );
+                    AppState.camera.aspect = AppState.renderer.domElement.clientWidth / AppState.renderer.domElement.clientHeight;
+                    AppState.camera.updateProjectionMatrix();
+                }
+            });
+        });
+
+
+
+
+
+        // View Switching Logic
+        let currentView = '2d';
+
+        window.setView = function (view) {
+            const v2d = document.getElementById('view-2d');
+            const v3d = document.getElementById('view-3d');
+            const btn2d = document.getElementById('btn-view-2d');
+            const btn3d = document.getElementById('btn-view-3d');
+            const btnFp = document.getElementById('btn-view-fp');
+            const tools = document.getElementById('tools-panel');
+
+            // Reset Buttons
+            [btn2d, btn3d, btnFp].forEach(btn => {
+                btn?.classList.remove('bg-white', 'shadow', 'text-gray-900');
+                btn?.classList.add('text-gray-600', 'hover:bg-gray-200');
+            });
+
+            if (view === '2d') {
+                v2d.style.opacity = '1';
+                v2d.style.pointerEvents = 'auto';
+                v2d.style.zIndex = '10';
+
+                v3d.style.opacity = '0';
+                v3d.style.pointerEvents = 'none';
+                v3d.style.zIndex = '0';
+
+                btn2d?.classList.add('bg-white', 'shadow', 'text-gray-900');
+                btn2d?.classList.remove('text-gray-600', 'hover:bg-gray-200');
+
+                tools.style.transform = 'translateX(0)';
+                tools.style.opacity = '1';
+
+                // Ensure first person is off
+                if (window.AppState && window.AppState.isFirstPerson) {
+                    document.getElementById('walk-btn')?.click(); // Trigger toggle in main.js
+                }
+
+            } else {
+                v2d.style.opacity = '0';
+                v2d.style.pointerEvents = 'none';
+                v2d.style.zIndex = '0';
+
+                v3d.style.opacity = '1';
+                v3d.style.pointerEvents = 'auto';
+                v3d.style.zIndex = '10';
+
+                tools.style.transform = 'translateX(-200%)';
+                tools.style.opacity = '0';
+
+                if (view === '3d') {
+                    btn3d?.classList.add('bg-white', 'shadow', 'text-gray-900');
+                    btn3d?.classList.remove('text-gray-600', 'hover:bg-gray-200');
+
+                    // Ensure 3D mode in main.js
+                    if (window.AppState) window.AppState.currentView = '3d';
+
+                    // Ensure NOT first person
+                    if (window.AppState && window.AppState.isFirstPerson) {
+                        // Find walk button and click it to toggle off
+                        const walkBtn = document.getElementById('walk-btn'); // The one in main.js logic
+                        if (walkBtn) walkBtn.click();
+                        else window.dispatchEvent(new CustomEvent('toggle-walk')); // Fallback
+                    }
+
+                    // Trigger resize for Three.js
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+
+                    // Ensure we are looking at model not panorama if possible
+                    // main.js expects 'view-toggle' checkbox to handle this.
+                    // We will shim it.
+                    const toggle = document.getElementById('view-toggle');
+                    // But we don't have that checkbox in new UI. We have 'window.togglePanorama3D' helper below.
+                    // Let's make sure we are in 3D model mode if user clicked '3D Preview'
+                    const render3d = document.getElementById('render-3d-view');
+                    const cv = document.getElementById('cv');
+                    if (render3d && render3d.style.display === 'none') {
+                        render3d.style.display = 'block';
+                        cv.style.display = 'none';
+                        if (window.AppState) window.AppState.currentView = '3d';
+                    }
+                }
+
+                if (view === 'first-person') {
+                    btnFp?.classList.add('bg-white', 'shadow', 'text-gray-900');
+                    btnFp?.classList.remove('text-gray-600', 'hover:bg-gray-200');
+
+                    // Make sure we are in 3D model mode
+                    const render3d = document.getElementById('render-3d-view');
+                    const cv = document.getElementById('cv');
+                    render3d.style.display = 'block';
+                    cv.style.display = 'none';
+                    if (window.AppState) window.AppState.currentView = '3d';
+
+                    // Trigger walk mode
+                    // We create a hidden button that main.js attaches to, or dispatch custom event
+                    const walkBtn = document.getElementById('walk-btn');
+                    if (walkBtn && (!window.AppState || !window.AppState.isFirstPerson)) {
+                        walkBtn.click();
+                    }
+
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+                }
+            }
+            currentView = view;
+        };
+
+        window.toggleDropdown = function (id) {
+            const el = document.getElementById(id);
+            const isHidden = el.classList.contains('hidden');
+            // Close all others
+            document.querySelectorAll('[id$="-menu"]').forEach(m => m.classList.add('hidden'));
+            if (isHidden) el.classList.remove('hidden');
+        };
+
+        window.togglePanorama3D = function () {
+            const cv = document.getElementById('cv');
+            const r3d = document.getElementById('render-3d-view');
+            if (r3d.style.display !== 'none') {
+                r3d.style.display = 'none';
+                cv.style.display = 'block';
+                if (window.AppState) window.AppState.currentView = 'panorama';
+            } else {
+                r3d.style.display = 'block';
+                cv.style.display = 'none';
+                if (window.AppState) window.AppState.currentView = '3d';
+                // Trigger update in main.js if available
+                if (window.update3DFloorplan) window.update3DFloorplan();
+            }
+        };
+
+        // Helper to bridge main.js expectations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Create hidden walk-btn for main.js binding if needed
+            if (!document.getElementById('walk-btn')) {
+                const btn = document.createElement('button');
+                btn.id = 'walk-btn';
+                btn.style.display = 'none';
+                document.body.appendChild(btn);
+            }
+
+            // Create hidden view-toggle checkbox for main.js binding
+            if (!document.getElementById('view-toggle')) {
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.id = 'view-toggle';
+                chk.style.display = 'none';
+                document.body.appendChild(chk);
+            }
+
+            // File upload bridge
+            const uploadArea = document.getElementById('upload-area');
+            const fileInput = document.getElementById('file-upload');
+
+            uploadArea.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('border-primary'); });
+            uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); uploadArea.classList.remove('border-primary'); });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('border-primary');
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    fileInput.dispatchEvent(new Event('change'));
+                }
+            });
+
+            // Initialize 2D view
+            setView('2d');
+        });
+
+        function exportBlueprint() {
+            const canvas = document.getElementById('blueprint-canvas');
+            const link = document.createElement('a');
+            link.download = 'blueprint.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+
+
+    </script>
+</body>
+
+</html>
