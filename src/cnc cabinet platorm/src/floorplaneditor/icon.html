@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  
+
+    <link rel="apple-touch-icon" type="image/png" href="https://cpwebassets.codepen.io/assets/favicon/apple-touch-icon-5ae1a0698dcc2402e9712f7d01ed509a57814f994c660df9f7a952f3060705ee.png" />
+
+    <meta name="apple-mobile-web-app-title" content="CodePen">
+
+    <link rel="icon" type="image/x-icon" href="https://cpwebassets.codepen.io/assets/favicon/favicon-aec34940fbc1a6e787974dcd360f2c6b63348d4b1f4e06c77743096d55480f33.ico" />
+
+    <link rel="mask-icon" type="image/x-icon" href="https://cpwebassets.codepen.io/assets/favicon/logo-pin-b4b4269c16397ad2f0f7a01bcdf513a1994f4c94b8af2f191c09eb0d601762b1.svg" color="#111" />
+
+
+
+  
+    <script src="https://cpwebassets.codepen.io/assets/common/stopExecutionOnTimeout-2c7831bb44f98c1391d6a4ffda0e1fd302503391ca806e7fcc7b9b87197aec26.js"></script>
+
+
+  <title>Navicon Transformicons</title>
+
+    <link rel="canonical" href="https://codepen.io/bennettfeely/pen/DrvpJr">
+  
+  <link rel="stylesheet" href="https://public.codepenassets.com/css/reset-2.0.min.css">
+
+  
+  
+<style>
+@charset "UTF-8";
+.navicon-button {
+  display: inline-block;
+  position: relative;
+  padding: 2.0625rem 1.5rem;
+  transition: 0.25s;
+  cursor: pointer;
+  user-select: none;
+  opacity: 0.8;
+}
+.navicon-button .navicon:before, .navicon-button .navicon:after {
+  transition: 0.25s;
+}
+.navicon-button:hover {
+  transition: 0.5s;
+  opacity: 1;
+}
+.navicon-button:hover .navicon:before, .navicon-button:hover .navicon:after {
+  transition: 0.25s;
+}
+.navicon-button:hover .navicon:before {
+  top: 0.825rem;
+}
+.navicon-button:hover .navicon:after {
+  top: -0.825rem;
+}
+
+.navicon {
+  position: relative;
+  width: 2.5em;
+  height: 0.3125rem;
+  background: #FFF;
+  transition: 0.5s;
+  border-radius: 2.5rem;
+}
+.navicon:before, .navicon:after {
+  display: block;
+  content: "";
+  height: 0.3125rem;
+  width: 2.5rem;
+  background: #FFF;
+  position: absolute;
+  z-index: -1;
+  transition: 0.5s 0.25s;
+  border-radius: 1rem;
+}
+.navicon:before {
+  top: 0.625rem;
+}
+.navicon:after {
+  top: -0.625rem;
+}
+
+.open:not(.steps) .navicon:before,
+.open:not(.steps) .navicon:after {
+  top: 0 !important;
+}
+
+.open .navicon:before,
+.open .navicon:after {
+  transition: 0.5s;
+}
+
+/* Minus */
+.open {
+  transform: scale(0.75);
+}
+
+/* Arrows */
+.open.larr .navicon:before, .open.larr .navicon:after,
+.open.rarr .navicon:before,
+.open.rarr .navicon:after,
+.open.uarr .navicon:before,
+.open.uarr .navicon:after {
+  width: 1.5rem;
+}
+.open.larr .navicon:before,
+.open.rarr .navicon:before,
+.open.uarr .navicon:before {
+  transform: rotate(35deg);
+  transform-origin: left top;
+}
+.open.larr .navicon:after,
+.open.rarr .navicon:after,
+.open.uarr .navicon:after {
+  transform: rotate(-35deg);
+  transform-origin: left bottom;
+}
+
+.open.uarr {
+  transform: scale(0.75) rotate(90deg);
+}
+
+/* Arrows */
+.open.rarr .navicon:before {
+  transform: translate3d(1em, 0, 0) rotate(-35deg);
+  transform-origin: right top;
+}
+.open.rarr .navicon:after {
+  transform: translate3d(1em, 0, 0) rotate(35deg);
+  transform-origin: right bottom;
+}
+
+/* × and + */
+.open.plus .navicon,
+.open.x .navicon {
+  background: transparent;
+}
+.open.plus .navicon:before,
+.open.x .navicon:before {
+  transform: rotate(-45deg);
+}
+.open.plus .navicon:after,
+.open.x .navicon:after {
+  transform: rotate(45deg);
+}
+
+.open.plus {
+  transform: scale(0.75) rotate(45deg);
+}
+
+/* Base ================== */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 100%;
+}
+
+html, body, section {
+  position: relative;
+  height: 100%;
+}
+
+body {
+  font-family: sans-serif;
+  background: #274380;
+  padding: 1.5rem 1.5rem 0;
+  backface-visibility: hidden;
+}
+
+section {
+  max-width: 40rem;
+  margin: 0 auto;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background: #FFF;
+  overflow: hidden;
+  /* Smoother animations */
+}
+section *, section *:before, section *:after {
+  transform: translate3d(0, 0, 0);
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  height: 4.5rem;
+  background: #000;
+  text-align: right;
+  border-radius: 0.5rem 0.5rem 0 0;
+  padding: 0 1rem;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1 {
+  text-align: right;
+  padding: 1.5rem;
+  opacity: 0.5;
+  transition: 1s;
+  pointer-events: none;
+}
+h1.fade {
+  opacity: 0;
+}
+
+#carbonads {
+  --width: 180px;
+  --font-size: 14px;
+}
+
+#carbonads {
+  display: block;
+  overflow: hidden;
+  max-width: var(--width);
+  font-size: var(--font-size);
+  margin: 0 2em;
+  background: rgba(39, 67, 128, 0.1);
+  padding: 0.5em;
+  border-radius: 1rem;
+}
+#carbonads:hover {
+  color: dodgerblue;
+}
+
+#carbonads a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.carbon-img img {
+  display: block;
+  margin: 1rem auto;
+  width: 100%;
+  height: auto;
+  background: white;
+  border-radius: 5px;
+}
+
+.carbon-text {
+  display: block;
+  padding: 0 1rem;
+}
+
+.carbon-poweredby {
+  display: block;
+  padding: 1rem 1rem 0.5rem;
+  font-size: smaller;
+  opacity: 0.5;
+}
+</style>
+
+  <script>
+  window.console = window.console || function(t) {};
+</script>
+
+  <script src="https://public.codepenassets.com/js/prefixfree-1.0.7.min.js"></script>
+
+  
+</head>
+
+<body translate="no">
+  <section>
+  <nav>
+    <a class="navicon-button larr">
+      <div class="navicon"></div>
+    </a>
+    <a class="navicon-button rarr">
+      <div class="navicon"></div>
+    </a>
+    <a class="navicon-button uarr">
+      <div class="navicon"></div>
+    </a>    
+    <a class="navicon-button x">
+      <div class="navicon"></div>
+    </a>
+    <a class="navicon-button plus">
+      <div class="navicon"></div>
+    </a>
+    <a class="navicon-button">
+      <div class="navicon"></div>
+    </a>
+  </nav>
+  <h1>Click the icons!</h1>
+	<!-- =========== -->
+	<!-- Delete this script tag if copying this code -->
+	<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CKYIL27N&placement=bennettfeelycom" id="_carbonads_js"></script>
+	<!-- =========== -->
+</section>
+  <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script id="rendered-js" >
+$("a").click(function () {
+  $(this).toggleClass("open");
+  $("h1").addClass("fade");
+});
+//# sourceURL=pen.js
+  </script>
+
+  
+</body>
+
+</html>

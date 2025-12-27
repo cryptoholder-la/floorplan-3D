@@ -1,0 +1,874 @@
+Project Context Index (chunked every ~10 lines per file)
+
+- Use this file to track context chunks when splitting large contents.
+- Format:
+  [filename] - chunk N
+  (line 1..10)
+  ---
+  (line 11..20)
+  ---
+
+[index.html] - chunk 1
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Modular Kitchen Designer</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://esm.sh/three@0.160.0",
+      "three/examples/jsm/controls/OrbitControls.js": "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js",
+      "nipplejs": "https://esm.sh/nipplejs@0.9.0",
+      "jspdf": "https://esm.sh/jspdf@2.5.1"
+    }
+  }
+  </script>
+  <script type="module" src="./main.js"></script>
+</head>
+<body>
+  <div id="app">
+    <canvas id="c"></canvas>
+    <div id="ui">
+      <div class="bar" id="menuBar">
+        <select id="tabSelect">
+          <option value="Cabinets">Cabinets</option>
+          <option value="Fixtures">Fixtures</option>
+          <option value="Room">Room</option>
+          <option value="Accessories">Accessories</option>
+          <option value="Electrical">Electrical</option>
+          <option value="Plumbing">Plumbing</option>
+          <option value="Ventilation">Ventilation</option>
+          <option value="Ceiling">Ceiling</option>
+        </select>
+        <select id="itemSelect"></select>
+        <button id="openSide">Open Panel</button>
+        <button id="toggleInfo">Toggle Tips</button>
+        <button id="openTemplate">Template Builder</button>
+        <button id="openTemplateMaker">Template Maker</button>
+        <button id="openQuickPick">Quick Pick</button>
+        <button id="openScanner">Floorplan Scanner</button>
+        <select id="openPanelSelect">
+          <option value="Base Cabinets">Base Cabinets</option>
+          <option value="Wall Cabinets">Wall Cabinets</option>
+          <option value="Tall Cabinets">Tall Cabinets</option>
+          <option value="Appliances">Appliances</option>
+          <option value="Openings">Openings</option>
+          <option value="Utilities">Utilities</option>
+          <option value="React DragDrop">React DragDrop</option>
+        </select>
+        <button id="openPanel">Open Panel</button>
+      </div>
+      <div class="panel" id="sidePanel">
+        <div style="display:flex; gap:6px; margin-bottom:8px;">
+          <button id="panelDock">Dock</button>
+          <button id="panelFull">Full</button>
+          <button id="panelHide">Hide</button>
+        </div>
+        <div id="sideContent">
+          <canvas id="previewCanvas"></canvas>
+          <div id="controlFields"></div>
+        </div>
+      </div>
+      <div class="bar">
+        <select id="roomSelect"></select>
+        <select id="cabinetType"></select>
+        <select id="cabinetWidth"></select>
+        <select id="finishSelect"></select>
+        <select id="handleStyle"></select>
+        <button id="addCabinet">Add Cabinet</button>
+        <button id="nkbaCheck">NKBA Check</button>
+        <button id="exportPdf">Export PDF</button>
+      </div>
+      <div class="panel" id="infoPanel">
+        <div id="infoDrag" style="font-weight:600; margin-bottom:8px;">Tips & Selection</div>
+        <div><strong>Selection:</strong> <span id="selectionLabel">None</span></div>
+        <div><strong>Tips:</strong> Click to select, drag to move, R to rotate 90°, Del to remove, WASD to move, mobile joystick enabled.</div>
+        <div id="nkbaReport"></div>
+      </div>
+    </div>
+    <div id="joystick"></div>
+  </div>
+---
+[index.html] - chunk 2
+  </body>
+</html>
+
+[dragdrop.html] - chunk 1
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>React Drag & Drop Panel</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@18.2.0",
+      "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+      "lucide-react": "https://esm.sh/lucide-react@0.469.0"
+    }
+  }
+  </script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+  <div style="position:fixed; top:8px; left:8px; right:8px; z-index:9999; display:flex; gap:8px; justify-content:flex-end;">
+    <a href="index.html" class="px-3 py-1 border rounded-lg bg-white">Back to Designer</a>
+    <a href="template.html" class="px-3 py-1 border rounded-lg bg-white">Template Builder</a>
+    <a href="template_maker.html" class="px-3 py-1 border rounded-lg bg-white">Template Maker</a>
+    <a href="quickpick.html" class="px-3 py-1 border rounded-lg bg-white">Quick Pick</a>
+    <a href="Kitchen Floorplan Scanner.html" class="px-3 py-1 border rounded-lg bg-white">Floorplan Scanner</a>
+  </div>
+  <div id="root" class="min-h-screen"></div>
+  <script type="module">
+    import React from 'react';
+    import { createRoot } from 'react-dom/client';
+    import DragDropItemPanel from './dragdrop.jsx';
+    const root = createRoot(document.getElementById('root'));
+    root.render(React.createElement('div', { className: 'flex w-full min-h-screen' }, [
+      React.createElement('main', { key: 'canvas', className: 'flex-1 bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400' }, '3D Design Canvas'),
+      React.createElement(DragDropItemPanel, { key: 'panel' })
+    ]));
+  </script>
+---
+[styles.css] - chunk 1
+:root { --bg:#fff; --fg:#111; --muted:#666; --border:#e6e6e6; }
+html,body,#app { height:100%; margin:0; background:var(--bg); color:var(--fg); font-family:"Noto Sans", system-ui, sans-serif; }
+#c { width:100%; height:100%; display:block; }
+#ui { position:fixed; top:0; left:0; right:0; pointer-events:none; }
+.bar { pointer-events:auto; display:flex; gap:8px; align-items:center; padding:10px; background:rgba(255,255,255,0.9); border-bottom:1px solid var(--border); }
+.bar select, .bar button { height:32px; padding:0 10px; border:1px solid var(--border); background:#fff; }
+.panel { pointer-events:auto; position:fixed; right:10px; top:60px; width:320px; padding:12px; border:1px solid var(--border); background:rgba(255,255,255,0.95); }
+#nkbaReport { margin-top:8px; color:var(--muted); font-size:14px; white-space:pre-line; }
+#joystick { position:fixed; bottom:20px; left:20px; width:140px; height:140px; }
+button { cursor:pointer; transition:transform 120ms ease; }
+button:active { transform:scale(0.98); }
+#sidePanel { max-height: calc(100% - 80px); overflow:auto; }
+#sidePanel.full { left:10px; right:10px; width:auto; height: calc(100% - 80px); }
+#sidePanel.hidden { display:none; }
+#sideContent { display:grid; grid-template-columns: 1fr 2fr; gap:10px; }
+#previewCanvas { width:100%; height:180px; background:#f7f7f7; border:1px solid var(--border); }
+#infoDrag { cursor: move; user-select: none; }
+#infoPanel.hidden { display:none; }
+---
+[ui.js] - chunk 1
+import { createCabinet } from './inventory.js';
+import { runNKBA } from './nkba.js';
+import { rebuildAccessories } from './accessories.js';
+import { rebuildOpenings } from './roomModels.js';
+
+export function setupUI({ scene, cabinetGroup, accessoriesGroup, roomGroup, api }) {
+  const addBtn = document.getElementById('addCabinet');
+  const typeSel = document.getElementById('cabinetType');
+  const widthSel = document.getElementById('cabinetWidth');
+  const finishSel = document.getElementById('finishSelect');
+  const handleSel = document.getElementById('handleStyle');
+  const nkbaBtn = document.getElementById('nkbaCheck');
+  const report = document.getElementById('nkbaReport');
+
+  addBtn.addEventListener('click', () => {
+    const cab = createCabinet(typeSel.value, parseInt(widthSel.value, 10), finishSel.value, handleSel.value);
+    // Initial position: center on floor or snapped wall height handled in createCabinet
+    cab.position.set(0, cab.position.y, -cab.userData.depth / 2);
+    cabinetGroup.add(cab);
+    api.select(cab);
+    document.getElementById('selectionLabel').textContent = `${cab.userData.type} ${cab.userData.width}\" (${cab.userData.finish})`;
+    rebuildAccessories({ cabinetGroup, roomGroup, accessoriesGroup });
+    rebuildOpenings({ roomGroup, cabinetGroup });
+  });
+
+  const infoPanel = document.getElementById('infoPanel');
+  document.getElementById('toggleInfo').onclick = () => infoPanel.classList.toggle('hidden');
+  const dragHandle = document.getElementById('infoDrag');
+  let drag = null;
+  dragHandle.addEventListener('mousedown', (e) => {
+    const rect = infoPanel.getBoundingClientRect();
+    drag = { ox: e.clientX - rect.left, oy: e.clientY - rect.top };
+    infoPanel.style.right = 'auto';
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+  function onMove(e){ if(!drag) return; infoPanel.style.left = `${e.clientX - drag.ox}px`; infoPanel.style.top = `${e.clientY - drag.oy}px`; }
+  function onUp(){ drag = null; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+---
+[accessories.js] - chunk 1
+import * as THREE from 'three';
+
+const MATS = {
+  countertop: new THREE.MeshStandardMaterial({ color: 0xd8d2c4, roughness: 0.7, metalness: 0.05 }),
+  toekick: new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.6, metalness: 0.1 }),
+  crown: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0.02 }),
+  lightrail: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8, metalness: 0.02 }),
+  scribe: new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.9, metalness: 0.02 }),
+  filler: new THREE.MeshStandardMaterial({ color: 0xeaeaea, roughness: 0.9, metalness: 0.02 })
+};
+
+export function rebuildAccessories({ cabinetGroup, roomGroup, accessoriesGroup }) {
+  if (!accessoriesGroup) return;
+  accessoriesGroup.clear();
+
+  const baseCabs = [];
+  const wallCabs = [];
+  const all = cabinetGroup.children;
+
+  all.forEach(c => {
+    const kind = c.userData.kind || c.userData.type;
+    if (kind && (kind.startsWith('Base') || kind === 'Base')) baseCabs.push(c);
+    if (kind && (kind.startsWith('Wall') || kind === 'Wall')) wallCabs.push(c);
+  });
+
+  // Per-cabinet accessories
+  baseCabs.forEach(c => {
+    addCountertop(c, accessoriesGroup);
+    addToekick(c, accessoriesGroup);
+    addScribeIfNearWall(c, roomGroup, accessoriesGroup);
+  });
+  wallCabs.forEach(c => {
+    addCrown(c, accessoriesGroup);
+    addLightRail(c, accessoriesGroup);
+    addScribeIfNearWall(c, roomGroup, accessoriesGroup);
+  });
+
+  // Auto fillers between adjacent cabinets and to walls
+  addFillers(baseCabs, roomGroup, accessoriesGroup);
+  addFillers(wallCabs, roomGroup, accessoriesGroup);
+}
+---
+[photo2plan.jsx] - chunk 1
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  Camera, 
+  Ruler, 
+  Layers, 
+  Eye, 
+  EyeOff, 
+  Save, 
+  Upload, 
+  Download,
+  Grid,
+  Target,
+  CheckCircle,
+  AlertTriangle,
+  Info,
+  Settings,
+  RotateCcw,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Minimize2,
+  Move,
+  Scale,
+  Hash,
+  Edit3,
+  Plus,
+  Minus,
+  X,
+  Loader,
+  RefreshCw,
+  UserCheck,
+  Building,
+  Calendar,
+  Phone,
+  Mail,
+  MessageSquare,
+  CheckCircle as CheckCircleIcon,
+  AlertTriangle as AlertTriangleIcon,
+  Info as InfoIcon,
+  HelpCircle,
+  Menu,
+  Sliders,
+  BookOpen,
+  GraduationCap,
+  Lightbulb,
+  Target as TargetIcon,
+  Gift,
+  Bell,
+  BellOff,
+  Activity,
+  Thermometer,
+  WifiOff,
+  CloudOff,
+  HardDriveOff,
+  SmartphoneOff,
+  FilePlus,
+  FileMinus,
+  FileCheck,
+  FileWarning,
+  Rotate,
+  UserCheck as UserCheckIcon,
+  MapPin,
+  Copy,
+  Share2,
+  Grid3X3,
+  Package,
+  Truck,
+  Scale as ScaleIcon,
+  ClipboardList,
+  FileSignature,
+  Shield,
+  Star,
+  TrendingUp,
+  BarChart3,
+  FileText,
+  Users,
+  ShoppingCart
+} from 'lucide-react';
+
+// Floorplan Generator with Facial Recognition-Based Measurement Scaling
+export default function KitchenFloorplanScanner() {
+  const [step, setStep] = useState('upload'); // 'upload', 'calibrate', 'detect', 'review', 'export'
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [referenceMeasurements, setReferenceMeasurements] = useState([]);
+  const [detectedFeatures, setDetectedFeatures] = useState({
+    ceilingHeight: null,
+    floorLevel: null,
+    walls: [],
+    windows: [],
+    doors: [],
+    obstacles: [],
+    lowSpots: []
+  });
+  const [scaleFactor, setScaleFactor] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [activeTool, setActiveTool] = useState('measure'); // 'measure', 'wall', 'window', 'door', 'obstacle'
+  const [manualPoints, setManualPoints] = useState([]);
+  const [floorplanData, setFloorplanData] = useState(null);
+  const [showOverlay, setShowOverlay] = useState(true);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+
+  const imageRef = useRef(null);
+  const canvasRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  // Simulate facial recognition for scale reference (in real app this would use ML)
+  const simulateFacialRecognition = (image) => {
+    // In a real implementation, this would use a facial recognition API
+    // to detect human faces and estimate height based on average proportions
+    return {
+      detected: true,
+      estimatedHeight: 68, // inches (5'8")
+      confidence: 0.85,
+      facePosition: { x: 150, y: 200, width: 60, height: 80 }
+    };
+  };
+
+  // Handle image upload
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setUploadedImage(e.target.result);
+        setStep('calibrate');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Auto-detect reference using facial recognition
+  const autoDetectReference = () => {
+    if (!uploadedImage) return;
+
+    setIsProcessing(true);
+    // Simulate processing delay
+    setTimeout(() => {
+      const faceData = simulateFacialRecognition(uploadedImage);
+      if (faceData.detected) {
+        // Use average human height (68 inches) as reference
+        const referenceMeasurement = {
+          id: Date.now(),
+          type: 'auto-reference',
+          points: [faceData.facePosition.x, faceData.facePosition.y],
+          actualLength: 68, // inches
+          label: 'Auto-detected reference (68")'
+        };
+        setReferenceMeasurements([referenceMeasurement]);
+        setScaleFactor(68 / faceData.facePosition.height); // pixels per inch
+      }
+      setIsProcessing(false);
+    }, 2000);
+  };
+
+  // Add manual measurement
+  const addManualMeasurement = (startX, startY, endX, endY) => {
+    if (referenceMeasurements.length >= 10) return;
+
+    const actualLength = prompt('Enter actual length in inches:');
+    if (actualLength && !isNaN(actualLength)) {
+      const newMeasurement = {
+        id: Date.now(),
+        type: 'manual',
+        points: [startX, startY, endX, endY],
+        actualLength: parseFloat(actualLength),
+        label: `Manual (${actualLength}")`
+      };
+      setReferenceMeasurements([...referenceMeasurements, newMeasurement]);
+      // Calculate scale factor
+      const pixelDistance = Math.sqrt(
+        Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)
+      );
+      const newScaleFactor = parseFloat(actualLength) / pixelDistance;
+      setScaleFactor(newScaleFactor);
+    }
+  };
+
+  // Process image and detect features
+  const processImage = () => {
+    if (!uploadedImage || referenceMeasurements.length === 0 || !scaleFactor) {
+      alert('Please provide at least one reference measurement');
+      return;
+    }
+
+    setIsProcessing(true);
+    setStep('detect');
+
+    // Simulate detection of room features
+    setTimeout(() => {
+      const mockDetectedFeatures = {
+        ceilingHeight: 96, // 8 feet
+        floorLevel: 0,
+        walls: [
+          { id: 1, x1: 50, y1: 300, x2: 550, y2: 300, type: 'bottom' },
+          { id: 2, x1: 550, y1: 300, x2: 550, y2: 100, type: 'right' },
+          { id: 3, x1: 550, y2: 100, x2: 50, y2: 100, type: 'top' },
+          { id: 4, x1: 50, y1: 100, x2: 50, y2: 300, type: 'left' }
+        ],
+        windows: [
+          { id: 1, x: 200, y: 150, width: 48, height: 36 }
+        ],
+        doors: [
+          { id: 1, x: 400, y: 300, width: 36, height: 80 }
+        ],
+        obstacles: [],
+        lowSpots: [
+          { id: 1, x: 300, y: 250, depth: 0.25 } // 1/4 inch low spot
+        ]
+      };
+      setDetectedFeatures(mockDetectedFeatures);
+      setIsProcessing(false);
+      setStep('review');
+    }, 3000);
+  };
+
+  // Handle canvas click for measurements
+  const handleCanvasClick = (event) => {
+    if (step !== 'calibrate' || activeTool !== 'measure') return;
+
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = (event.clientX - rect.left - panOffset.x) / zoomLevel;
+    const y = (event.clientY - rect.top - panOffset.y) / zoomLevel;
+
+    if (manualPoints.length === 0) {
+      setManualPoints([x, y]);
+    } else {
+      addManualMeasurement(manualPoints[0], manualPoints[1], x, y);
+      setManualPoints([]);
+    }
+  };
+
+  // Draw overlay on canvas
+  const drawOverlay = () => {
+    const canvas = canvasRef.current;
+    if (!canvas || !uploadedImage) return;
+
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+
+      // Draw reference measurements
+      referenceMeasurements.forEach(measurement => {
+        ctx.strokeStyle = measurement.type === 'auto-reference' ? '#00ff00' : '#ff0000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        if (measurement.type === 'auto-reference') {
+          const [x, y] = measurement.points;
+          ctx.rect(x - 30, y - 40, 60, 80);
+        } else {
+          const [x1, y1, x2, y2] = measurement.points;
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+        }
+
+        ctx.stroke();
+
+        // Draw label
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '14px Arial';
+        ctx.fillText(measurement.label, measurement.points[0] + 10, measurement.points[1] - 10);
+      });
+
+      // Draw manual measurement in progress
+      if (manualPoints.length === 1) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = (rect.width / 2) / zoomLevel; // Simplified
+        const mouseY = (rect.height / 2) / zoomLevel;
+
+        ctx.strokeStyle = '#0000ff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(manualPoints[0], manualPoints[1]);
+        ctx.lineTo(mouseX, mouseY);
+        ctx.stroke();
+      }
+    };
+    img.src = uploadedImage;
+  };
+
+  // Export floorplan
+  const exportFloorplan = () => {
+    // Generate floorplan data structure
+    const floorplan = {
+      scale: scaleFactor,
+      dimensions: {
+        ceilingHeight: detectedFeatures.ceilingHeight,
+        floorLevel: detectedFeatures.floorLevel
+      },
+      walls: detectedFeatures.walls,
+      windows: detectedFeatures.windows,
+      doors: detectedFeatures.doors,
+      obstacles: detectedFeatures.obstacles,
+      lowSpots: detectedFeatures.lowSpots,
+      referenceMeasurements: referenceMeasurements
+    };
+
+    setFloorplanData(floorplan);
+
+    // Download as JSON
+    const blob = new Blob([JSON.stringify(floorplan, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'kitchen_floorplan.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // Reset all data
+  const resetAll = () => {
+    setUploadedImage(null);
+    setReferenceMeasurements([]);
+    setDetectedFeatures({
+      ceilingHeight: null,
+      floorLevel: null,
+      walls: [],
+      windows: [],
+      doors: [],
+      obstacles: [],
+      lowSpots: []
+    });
+    setScaleFactor(null);
+    setManualPoints([]);
+    setFloorplanData(null);
+    setStep('upload');
+  };
+
+  // Redraw canvas when dependencies change
+  useEffect(() => {
+    if (step === 'calibrate') {
+      drawOverlay();
+    }
+  }, [uploadedImage, referenceMeasurements, manualPoints, step]);
+
+  return (
+    <div className="h-screen bg-gray-50 flex flex-col">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <Camera className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">Kitchen Floorplan Scanner</h1>
+              <p className="text-sm text-gray-600">AI-powered measurement from photos</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {step !== 'upload' && (
+              <button
+                onClick={resetAll}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Reset
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <div className="flex-1 flex overflow-hidden">
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col">
+          {/* Step Indicator */}
+          <div className="bg-white border-b border-gray-200 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-8">
+                {['Upload', 'Calibrate', 'Detect', 'Review', 'Export'].map((label, index) => {
+                  const currentStepIndex = ['upload', 'calibrate', 'detect', 'review', 'export'].indexOf(step);
+                  let status = 'inactive';
+                  if (index < currentStepIndex) status = 'complete';
+                  if (index === currentStepIndex) status = 'active';
+
+                  return (
+                    <div key={label} className="flex items-center gap-2">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${status === 'complete' ? 'bg-green-500 text-white' : status === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
+                          }`}
+                      >
+                        {status === 'complete' ? <CheckCircleIcon className="w-4 h-4" /> : index + 1}
+                      </div>
+                      <span
+                        className={`text-sm ${status === 'complete' ? 'text-green-600' : status === 'active' ? 'text-blue-600 font-medium' : 'text-gray-500'
+                          }`}
+                      >
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {isProcessing && (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <Loader className="w-5 h-5 animate-spin" />
+                  <span>Processing...</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Upload Step */}
+          {step === 'upload' && (
+            <div className="flex-1 flex items-center justify-center bg-gray-100">
+              <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full mx-4 text-center">
+                <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Upload Kitchen Photo</h2>
+                <p className="text-gray-600 mb-6">
+                  Take a clear photo of the entire kitchen. Including a person helps with automatic scaling.
+                </p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 font-medium"
+                >
+                  Choose Photo
+                </button>
+
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                  <h3 className="font-medium text-blue-800 mb-2">Tips for Best Results:</h3>
+                  <ul className="text-sm text-blue-700 space-y-1 text-left">
+                    <li>• Stand in a corner for wide coverage</li>
+                    <li>• Ensure good lighting</li>
+                    <li>• Include a person for automatic scaling</li>
+                    <li>• Capture all walls, windows, and doors</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Calibration Step */}
+          {step === 'calibrate' && (
+            <div className="flex-1 flex flex-col">
+              <div className="flex-1 bg-gray-100 relative overflow-hidden">
+                {uploadedImage && (
+                  <canvas
+                    ref={canvasRef}
+                    onClick={handleCanvasClick}
+                    className="absolute inset-0 cursor-crosshair"
+                    style={{
+                      transform: `scale(${zoomLevel}) translate(${panOffset.x}px, ${panOffset.y}px)`,
+                      transformOrigin: '0 0'
+                    }}
+                  />
+                )}
+              </div>
+
+              <div className="bg-white border-t border-gray-200 p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Calibration</h3>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setZoomLevel(Math.max(0.5, zoomLevel - 0.1))}
+                      className="p-2 border border-gray-300 rounded"
+                    >
+                      <ZoomOut className="w-4 h-4" />
+                    </button>
+                    <span className="text-sm">{Math.round(zoomLevel * 100)}%</span>
+                    <button
+                      onClick={() => setZoomLevel(Math.min(3, zoomLevel + 0.1))}
+                      className="p-2 border border-gray-300 rounded"
+                    >
+                      <ZoomIn className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-medium text-gray-700 mb-2">Reference Measurements</h4>
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {referenceMeasurements.map(measurement => (
+                        <div key={measurement.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                          <span className="text-sm">{measurement.label}</span>
+                          <button
+                            onClick={() =>
+                              setReferenceMeasurements(refMeasurements =>
+                                refMeasurements.filter(m => m.id !== measurement.id)
+                              )
+                            }
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                      {referenceMeasurements.length === 0 && (
+                        <p className="text-sm text-gray-500">No measurements added yet</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-gray-700 mb-2">Tools</h4>
+                    <div className="space-y-2">
+                      <button
+                        onClick={autoDetectReference}
+                        disabled={isProcessing}
+                        className="w-full flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        <UserCheckIcon className="w-4 h-4" />
+                        Auto-detect Reference
+                      </button>
+
+                      <button
+                        onClick={() => setActiveTool('measure')}
+                        className={`w-full flex items-center gap-2 px-4 py-2 rounded ${activeTool === 'measure' ? 'bg-blue-100 border-blue-300 text-blue-700' : 'border border-gray-300 hover:bg-gray-50'
+                          }`}
+                      >
+                        <Ruler className="w-4 h-4" />
+                        Add Manual Measurement
+                      </button>
+                    </div>
+
+                    {referenceMeasurements.length > 0 && (
+                      <button
+                        onClick={processImage}
+                        className="w-full mt-4 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 font-medium"
+                      >
+                        Process Image
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Detection Step */}
+          {step === 'detect' && (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <Loader className="w-16 h-16 text-blue-600 animate-spin mx-auto mb-4" />
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Analyzing Kitchen</h2>
+                <p className="text-gray-600">
+                  Detecting walls, windows, doors, and room dimensions...
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Review Step */}
+          {step === 'review' && (
+            <div className="flex-1 flex flex-col">
+              <div className="flex-1 bg-gray-100 p-4">
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Detected Features</h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Ceiling Height */}
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-medium text-gray-700 mb-2">Ceiling Height</h4>
+                      <p className="text-2xl font-bold text-green-600">
+                        {detectedFeatures.ceilingHeight}\" ({(detectedFeatures.ceilingHeight / 12).toFixed(1)} ft)
+                      </p>
+                    </div>
+
+                    {/* Walls */}
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-medium text-gray-700 mb-2">Walls Detected</h4>
+                      <p className="text-2xl font-bold text-blue-600">{detectedFeatures.walls.length}</p>
+                    </div>
+
+                    {/* Windows & Doors */}
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-medium text-gray-700 mb-2">Openings</h4>
+                      <div className="space-y-1">
+                        <p className="text-sm">Windows: <span className="font-medium">{detectedFeatures.windows.length}</span></p>
+                        <p className="text-sm">Doors: <span className="font-medium">{detectedFeatures.doors.length}</span></p>
+                      </div>
+                    </div>
+
+                    {/* Low Spots */}
+                    {detectedFeatures.lowSpots.length > 0 && (
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <h4 className="font-medium text-gray-700 mb-2">Floor Issues</h4>
+                        <p className="text-sm text-red-600">
+                          {detectedFeatures.lowSpots.length} low spots detected
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          Deepest: {detectedFeatures.lowSpots[0].depth}\" below level
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Detailed List */}
+                  <div className="mt-6">
+                    <h4 className="font-medium text-gray-700 mb-3">Detailed Measurements</h4>
+                    <div className="space-y-3">
+                      {detectedFeatures.walls.map(wall => (
+                        <div key={wall.id} className="flex justify-between text-sm bg-gray-50 p-2 rounded">
+                          <span>Wall {wall.type}</span>
+                          <span>{Math.round(Math.sqrt(Math.pow(wall.x2 - wall.x1, 2) + Math.pow(wall.y2 - wall.y1
+---
+[main.js] - chunk 1
+import * as THREE from 'three';
+window.THREE = THREE;
+import { initScene, getSceneAPI } from './scene.js';
+import { setupControls } from './controls.js';
+import { setupUI } from './ui.js';
+import { setupRooms } from './roomModels.js';
+import { setupInventory } from './inventory.js';
+import { setupPDF } from './pdf.js';
+import { nkbaInit } from './nkba.js';
+import { rebuildAccessories } from './accessories.js';
+import { setupMenu } from './menu.js';
+import { setupAutoFix } from './autoFix.js';
+
+function createQuickPickPanel({ renderer, api, cabinetGroup, roomGroup, accessoriesGroup }) {
+  /* chunks updated with ITEMS sections including icons */
+}

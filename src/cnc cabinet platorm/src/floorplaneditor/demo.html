@@ -1,0 +1,112 @@
+
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floorplan 3D Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #13a4ec;
+            --slate-200: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .tool-btn.active {
+            background-color: #eff6ff;
+            color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        canvas {
+            touch-action: none;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        #blueprint-canvas {
+            cursor: crosshair;
+        }
+    </style>
+
+
+    
+    <header class="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 z-50 shadow-sm">
+        <div class="flex items-center gap-4">
+            <a href="#" class="flex items-center gap-2 text-gray-900 dark:text-white hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span class="font-bold text-lg tracking-tight">Floorplan 3D</span>
+            </a>
+            
+            <!-- View Switcher -->
+            <div class="hidden md:flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg items-center gap-1">
+                <button onclick="setView('2d')" id="btn-view-2d" class="px-3 py-1.5 text-sm font-medium rounded-md transition-all bg-white dark:bg-gray-600 shadow text-gray-900 dark:text-white">
+                    2D Editor
+                </button>
+                <button onclick="setView('3d')" id="btn-view-3d" class="px-3 py-1.5 text-sm font-medium rounded-md transition-all text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500">
+                    3D Preview
+                </button>
+                <button onclick="setView('first-person')" id="btn-view-fp" class="px-3 py-1.5 text-sm font-medium rounded-md transition-all text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">directions_walk</span>
+                    Walk
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Controls -->
+        <div class="flex items-center gap-3">
+            <!-- Settings Dropdown -->
+            <div class="relative group">
+                <button class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium text-gray-700 dark:text-gray-200">
+                    <span class="material-symbols-outlined text-[20px]">settings</span>
+                    Settings
+                </button>
+                <!-- Dropdown content -->
+            </div>
+
+            <!-- Export Dropdown -->
+            <div class="relative group">
+                <button class="flex items-center gap-2 px-3 py-2 bg-gray-900 dark:bg-gray-600 text-white hover:bg-gray-800 dark:hover:bg-gray-500 rounded-lg transition-colors text-sm font-medium shadow-sm">
+                    <span class="material-symbols-outlined text-[20px]">download</span>
+                    Export
+                </button>
+                <!-- Dropdown content -->
+            </div>
+        </div>
+    </header>
+
+    
+    <div class="flex-1 relative overflow-hidden bg-gray-100 dark:bg-gray-900">
+        <!-- Mobile View Switcher -->
+        <div class="md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-2 flex justify-center gap-2">
+            </div>

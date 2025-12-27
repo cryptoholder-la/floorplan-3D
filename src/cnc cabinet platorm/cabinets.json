@@ -1,0 +1,123 @@
+{
+  "base_units": [
+    {
+      "name": "BU 1U 1d",
+      "height": 1,
+      "doors": 0,
+      "drawers": 1,
+      "style": "standard",
+      "type": "base"
+    },
+    {
+      "name": "BU 1U 2d",
+      "height": 1,
+      "doors": 0,
+      "drawers": 1,
+      "style": "standard",
+      "type": "base"
+    },
+    {
+      "name": "BU 1U 3d",
+      "height": 1,
+      "doors": 0,
+      "drawers": 1,
+      "style": "standard",
+      "type": "base"
+    },
+    {
+      "name": "BU 1U 1D",
+      "height": 1,
+      "doors": 1,
+      "drawers": 0,
+      "style": "standard",
+      "type": "base"
+    },
+    {
+      "name": "BU 1U 2D",
+      "height": 1,
+      "doors": 1,
+      "drawers": 0,
+      "style": "standard",
+      "type": "base"
+    }
+  ],
+  "tall_units": [
+    {
+      "name": "TU 12U 2-1PO 7-Fri. 3-1D",
+      "height": 12,
+      "doors": 1,
+      "drawers": 0,
+      "style": "standard",
+      "type": "tall"
+    },
+    {
+      "name": "TU 12U 3-1D 6-Int. 3-1D",
+      "height": 12,
+      "doors": 2,
+      "drawers": 0,
+      "style": "standard",
+      "type": "tall"
+    },
+    {
+      "name": "TU 13U 10-Fri. 3-1D",
+      "height": 13,
+      "doors": 1,
+      "drawers": 0,
+      "style": "standard",
+      "type": "tall"
+    },
+    {
+      "name": "TU 14U 6-6d 8-1D",
+      "height": 14,
+      "doors": 1,
+      "drawers": 1,
+      "style": "standard",
+      "type": "tall"
+    },
+    {
+      "name": "Broom TU 15U 5- 1D 10- 1D",
+      "height": 15,
+      "doors": 2,
+      "drawers": 0,
+      "style": "broom",
+      "type": "tall"
+    }
+  ],
+  "wall_units": [
+    {
+      "name": "WU 5U 1D",
+      "height": 5,
+      "doors": 1,
+      "style": "standard",
+      "type": "wall"
+    },
+    {
+      "name": "WU 5U 2D",
+      "height": 5,
+      "doors": 1,
+      "style": "standard",
+      "type": "wall"
+    },
+    {
+      "name": "Corn. WU 5U 1D",
+      "height": 5,
+      "doors": 1,
+      "style": "corner",
+      "type": "wall"
+    },
+    {
+      "name": "Peninsula WU 5U 1D 1D",
+      "height": 5,
+      "doors": 2,
+      "style": "peninsula",
+      "type": "wall"
+    },
+    {
+      "name": "WU hood vis. extr. 3U 1D",
+      "height": 3,
+      "doors": 1,
+      "style": "standard",
+      "type": "wall"
+    }
+  ]
+}

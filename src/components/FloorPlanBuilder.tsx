@@ -16,8 +16,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Download, Upload, Eye, PenTool, Trash2, Layers, Factory, Ruler, Undo2, Redo2 } from 'lucide-react';
+import { Download, Upload, Eye, PenTool, Trash2, Layers, Factory, Ruler, Undo2, Redo2, Image } from 'lucide-react';
 import { toast } from 'sonner';
+import FileUpload, { UploadedFile } from './FileUpload';
 
 export default function FloorPlanBuilder() {
   const [floorPlan, setFloorPlan] = useState<FloorPlan>(createDefaultFloorPlan());
@@ -27,6 +28,7 @@ export default function FloorPlanBuilder() {
   const isRestoringRef = useRef(false);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [showFileUpload, setShowFileUpload] = useState(false);
 
   const syncHistoryFlags = () => {
     const h = historyRef.current;
@@ -167,6 +169,35 @@ export default function FloorPlanBuilder() {
     }
   };
 
+  const handleFileUpload = (files: UploadedFile[]) => {
+    toast.success(`${files.length} file(s) uploaded successfully!`);
+    setShowFileUpload(false);
+    
+    // Add uploaded files to floor plan photos if they are images
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    if (imageFiles.length > 0) {
+      const newPhotos = imageFiles.map(file => ({
+        id: `photo_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+        name: file.originalName,
+        url: file.path,
+        position: { x: 100, y: 100 }, // Default position
+        width: 200, // Default width
+        height: 150, // Default height
+        opacity: 1, // Fully opaque
+        locked: false // Not locked by default
+      }));
+      
+      handleFloorPlanChange({
+        ...floorPlan,
+        photos: [...(floorPlan.photos || []), ...newPhotos]
+      });
+    }
+  };
+
+  const handleUploadError = (error: string) => {
+    toast.error(`Upload failed: ${error}`);
+  };
+
   return (
     <ScaleProvider>
       <div className="w-full max-w-7xl mx-auto p-4 space-y-6">
@@ -227,9 +258,13 @@ export default function FloorPlanBuilder() {
                       />
                     </label>
                   </Button>
-                  <Button variant="destructive" size="sm" onClick={handleClear}>
+                  <Button variant="outline" size="sm" onClick={handleClear}>
                     <Trash2 className="w-4 h-4 mr-2" />
                     Clear
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setShowFileUpload(!showFileUpload)}>
+                    <Image className="w-4 h-4 mr-2" />
+                    Upload Files
                   </Button>
                 </div>
               </div>
@@ -239,6 +274,19 @@ export default function FloorPlanBuilder() {
                 onFloorPlanChange={handleFloorPlanChange}
               />
             </div>
+
+            {showFileUpload && (
+              <div className="mb-6">
+                <FileUpload
+                  accept="image/*,.pdf,.dxf,.dwg"
+                  multiple={true}
+                  maxFiles={10}
+                  maxSize={50 * 1024 * 1024} // 50MB
+                  onUploadComplete={handleFileUpload}
+                  onUploadError={handleUploadError}
+                />
+              </div>
+            )}
 
           <Tabs value={activeView} onValueChange={(v) => setActiveView(v as ViewMode)} className="w-full">
             <TabsList className="grid w-full max-w-2xl grid-cols-4 mb-6">

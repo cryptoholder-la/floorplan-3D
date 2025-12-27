@@ -12,6 +12,7 @@ export default function Navigation() {
     { href: '/catalog', label: 'Catalog', icon: '🗂️' },
     { href: '/manufacturing', label: 'CNC', icon: '🏭' },
     { href: '/drill-configurator', label: 'Drill', icon: '🔧' },
+    { href: '/demo', label: 'Demo', icon: '🎮' },
   ];
 
   return (
