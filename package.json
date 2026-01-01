@@ -11,7 +11,8 @@
     "fix-types": "node scripts/fix-all-types.js",
     "fix-types-quick": "node scripts/quick-fix-types.js",
     "fix-patterns": "node scripts/fix-drill-patterns.js",
-    "check-types": "npx tsc --noEmit"
+    "check-types": "npx tsc --noEmit",
+    "fix-all-app-errors": "node scripts/fix-all-app-errors.js"
   },
   "keywords": [],
   "author": "",

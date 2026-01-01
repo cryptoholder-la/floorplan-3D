@@ -101,8 +101,6 @@ export function generateGCode(jobs: ManufacturingJob[]): GCodeProgram {
     description: `Generated program for ${jobs.length} manufacturing jobs`,
     commands,
     // units: 'mm', // Removed - not in interface
-    absoluteMode: true,
-    coolantMode: 'off',
     estimatedRunTime,
     toolPath,
     boundingBox,

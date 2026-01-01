@@ -65,7 +65,7 @@ export const STANDARD_HARDWARE: CabinetHardware[] = [
     name: 'Concealed European Hinge',
     type: 'hinge',
     count: 1,
-    unitPrice: 8.50,
+    price: 8.50,
     supplier: 'Hardware World'
   },
   {
@@ -73,7 +73,7 @@ export const STANDARD_HARDWARE: CabinetHardware[] = [
     name: 'Modern Bar Handle',
     type: 'handle',
     count: 1,
-    unitPrice: 12.00,
+    price: 12.00,
     supplier: 'Hardware World'
   },
   {
@@ -81,7 +81,7 @@ export const STANDARD_HARDWARE: CabinetHardware[] = [
     name: 'Side Mount Drawer Slide',
     type: 'drawer-slide',
     count: 1,
-    unitPrice: 15.00,
+    price: 15.00,
     supplier: 'Hardware World'
   },
   {
@@ -89,7 +89,7 @@ export const STANDARD_HARDWARE: CabinetHardware[] = [
     name: '5mm Shelf Pin',
     type: 'shelf-pin',
     count: 1,
-    unitPrice: 0.50,
+    price: 0.50,
     supplier: 'Hardware World'
   }
 ];
@@ -437,7 +437,7 @@ export function generateCutList(cabinet: Cabinet): CutListItem[] {
     width: part.dimensions.width,
     height: part.dimensions.height,
     thickness: part.dimensions.thickness,
-    quantity: part.quantity,
+    count: part.quantity,
     grainDirection: part.grainDirection || 'horizontal',
     edgeBanding: part.edgeBanding || {
       top: false,

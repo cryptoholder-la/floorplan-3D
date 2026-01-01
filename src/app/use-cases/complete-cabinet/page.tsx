@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -32,7 +34,7 @@ import {
   Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { DrillPattern } from '@/lib/cnc-types';
+import { DrillPattern } from '@/types/domain/cnc.types';
 import { 
   AVAILABLE_PATTERNS,
   PATTERN_CATEGORIES,

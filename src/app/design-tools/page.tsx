@@ -1,3 +1,4 @@
+import { useState } from 'react';
 'use client';
 
 import React, { useState } from 'react';
@@ -26,7 +27,7 @@ import IntegratedKitchenDesignApp from '@/components/IntegratedKitchenDesignApp'
 import IntegratedKitchenDesignSystem from '@/components/IntegratedKitchenDesignSystem';
 import FormBuilder from '@/components/FormBuilder';
 import { Grid3x3, Home, Eye, Layers, Settings, Zap, Package, Utensils, Calculator, DollarSign, FileText, Box, Upload, Palette, Target, Ruler } from 'lucide-react';
-import { FloorPlan, Point, Wall, Room, Door, Window, Cabinet } from '@/lib/floorplan-types';
+import { FloorPlan, Point, Wall, Room, Door, Window, Cabinet } from '@/types/domain/floorplan.types';
 import { ViewMode } from '@/lib/view-modes';
 
 export default function DesignToolsPage() {

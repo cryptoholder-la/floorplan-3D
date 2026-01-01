@@ -19,7 +19,7 @@ import GCodeGenerator from '@/components/GCodeGenerator';
 import CostReport from '@/components/CostReport';
 import FileUpload from '@/components/FileUpload';
 import { UploadedFile } from '@/components/FileUpload';
-import { DEFAULT_CABINET_DESIGN } from '@/lib/cabinet-types';
+import { DEFAULT_CABINET_DESIGN } from '@/types/domain/cabinet.types';
 import { 
   Box, 
   Code, 
