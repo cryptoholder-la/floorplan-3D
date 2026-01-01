@@ -1,23 +1,14 @@
 // GEOMETRY TYPES - Advanced geometric primitives and operations
 // Extends base types with specialized geometry for CAD/CAM operations
 
-import { Point2D, Point3D, Size2D, Size3D, Material } from './base.types';
+import { Point2D, Point3D, Size2D, Size3D, Material, Rectangle, BoundingBox } from './base.types';
 
 // ============================================================================
 // ADVANCED GEOMETRY
 // ============================================================================
 
-export interface Rectangle {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-export interface BoundingBox {
-  min: Point3D;
-  max: Point3D;
-}
+// Re-export base geometry types for convenience
+export type { Rectangle, BoundingBox };
 
 export interface Vector2D {
   x: number;
@@ -159,6 +150,12 @@ export interface Transform3D {
   rotation: Vector3D; // Euler angles in radians
   scale: Vector3D;
   matrix?: number[][]; // 4x4 transformation matrix
+}
+
+export interface Transformation {
+  type: '2d' | '3d';
+  transform: Transform2D | Transform3D;
+  inverse?: Transformation;
 }
 
 export interface Matrix3D {

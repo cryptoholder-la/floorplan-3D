@@ -246,15 +246,15 @@ export interface SurfaceFinish {
 export interface ToolingRequirements {
   primaryTool: Tool;
   secondaryTools?: Tool[];
-  fixtures: Fixture[];
+  fixtures: CNCFixture[];
   accessories: Accessory[];
   toolLife: ToolLife;
 }
 
-export interface Fixture {
+export interface CNCFixture {
   id: string;
   name: string;
-  type: FixtureType;
+  type: CNCFixtureType;
   dimensions: {
     length: number;
     width: number;
@@ -265,7 +265,7 @@ export interface Fixture {
   setupTime: number; // minutes
 }
 
-export type FixtureType = 
+export type CNCFixtureType = 
   | 'vise'
   | 'clamp'
   | 'jig'
@@ -496,10 +496,50 @@ export interface MachineCapabilities {
   axes: number; // 2, 3, 4, or 5
   rigidTapping: boolean;
   highSpeedMachining: boolean;
-  coolantThrough: boolean;
-  probe: boolean;
-  toolMeasurement: boolean;
-  spindleOrientation: boolean;
+  toolChanger: boolean;
+  coolantSystem: boolean;
+  probeSupport: boolean;
+  maxSpindleSpeed: number; // RPM
+  maxRapidFeed: number; // mm/min
+  maxCuttingFeed: number; // mm/min
+}
+
+export interface CNCMachine extends BaseEntity {
+  manufacturer: string;
+  model: string;
+  serialNumber?: string;
+  specification: MachineSpecification;
+  capabilities: MachineCapabilities;
+  status: MachineStatus;
+  currentJob?: string;
+  maintenanceSchedule: MaintenanceSchedule[];
+  installedAt: Date;
+  location?: string;
+}
+
+export interface CNCTool extends BaseEntity {
+  toolId: string; // Tool number in machine
+  type: ToolType;
+  diameter: number; // mm
+  length: number; // mm
+  fluteCount?: number;
+  coating: ToolCoating;
+  material: ToolMaterial;
+  condition: 'new' | 'good' | 'worn' | 'replacement-needed';
+  location: string; // Tool pocket or location
+  life: ToolLife;
+  parameters: ToolpathParameters;
+}
+
+export type MachineStatus = 'online' | 'offline' | 'maintenance' | 'error';
+
+export interface MaintenanceSchedule extends BaseEntity {
+  machineId: string;
+  type: 'preventive' | 'corrective';
+  description: string;
+  scheduledDate: Date;
+  estimatedDuration: number; // hours
+  status: 'scheduled' | 'in-progress' | 'completed';
 }
 
 export interface WorkpieceSpecification {
@@ -908,7 +948,7 @@ export const CONTROLLER_TYPES: ControllerType[] = [
   'fanuc', 'siemens', 'haas', 'mazak', 'okuma', 'mach3', 'linuxcnc', 'grbl'
 ];
 
-export const FIXTURE_TYPES: FixtureType[] = [
+export const FIXTURE_TYPES: CNCFixtureType[] = [
   'vise', 'clamp', 'jig', 'custom', 'vacuum', 'magnetic', 'hydraulic'
 ];
 

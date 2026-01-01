@@ -1,6 +1,7 @@
 // Cabinet Generator Library for Floorplan 3D
 
-import { Cabinet, CabinetWidth, CabinetDimensions, CabinetPart, CabinetMaterial, CabinetHardware, CutListItem } from '@/types/cabinet.types';
+import { Cabinet, CabinetPart, CabinetMaterial, CabinetHardware, CutListItem } from '@/types/domain/cabinet.types';
+import { CabinetDimensions, CabinetWidth } from '@/types/core/base.types';
 
 // Standard cabinet dimensions (in inches)
 export const STANDARD_DIMENSIONS = {
@@ -28,7 +29,7 @@ export const STANDARD_MATERIALS: CabinetMaterial[] = [
     name: '3/4" Baltic Birch Plywood',
     type: 'plywood',
     thickness: 0.75,
-    pricePerSheet: 45,
+    cost: 50,
     supplier: 'Hardwood Suppliers'
   },
   {
@@ -36,7 +37,7 @@ export const STANDARD_MATERIALS: CabinetMaterial[] = [
     name: '1/2" Baltic Birch Plywood',
     type: 'plywood',
     thickness: 0.5,
-    pricePerSheet: 35,
+    cost: 50,
     supplier: 'Hardwood Suppliers'
   },
   {
@@ -44,7 +45,7 @@ export const STANDARD_MATERIALS: CabinetMaterial[] = [
     name: '1/4" Baltic Birch Plywood',
     type: 'plywood',
     thickness: 0.25,
-    pricePerSheet: 25,
+    cost: 50,
     supplier: 'Hardwood Suppliers'
   },
   {
@@ -52,7 +53,7 @@ export const STANDARD_MATERIALS: CabinetMaterial[] = [
     name: 'Maple Hardwood',
     type: 'hardwood',
     thickness: 0.75,
-    pricePerSheet: 65,
+    cost: 50,
     supplier: 'Hardwood Suppliers'
   }
 ];
@@ -63,7 +64,7 @@ export const STANDARD_HARDWARE: CabinetHardware[] = [
     id: 'hinge-concealed',
     name: 'Concealed European Hinge',
     type: 'hinge',
-    quantity: 2,
+    count: 1,
     unitPrice: 8.50,
     supplier: 'Hardware World'
   },
@@ -71,7 +72,7 @@ export const STANDARD_HARDWARE: CabinetHardware[] = [
     id: 'handle-modern',
     name: 'Modern Bar Handle',
     type: 'handle',
-    quantity: 1,
+    count: 1,
     unitPrice: 12.00,
     supplier: 'Hardware World'
   },
@@ -79,7 +80,7 @@ export const STANDARD_HARDWARE: CabinetHardware[] = [
     id: 'drawer-slide-side',
     name: 'Side Mount Drawer Slide',
     type: 'drawer-slide',
-    quantity: 2,
+    count: 1,
     unitPrice: 15.00,
     supplier: 'Hardware World'
   },
@@ -87,7 +88,7 @@ export const STANDARD_HARDWARE: CabinetHardware[] = [
     id: 'shelf-pin-5mm',
     name: '5mm Shelf Pin',
     type: 'shelf-pin',
-    quantity: 4,
+    count: 1,
     unitPrice: 0.50,
     supplier: 'Hardware World'
   }
@@ -114,8 +115,19 @@ export function generateBaseCabinet(width: CabinetWidth): Cabinet {
     estimatedCost: 0,
     estimatedTime: 120, // minutes
     createdAt: new Date(),
-    updatedAt: new Date()
-  };
+      updatedAt: new Date(),
+      configuration: {
+        style: 'standard',
+        finish: 'natural'
+      },
+      difficulty: 'intermediate',
+      status: 'draft',
+      tags: [],
+      metadata: {
+        version: '1.0.0',
+        designer: 'system'
+      }
+    };
 
   // Generate cabinet parts
   cabinet.parts = generateBaseCabinetParts(dimensions);
@@ -147,8 +159,19 @@ export function generateWallCabinet(width: CabinetWidth, height: number = 30): C
     estimatedCost: 0,
     estimatedTime: 90, // minutes
     createdAt: new Date(),
-    updatedAt: new Date()
-  };
+      updatedAt: new Date(),
+      configuration: {
+        style: 'standard',
+        finish: 'natural'
+      },
+      difficulty: 'intermediate',
+      status: 'draft',
+      tags: [],
+      metadata: {
+        version: '1.0.0',
+        designer: 'system'
+      }
+    };
 
   // Generate cabinet parts
   cabinet.parts = generateWallCabinetParts(dimensions);
@@ -178,7 +201,7 @@ function generateBaseCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.height,
       thickness: plywood3_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'vertical'
   });
 
@@ -191,7 +214,7 @@ function generateBaseCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.height,
       thickness: plywood3_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'vertical'
   });
 
@@ -205,7 +228,7 @@ function generateBaseCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.depth,
       thickness: plywood3_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'horizontal'
   });
 
@@ -218,7 +241,7 @@ function generateBaseCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.depth - 1, // Set back from front
       thickness: plywood3_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'horizontal'
   });
 
@@ -232,7 +255,7 @@ function generateBaseCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.height,
       thickness: plywood1_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'vertical'
   });
 
@@ -246,7 +269,7 @@ function generateBaseCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: 3,
       thickness: plywood3_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'horizontal'
   });
 
@@ -260,7 +283,7 @@ function generateBaseCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.depth - 1,
       thickness: plywood3_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'horizontal'
   });
 
@@ -273,7 +296,7 @@ function generateBaseCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.depth - 1,
       thickness: plywood3_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'horizontal'
   });
 
@@ -298,7 +321,7 @@ function generateWallCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.height,
       thickness: plywood3_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'vertical'
   });
 
@@ -311,7 +334,7 @@ function generateWallCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.height,
       thickness: plywood3_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'vertical'
   });
 
@@ -325,7 +348,7 @@ function generateWallCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.depth,
       thickness: plywood3_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'horizontal'
   });
 
@@ -338,7 +361,7 @@ function generateWallCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.depth,
       thickness: plywood3_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'horizontal'
   });
 
@@ -352,7 +375,7 @@ function generateWallCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.height,
       thickness: plywood1_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'vertical'
   });
 
@@ -366,7 +389,7 @@ function generateWallCabinetParts(dimensions: CabinetDimensions): CabinetPart[] 
       height: dimensions.depth - 0.5,
       thickness: plywood3_4.thickness
     },
-    quantity: 1,
+    count: 1,
     grainDirection: 'horizontal'
   });
 

@@ -7,6 +7,12 @@
 
 import { AgentTask, CabinetItem, FloorplanData, DrillingPattern, TemplatePart } from './10_10-complete';
 import { selfLearningSystem } from './unified-workflow';
+import { 
+  MasterSystemConfig as UnifiedMasterSystemConfig,
+  MasterWorkflow as UnifiedMasterWorkflow,
+  MasterWorkflowStep as UnifiedMasterWorkflowStep,
+  IntegratedProject as UnifiedIntegratedProject
+} from '@/types/integration/master.types';
 
 // Master System Types
 export interface MasterSystemConfig {

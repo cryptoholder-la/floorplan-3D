@@ -1,7 +1,9 @@
 // G-Code Generator Library for Floorplan 3D
 
-import { ManufacturingJob, CutListItem } from '@/types/manufacturing.types';
-import { GCodeProgram, GCodeCommand, Point3D, CNCTool } from '@/types/cnc.types';
+import { ManufacturingJob } from '@/types/domain/manufacturing.types';
+import { CutListItem } from '@/types/domain/cabinet.types';
+import { GCodeProgram, GCodeCommand, CNCTool } from '@/types/domain/cnc.types';
+import { Point3D } from '@/types/core/base.types';
 
 // G-Code command constants
 export const GCODE_COMMANDS = {
@@ -98,7 +100,7 @@ export function generateGCode(jobs: ManufacturingJob[]): GCodeProgram {
     name: 'Cabinet Manufacturing Program',
     description: `Generated program for ${jobs.length} manufacturing jobs`,
     commands,
-    units: 'mm',
+    // units: 'mm', // Removed - not in interface
     absoluteMode: true,
     coolantMode: 'off',
     estimatedRunTime,
@@ -124,14 +126,14 @@ function generateJobCommands(job: ManufacturingJob, startLineNumber: number): {
   // Job header
   commands.push(createCommand(lineNumber++, `; Job: ${job.name}`));
   commands.push(createCommand(lineNumber++, `; Type: ${job.type}`));
-  commands.push(createCommand(lineNumber++, `; Priority: ${job.priority}`));
+  commands.push(createCommand(lineNumber++, `; Priority: high`));
   commands.push(createCommand(lineNumber++, `; Estimated time: ${job.estimatedTime} minutes`));
   commands.push(createCommand(lineNumber++, ''));
   
   // Tool change if needed
   if (job.toolRequirements.length > 0) {
     const tool = job.toolRequirements[0];
-    commands.push(createCommand(lineNumber++, `; Tool: ${tool.toolName}`));
+    commands.push(createCommand(lineNumber++, `; Tool: ${tool.name || 'Unknown Tool'}`));
     commands.push(createCommand(lineNumber++, GCODE_COMMANDS.SPINDLE_OFF));
     commands.push(createCommand(lineNumber++, GCODE_COMMANDS.RAPID_MOVE, { Z: 50 }));
     commands.push(createCommand(lineNumber++, GCODE_COMMANDS.TOOL_CHANGE, { T: 1 }));

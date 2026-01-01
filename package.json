@@ -7,7 +7,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "fix-types": "node scripts/fix-all-types.js",
+    "fix-types-quick": "node scripts/quick-fix-types.js",
+    "fix-patterns": "node scripts/fix-drill-patterns.js",
+    "check-types": "npx tsc --noEmit"
   },
   "keywords": [],
   "author": "",

@@ -66,7 +66,7 @@ export interface CabinetDimensions {
 // STATUS & STATE TYPES
 // ============================================================================
 
-export type Status = 'active' | 'inactive' | 'pending' | 'in-progress' | 'completed' | 'failed' | 'cancelled' | 'archived';
+export type Status = 'active' | 'inactive' | 'pending' | 'in-progress' | 'running' | 'completed' | 'done' | 'finished' | 'failed' | 'error' | 'cancelled' | 'archived';
 
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 

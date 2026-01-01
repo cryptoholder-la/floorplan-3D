@@ -908,6 +908,42 @@ export interface CatalogWarranty {
 }
 
 // ============================================================================
+// CUT LIST TYPES
+// ============================================================================
+
+export interface CutListItem extends BaseEntity {
+  cabinetId: string;
+  cabinetName: string;
+  partName: string;
+  material: CabinetMaterial;
+  width: number;
+  height: number;
+  thickness: number;
+  quantity: number;
+  grainDirection: 'horizontal' | 'vertical';
+  edgeBanding: {
+    top: boolean;
+    bottom: boolean;
+    left: boolean;
+    right: boolean;
+  };
+  notes?: string;
+}
+
+export interface CutList extends BaseEntity {
+  projectId?: string;
+  items: CutListItem[];
+  totalMaterials: {
+    [materialId: string]: {
+      material: CabinetMaterial;
+      totalArea: number;
+      totalSheets: number;
+      cost: number;
+    };
+  };
+}
+
+// ============================================================================
 // CONSTANTS
 // ============================================================================
 
