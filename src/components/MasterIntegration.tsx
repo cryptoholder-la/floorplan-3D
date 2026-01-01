@@ -88,7 +88,7 @@ export function MasterIntegration() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                <Brain className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <Zap className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
                 <div className="text-2xl font-bold">{systemStatus?.capabilities?.total || 0}</div>
@@ -209,7 +209,7 @@ export function MasterIntegration() {
                   capability.category === 'visualization' ? 'bg-purple-100 dark:bg-purple-900' :
                   'bg-gray-100 dark:bg-gray-900'
                 }`}>
-                  {capability.category === 'ai' && <Brain className="w-4 h-4 text-blue-600" />}
+                  {capability.category === 'ai' && <Zap className="w-4 h-4 text-blue-600" />}
                   {capability.category === 'design' && <Layers className="w-4 h-4 text-green-600" />}
                   {capability.category === 'manufacturing' && <Tool className="w-4 h-4 text-orange-600" />}
                   {capability.category === 'visualization' && <Eye className="w-4 h-4 text-purple-600" />}
@@ -298,7 +298,7 @@ export function MasterIntegration() {
                         <div className="flex-1">
                           <div className="font-medium">{step.name}</div>
                           <div className="text-xs text-gray-500">
-                            {step.module} • {Math.round(step.parameters?.estimatedDuration || 0) / 1000)}s
+                            {step.module} • {Math.round((step.parameters?.estimatedDuration || 0) / 1000)}s
                           </div>
                         </div>
                         <div className="text-xs text-gray-400">
@@ -396,7 +396,7 @@ export function MasterIntegration() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
-            <Brain className="w-10 h-10 text-blue-400" />
+            <Zap className="w-10 h-10 text-blue-400" />
             Master Integration System
             <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
               <Sparkles className="w-3 h-3 mr-1" />
@@ -462,7 +462,7 @@ export function MasterIntegration() {
                   Master System: Active
                 </Badge>
                 <Badge variant="outline">
-                  <Brain className="w-3 h-3 mr-1" />
+                  <Zap className="w-3 h-3 mr-1" />
                   {systemStatus?.capabilities?.active || 0} Modules
                 </Badge>
                 <Badge variant="outline">
