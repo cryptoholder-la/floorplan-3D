@@ -399,12 +399,7 @@ export class MasterIntegrationSystem {
       floorplan: {
         walls: [],
         rooms: [],
-        openings: [],
-        metadata: {
-          scale: 20,
-          unit: 'meters',
-          showMeasurements: true
-        }
+        openings: []
       },
       cabinets: [],
       drilling: [],

@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button-simple';
 import { Badge } from '@/components/ui/badge-simple';
 import { masterIntegrationSystem, MasterWorkflow, MasterCapability, IntegratedProject } from '@/lib/master-integration';
 import {
-  Brain,
   Zap,
   Activity,
   Layers,
@@ -22,7 +21,7 @@ import {
   Grid,
   Package,
   Camera,
-  Tool,
+  Settings as Tool,
   FileText,
   ChevronRight,
   CheckCircle,
@@ -33,7 +32,7 @@ import {
   Bot,
   ArrowRight,
   Star,
-  Sparkles
+  Star as Sparkles
 } from 'lucide-react';
 
 export function MasterIntegration() {
