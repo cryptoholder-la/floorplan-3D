@@ -50,6 +50,13 @@ export function Navigation() {
       badge: 'AI'
     },
     {
+      href: '/master-integration',
+      label: 'Master Integration',
+      icon: Zap,
+      description: 'Complete system integration',
+      badge: 'Ultimate'
+    },
+    {
       href: '/design-tools',
       label: 'Design Tools',
       icon: Zap,
