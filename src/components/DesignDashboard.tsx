@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from 'react';
-import { CabinetDesign, CabinetStyle, DoorStyle, MaterialType, DEFAULT_CABINET_TEMPLATES } from '@/types/domain/cabinet.types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Slider } from '@/components/ui/slider';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { CabinetDesign, CabinetStyle, DoorStyle, MaterialType, DEFAULT_CABINET_TEMPLATES } from '@/types/cabinet.types';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card';
+import { Label } from '@/ui/label';
+import { Input } from '@/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
+import { Switch } from '@/ui/switch';
+import { Slider } from '@/ui/slider';
+import { Button } from '@/ui/button';
+import { Badge } from '@/ui/badge';
 import { 
   Settings, 
   Ruler, 

@@ -2,12 +2,12 @@
 
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Grid, Environment } from '@react-three/drei';
-import { CabinetDesign } from '@/types/domain/cabinet.types';
+import { CabinetDesign } from '@/types/cabinet.types';
 import * as THREE from 'three';
 import { useMemo, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card';
+import { Button } from '@/ui/button';
+import { Badge } from '@/ui/badge';
 import { 
   RotateCcw, 
   Maximize2, 

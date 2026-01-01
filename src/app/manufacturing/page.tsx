@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { generateBaseCabinet, generateCutList } from '@/lib/cabinet-generator';
 import { generateJobsForCabinet } from '@/lib/cnc-operations';
 import { generateGCode, downloadGCode } from '@/lib/gcode-generator';
-import { CabinetWidth } from '@/types/domain/cabinet.types';
-import { ManufacturingJob } from '@/types/domain/manufacturing.types';
+import { CabinetWidth } from '@/types/cabinet.types';
+import { ManufacturingJob } from '@/types/manufacturing.types';
 import ToolpathVisualization from '@/components/ToolpathVisualization';
 
 export default function ManufacturingPage() {

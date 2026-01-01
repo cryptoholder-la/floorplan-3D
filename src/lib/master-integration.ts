@@ -12,7 +12,7 @@ import {
   MasterWorkflow as UnifiedMasterWorkflow,
   MasterWorkflowStep as UnifiedMasterWorkflowStep,
   IntegratedProject as UnifiedIntegratedProject
-} from '@/types/integration/master.types';
+} from '@/types/master.types';
 
 // Master System Types
 export interface MasterSystemConfig {

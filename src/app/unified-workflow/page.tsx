@@ -3,15 +3,15 @@ import { useState, useEffect } from 'react';
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button-simple';
-import { Badge } from '@/components/ui/badge-simple';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Button } from '@/ui/button-simple';
+import { Badge } from '@/ui/badge-simple';
 import { completeTenTenSystem, selfLearningSystem } from '@/lib/unified-workflow';
-import { UnifiedWorkflow } from '@/components/10_10/UnifiedWorkflow';
-import { CompletePhoto2Plan } from '@/components/10_10/CompletePhoto2Plan';
-import { CompleteInventoryManager } from '@/components/10_10/CompleteInventoryManager';
-import { CompleteDrillingPatterns } from '@/components/10_10/CompleteDrillingPatterns';
-import { CompleteTemplateMaker } from '@/components/10_10/CompleteTemplateMaker';
+import { UnifiedWorkflow } from '@/components/UnifiedWorkflow';
+import { CompletePhoto2Plan } from '@/components/CompletePhoto2Plan';
+import { CompleteInventoryManager } from '@/components/CompleteInventoryManager';
+import { CompleteDrillingPatterns } from '@/components/CompleteDrillingPatterns';
+import { CompleteTemplateMaker } from '@/components/CompleteTemplateMaker';
 import {
   Brain,
   Zap,

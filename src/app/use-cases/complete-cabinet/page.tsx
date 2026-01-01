@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
+import { Card } from '@/ui/card';
+import { Button } from '@/ui/button';
+import { Input } from '@/ui/input';
+import { Label } from '@/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
+import { Badge } from '@/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
+import { Progress } from '@/ui/progress';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -34,7 +34,7 @@ import {
   Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { DrillPattern } from '@/types/domain/cnc.types';
+import { DrillPattern } from '@/types/cnc.types';
 import { 
   AVAILABLE_PATTERNS,
   PATTERN_CATEGORIES,

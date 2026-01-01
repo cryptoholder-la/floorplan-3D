@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
+import { Button } from '@/ui/button';
+import { Badge } from '@/ui/badge';
 import Demo3DEditor from '@/components/Demo3DEditor';
 import DemoInputManager from '@/components/DemoInputManager';
 import CabinetViewer3D from '@/components/CabinetViewer3D';
@@ -19,7 +19,7 @@ import GCodeGenerator from '@/components/GCodeGenerator';
 import CostReport from '@/components/CostReport';
 import FileUpload from '@/components/FileUpload';
 import { UploadedFile } from '@/components/FileUpload';
-import { DEFAULT_CABINET_DESIGN } from '@/types/domain/cabinet.types';
+import { DEFAULT_CABINET_DESIGN } from '@/types/cabinet.types';
 import { 
   Box, 
   Code, 

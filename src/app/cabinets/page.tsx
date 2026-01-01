@@ -1,10 +1,10 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
 import BaseCabinetWireframe from '@/components/BaseCabinetWireframe';
 import WallCabinetWireframe from '@/components/WallCabinetWireframe';
 import TallCabinetWireframe from '@/components/TallCabinetWireframe';
-import { ScaleProvider } from '@/contexts/ScaleContext';
+import { ScaleProvider } from '@/contexts/'ScaleContext';
 
 export default function CabinetsPage() {
   return (

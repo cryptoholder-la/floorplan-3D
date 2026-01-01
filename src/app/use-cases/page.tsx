@@ -2,9 +2,9 @@ import { useState } from 'react';
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '@/ui/card';
+import { Button } from '@/ui/button';
+import { Badge } from '@/ui/badge';
 import { 
   DoorOpen, 
   Archive, 

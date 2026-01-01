@@ -3,8 +3,8 @@ import { useState } from 'react';
 
 import React, { useState } from 'react';
 import MainLayout from '@/components/MainLayout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import UnifiedKitchenDesigner from '@/components/UnifiedKitchenDesigner';
 import FloorplanApp from '@/components/FloorplanApp';
 import FloorPlanBuilder from '@/components/FloorPlanBuilder';
@@ -27,7 +27,7 @@ import IntegratedKitchenDesignApp from '@/components/IntegratedKitchenDesignApp'
 import IntegratedKitchenDesignSystem from '@/components/IntegratedKitchenDesignSystem';
 import FormBuilder from '@/components/FormBuilder';
 import { Grid3x3, Home, Eye, Layers, Settings, Zap, Package, Utensils, Calculator, DollarSign, FileText, Box, Upload, Palette, Target, Ruler } from 'lucide-react';
-import { FloorPlan, Point, Wall, Room, Door, Window, Cabinet } from '@/types/domain/floorplan.types';
+import { FloorPlan, Point, Wall, Room, Door, Window, Cabinet } from '@/types/floorplan.types';
 import { ViewMode } from '@/lib/view-modes';
 
 export default function DesignToolsPage() {

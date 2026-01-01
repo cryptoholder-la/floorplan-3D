@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { readCatalogFile, writeCatalogFile, writeAttachment } from '@/lib/catalog/fs';
-import { buildAttachment } from '@/lib/catalog/attachments';
-import { catalogItemsFromCsvRows, catalogItemsFromJson, parseCsv } from '@/lib/catalog/importers';
-import { upsertCatalogItems } from '@/lib/catalog/merge';
-import type { CatalogItem } from '@/lib/catalog/types';
+import { readCatalogFile, writeCatalogFile, writeAttachment } from '@/lib/fs';
+import { buildAttachment } from '@/lib/attachments';
+import { catalogItemsFromCsvRows, catalogItemsFromJson, parseCsv } from '@/lib/importers';
+import { upsertCatalogItems } from '@/lib/merge';
+import type { CatalogItem } from '@/lib/types';
 
 export const runtime = 'nodejs';
 

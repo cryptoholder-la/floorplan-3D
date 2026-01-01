@@ -1,4 +1,4 @@
-import { Tolerance } from '@/types/core/base.types';
+import { Tolerance } from '@/types/base.types';
 // TYPES INDEX - Main entry point for all type definitions
 // This file provides centralized access to the unified type system
 

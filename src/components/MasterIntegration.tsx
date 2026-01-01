@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react';
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button-simple';
-import { Badge } from '@/components/ui/badge-simple';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Button } from '@/ui/button-simple';
+import { Badge } from '@/ui/badge-simple';
 import { masterIntegrationSystem, MasterWorkflow, MasterCapability, IntegratedProject } from '@/lib/master-integration';
 import {
   Zap,

@@ -1,13 +1,26 @@
-// Manufacturing Type Definitions for Floorplan 3D
+// MANUFACTURING TYPES - Manufacturing-specific type definitions
+// Consolidates all manufacturing-related types from fragmented files
 
+import {
+  BaseEntity,
+  Status,
+  Priority,
+  Tolerance,
+  Point3D
+} from '../core/base.types';
 import { Cabinet, CutListItem } from './cabinet.types';
 
-export interface ManufacturingJob {
-  id: string;
-  name: string;
+// ============================================================================
+// MANUFACTURING JOB TYPES
+// ============================================================================
+
+export interface ManufacturingJob extends BaseEntity {
   type: 'cutting' | 'drilling' | 'assembly' | 'finishing' | 'quality-check';
-  status: 'pending' | 'in-progress' | 'completed' | 'failed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  
+  // Job details
+  priority: Priority;
+  estimatedCost?: number;
+  actualCost?: number;
   
   // Job details
   cabinetId?: string;
@@ -33,14 +46,16 @@ export interface ManufacturingJob {
   estimatedCost: number;
   actualCost?: number;
   
-  // Metadata
+  // Notes
   notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
+// ============================================================================
+// MACHINE SETTINGS TYPES
+// ============================================================================
+
 export interface MachineSettings {
-  machineType: 'cnc-router' | 'panel-saw' | 'drill-press' | 'edge-bander' | 'sander';
+  machineType: MachineType;
   spindleSpeed?: number; // RPM
   feedRate?: number; // mm/min or in/min
   depthOfCut?: number; // mm
@@ -51,58 +66,108 @@ export interface MachineSettings {
     y: number;
     z: number;
   };
-  coolant?: 'off' | 'mist' | 'flood' | 'through';
+  coolant?: CoolantType;
   additionalSettings?: Record<string, any>;
 }
 
-export interface ToolRequirement {
+export type MachineType = 
+  | 'cnc-router'
+  | 'panel-saw'
+  | 'drill-press'
+  | 'edge-bander'
+  | 'sander';
+
+export type CoolantType = 
+  | 'off'
+  | 'mist'
+  | 'flood'
+  | 'through';
+
+// ============================================================================
+// TOOL REQUIREMENT TYPES
+// ============================================================================
+
+export interface ToolRequirement extends BaseEntity {
   toolId: string;
-  toolName: string;
-  toolType: 'end-mill' | 'drill-bit' | 'router-bit' | 'saw-blade' | 'sanding-pad';
+  toolType: ToolType;
+  quantity?: number;
+  estimatedCost?: number;
   diameter: number; // mm
   length: number; // mm
   fluteCount?: number;
-  coating?: 'hss' | 'carbide' | 'diamond';
-  condition: 'new' | 'good' | 'worn' | 'replacement-needed';
+  coating?: ToolCoating;
+  condition: ToolCondition;
   estimatedLife?: number; // hours
   currentUsage?: number; // hours
 }
 
-export interface QualityCheck {
-  id: string;
-  name: string;
-  type: 'dimensional' | 'visual' | 'functional' | 'material';
+export type ToolType = 
+  | 'end-mill'
+  | 'drill-bit'
+  | 'router-bit'
+  | 'saw-blade'
+  | 'sanding-pad';
+
+export type ToolCoating = 
+  | 'hss'
+  | 'carbide'
+  | 'diamond';
+
+export type ToolCondition = 
+  | 'new'
+  | 'good'
+  | 'worn'
+  | 'replacement-needed';
+
+// ============================================================================
+// QUALITY CONTROL TYPES
+// ============================================================================
+
+export interface QualityCheck extends BaseEntity {
+  type: QualityCheckType;
   specification: string;
   tolerance: Tolerance;
-  method: 'manual' | 'automated' | 'visual-inspection';
+  method: QualityCheckMethod;
   required: boolean;
-  result?: 'pass' | 'fail' | 'conditional';
+  createdAt: Date;
+  updatedAt: Date;
+  performedBy?: string;
+  results?: CheckResult[];
+  result?: QualityCheckResult;
   measuredValue?: number;
   notes?: string;
   checkedBy?: string;
   checkedAt?: Date;
 }
 
-export interface Tolerance {
-  dimension: string;
-  nominal: number;
-  plus: number;
-  minus: number;
-  unit: 'mm' | 'inches';
-  critical: boolean;
-}
+export type QualityCheckType = 
+  | 'dimensional'
+  | 'visual'
+  | 'functional'
+  | 'material';
 
-export interface ManufacturingOrder {
-  id: string;
-  name: string;
+export type QualityCheckMethod = 
+  | 'manual'
+  | 'automated'
+  | 'visual-inspection';
+
+export type QualityCheckResult = 
+  | 'pass'
+  | 'fail'
+  | 'conditional';
+
+// ============================================================================
+// MANUFACTURING ORDER TYPES
+// ============================================================================
+
+export interface ManufacturingOrder extends BaseEntity {
   description?: string;
   customerId?: string;
   projectId?: string;
   
   // Order details
   jobs: ManufacturingJob[];
-  status: 'draft' | 'confirmed' | 'in-production' | 'completed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  priority: Priority;
   
   // Scheduling
   orderDate: Date;
@@ -126,16 +191,13 @@ export interface ManufacturingOrder {
   progress: number; // 0-100 percentage
   completedJobs: number;
   totalJobs: number;
-  
-  // Metadata
-  createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
-export interface ProductionSchedule {
-  id: string;
-  name: string;
+// ============================================================================
+// PRODUCTION SCHEDULE TYPES
+// ============================================================================
+
+export interface ProductionSchedule extends BaseEntity {
   dateRange: {
     start: Date;
     end: Date;
@@ -152,15 +214,14 @@ export interface ProductionSchedule {
   // Constraints
   constraints: ScheduleConstraint[];
   bottlenecks?: string[];
-  
-  createdAt: Date;
-  updatedAt: Date;
 }
 
-export interface Machine {
-  id: string;
-  name: string;
-  type: MachineSettings['machineType'];
+// ============================================================================
+// MACHINE TYPES
+// ============================================================================
+
+export interface Machine extends BaseEntity {
+  type: MachineType;
   model: string;
   manufacturer: string;
   
@@ -175,7 +236,7 @@ export interface Machine {
   toolCapacity: number; // number of tools
   
   // Status
-  status: 'available' | 'busy' | 'maintenance' | 'offline';
+  status: MachineStatus;
   currentJob?: string;
   nextAvailable?: Date;
   
@@ -192,15 +253,23 @@ export interface Machine {
   location?: string;
 }
 
-export interface Operator {
-  id: string;
-  name: string;
+export type MachineStatus = 
+  | 'available'
+  | 'busy'
+  | 'maintenance'
+  | 'offline';
+
+// ============================================================================
+// OPERATOR TYPES
+// ============================================================================
+
+export interface Operator extends BaseEntity {
   email: string;
   phone?: string;
   
   // Skills and certifications
   skills: string[];
-  certifications: Certification[];
+  certifications: ManufacturingCertification[];
   machines: string[]; // machine IDs they can operate
   
   // Availability
@@ -218,19 +287,27 @@ export interface Operator {
   efficiency?: number; // percentage
   qualityRating?: number; // 1-5 scale
   
-  status: 'active' | 'inactive' | 'on-leave';
+  status: OperatorStatus;
   hiredAt: Date;
 }
 
-export interface MaintenanceSchedule {
-  id: string;
+export type OperatorStatus = 
+  | 'active'
+  | 'inactive'
+  | 'on-leave';
+
+// ============================================================================
+// MAINTENANCE TYPES
+// ============================================================================
+
+export interface MaintenanceSchedule extends BaseEntity {
   machineId: string;
-  type: 'preventive' | 'corrective' | 'predictive';
+  type: MaintenanceType;
   description: string;
   scheduledDate: Date;
   estimatedDuration: number; // hours
-  priority: 'low' | 'medium' | 'high';
-  status: 'scheduled' | 'in-progress' | 'completed' | 'cancelled';
+  priority: Priority;
+  status: MaintenanceStatus;
   
   performedBy?: string;
   actualDuration?: number;
@@ -239,25 +316,67 @@ export interface MaintenanceSchedule {
   cost?: number;
 }
 
-export interface Certification {
-  id: string;
-  name: string;
-  type: 'machine-operation' | 'safety' | 'quality' | 'technical';
+export type MaintenanceType = 
+  | 'preventive'
+  | 'corrective'
+  | 'predictive';
+
+export type MaintenanceStatus = 
+  | 'scheduled'
+  | 'in-progress'
+  | 'completed'
+  | 'cancelled';
+
+// ============================================================================
+// CERTIFICATION TYPES
+// ============================================================================
+
+export interface ManufacturingCertification extends BaseEntity {
+  type: CertificationType;
   issuedBy: string;
   issuedDate: Date;
   expiryDate?: Date;
-  status: 'valid' | 'expired' | 'suspended';
+  status: CertificationStatus;
 }
 
-export interface ScheduleConstraint {
-  id: string;
-  type: 'machine-availability' | 'operator-availability' | 'material-lead-time' | 'shipping-deadline';
+export type CertificationType = 
+  | 'machine-operation'
+  | 'safety'
+  | 'quality'
+  | 'technical';
+
+export type CertificationStatus = 
+  | 'valid'
+  | 'expired'
+  | 'suspended';
+
+// ============================================================================
+// SCHEDULE CONSTRAINT TYPES
+// ============================================================================
+
+export interface ScheduleConstraint extends BaseEntity {
+  type: ConstraintType;
   description: string;
-  impact: 'low' | 'medium' | 'high';
+  impact: ConstraintImpact;
   startDate: Date;
   endDate: Date;
   affectedResources: string[]; // machine IDs, operator IDs, etc.
 }
+
+export type ConstraintType = 
+  | 'machine-availability'
+  | 'operator-availability'
+  | 'material-lead-time'
+  | 'shipping-deadline';
+
+export type ConstraintImpact = 
+  | 'low'
+  | 'medium'
+  | 'high';
+
+// ============================================================================
+// MANUFACTURING METRICS TYPES
+// ============================================================================
 
 export interface ManufacturingMetrics {
   // Production metrics

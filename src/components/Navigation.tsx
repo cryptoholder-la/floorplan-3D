@@ -3,8 +3,8 @@ import { useState } from 'react';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button-simple';
-import { Badge } from '@/components/ui/badge-simple';
+import { Button } from '@/ui/button-simple';
+import { Badge } from '@/ui/badge-simple';
 import { 
   Home, 
   Grid, 

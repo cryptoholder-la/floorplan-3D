@@ -3,8 +3,8 @@ import { useState } from 'react';
 
 import React, { useState } from 'react';
 import MainLayout from '@/components/MainLayout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import CNCManufacturingPanel from '@/components/CNCManufacturingPanel';
 import CNCSimulator from '@/components/CNCSimulator';
 import GCodeGenerator from '@/components/GCodeGenerator';

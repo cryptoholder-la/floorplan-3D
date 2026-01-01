@@ -1,9 +1,9 @@
 // G-Code Generator Library for Floorplan 3D
 
-import { ManufacturingJob } from '@/types/domain/manufacturing.types';
-import { CutListItem } from '@/types/domain/cabinet.types';
-import { GCodeProgram, GCodeCommand, CNCTool } from '@/types/domain/cnc.types';
-import { Point3D } from '@/types/core/base.types';
+import { ManufacturingJob } from '@/types/manufacturing.types';
+import { CutListItem } from '@/types/cabinet.types';
+import { GCodeProgram, GCodeCommand, CNCTool } from '@/types/cnc.types';
+import { Point3D } from '@/types/base.types';
 
 // G-Code command constants
 export const GCODE_COMMANDS = {
