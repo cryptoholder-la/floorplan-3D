@@ -1,176 +1,146 @@
-/**
- * Base Cabinet Parametric System
- * Full overlay construction with adjustable dimensions
- */
+// Cabinet Type Definitions for Floorplan 3D
 
-export type CabinetWidth = 9 | 12 | 15 | 18 | 21 | 24 | 27 | 30 | 33 | 36;
-export type WallCabinetWidth = 9 | 12 | 15 | 18 | 21 | 24 | 27 | 30 | 33 | 36;
-export type WallCabinetHeight = 12 | 15 | 18 | 21 | 24 | 27 | 30 | 33 | 36 | 39 | 42;
-export type TallCabinetWidth = 12 | 15 | 18 | 21 | 24 | 27 | 30 | 33 | 36;
-export type TallCabinetHeight = 79.5 | 85.5 | 91.5;
+export type CabinetWidth = 12 | 15 | 18 | 21 | 24 | 27 | 30 | 33 | 36 | 39 | 42 | 45 | 48;
 
-export type CabinetType = 'base' | 'wall' | 'tall' | 'db' | 'sb' | 'lsb';
+export type CabinetDepth = 12 | 15 | 18 | 21 | 24;
 
-export interface BaseCabinetDimensions {
-  width: CabinetWidth; // Width in inches (9-36 in 3" steps)
-  depth: number; // Standard 24"
-  height: number; // Standard 30" (box height)
-  toeKickHeight: number; // Standard 4.5"
-  toeKickDepth: number; // Standard 21" (3" recess)
-  totalHeight: number; // 34.5" (30" + 4.5")
-}
+export type CabinetHeight = 30 | 33 | 36 | 39 | 42 | 45 | 48 | 54 | 60 | 72 | 84 | 90 | 34.5;
 
-export interface WallCabinetDimensions {
-  width: WallCabinetWidth;
-  depth: number; // 12" box + 0.875" door = 12.875" total
-  height: WallCabinetHeight;
-  boxDepth: number; // 12"
-  doorThickness: number; // 0.875"
-  hasTwoDoors: boolean; // Over 21" wide = two doors
-}
-
-export interface TallCabinetDimensions {
-  width: TallCabinetWidth;
-  depth: number; // 24" box + 0.875" door = 24.875" total
-  height: TallCabinetHeight;
-  boxDepth: number; // 24"
-  doorThickness: number; // 0.875"
-  toeKickHeight: number; // 4.5"
-  toeKickDepth: number; // 21" (3" setback)
-  boxHeight: number; // Total height minus toe kick
+export interface CabinetDimensions {
+  width: CabinetWidth;
+  depth: CabinetDepth;
+  height: CabinetHeight;
 }
 
 export interface CabinetMaterial {
-  thickness: number; // Material thickness (typically 0.75" for 3/4" plywood)
-  type: 'plywood' | 'mdf' | 'particleboard';
-}
-
-export interface CabinetComponents {
-  // Box components
-  leftSide: ComponentDimensions;
-  rightSide: ComponentDimensions;
-  bottom: ComponentDimensions;
-  top: ComponentDimensions; // Optional stretcher
-  back: ComponentDimensions;
-  
-  // Shelf components
-  adjustableShelf?: ComponentDimensions;
-  
-  // Face frame (full overlay has minimal or no face frame)
-  door: ComponentDimensions;
-  drawerFront?: ComponentDimensions;
-  
-  // Toe kick
-  toeKickFront: ComponentDimensions;
-  toeKickSides: ComponentDimensions[];
-}
-
-export interface ComponentDimensions {
-  name: string;
-  width: number;
-  height: number;
-  depth?: number; // For 3D components
-  quantity: number;
-  material: string;
-  thickness: number;
-  edgeBanding?: EdgeBandingSpec;
-  holes?: HolePattern[];
-  grooves?: Groove[];
-}
-
-export interface EdgeBandingSpec {
-  top?: boolean;
-  bottom?: boolean;
-  left?: boolean;
-  right?: boolean;
-  front?: boolean;
-  back?: boolean;
-}
-
-export interface HolePattern {
-  type: 'shelf-pin' | 'hinge' | 'mounting' | 'drawer-slide';
-  x: number;
-  y: number;
-  z?: number;
-  diameter: number;
-  depth: number;
-  spacing?: number; // For repeated patterns
-  count?: number;
-}
-
-export interface Groove {
-  type: 'dado' | 'rabbet' | 'back-panel';
-  x: number;
-  y: number;
-  width: number;
-  depth: number;
-  length: number;
-  orientation: 'horizontal' | 'vertical';
-}
-
-export interface WireframeView {
-  type: 'top' | 'elevation' | '3d-iso';
-  scale: number;
-  showDimensions: boolean;
-  showInternals: boolean;
-}
-
-export interface BaseCabinet {
   id: string;
-  dimensions: BaseCabinetDimensions;
+  name: string;
+  type: 'plywood' | 'hardwood' | 'mdf' | 'particleboard';
+  thickness: number;
+  pricePerSheet: number;
+  supplier?: string;
+}
+
+export interface CabinetHardware {
+  id: string;
+  name: string;
+  type: 'hinge' | 'handle' | 'drawer-slide' | 'shelf-pin' | 'screw' | 'dowel';
+  quantity: number;
+  unitPrice: number;
+  supplier?: string;
+}
+
+export interface CabinetPart {
+  id: string;
+  name: string;
   material: CabinetMaterial;
-  components: CabinetComponents;
-  configuration: CabinetConfiguration;
+  dimensions: {
+    width: number;
+    height: number;
+    thickness: number;
+  };
+  quantity: number;
+  grainDirection?: 'horizontal' | 'vertical';
+  edgeBanding?: {
+    top: boolean;
+    bottom: boolean;
+    left: boolean;
+    right: boolean;
+  };
+}
+
+export interface Cabinet {
+  id: string;
+  name: string;
+  type: 'base' | 'wall' | 'tall' | 'corner' | 'sink' | 'range' | 'microwave';
+  dimensions: CabinetDimensions;
+  parts: CabinetPart[];
+  hardware: CabinetHardware[];
+  materials: CabinetMaterial[];
+  estimatedCost?: number;
+  estimatedTime?: number;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CabinetConfiguration {
-  hasDrawer: boolean;
-  drawerCount?: number;
-  hasAdjustableShelf: boolean;
-  shelfCount?: number;
-  doorStyle: 'slab' | 'shaker' | 'raised-panel';
-  hingeType: 'concealed' | 'european' | 'butt';
-  overlay: 'full' | 'partial' | 'inset';
+  style: 'traditional' | 'modern' | 'shaker' | 'flat-panel' | 'raised-panel';
+  doorStyle: 'full-overlay' | 'partial-overlay' | 'inset';
+  finish: {
+    type: 'stain' | 'paint' | 'laminate' | 'natural';
+    color: string;
+    sheen: 'matte' | 'satin' | 'semi-gloss' | 'gloss';
+  };
+  hardware: {
+    hinges: string;
+    handles: string;
+    drawerSlides: string;
+  };
 }
 
-export interface CabinetDrawing {
-  topView: WireframeGeometry;
-  elevationView: WireframeGeometry;
-  isoView: WireframeGeometry;
+export interface CutListItem {
+  id: string;
+  cabinetId: string;
+  cabinetName: string;
+  partName: string;
+  material: CabinetMaterial;
+  width: number;
+  height: number;
+  thickness: number;
+  quantity: number;
+  grainDirection: 'horizontal' | 'vertical';
+  edgeBanding: {
+    top: boolean;
+    bottom: boolean;
+    left: boolean;
+    right: boolean;
+  };
+  notes?: string;
 }
 
-export interface WireframeGeometry {
-  lines: Line3D[];
-  dimensions: DimensionLine[];
-  annotations: Annotation[];
+export interface CutList {
+  id: string;
+  name: string;
+  projectId?: string;
+  items: CutListItem[];
+  totalMaterials: {
+    [materialId: string]: {
+      material: CabinetMaterial;
+      totalArea: number;
+      totalSheets: number;
+      cost: number;
+    };
+  };
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface Line3D {
-  start: Point3D;
-  end: Point3D;
-  style?: 'solid' | 'dashed' | 'hidden';
-  color?: string;
-  weight?: number;
+export interface CabinetCatalog {
+  id: string;
+  name: string;
+  description?: string;
+  cabinets: Cabinet[];
+  templates: CabinetTemplate[];
+  materials: CabinetMaterial[];
+  hardware: CabinetHardware[];
+  version: string;
+  lastUpdated: Date;
 }
 
-export interface Point3D {
-  x: number;
-  y: number;
-  z: number;
-}
-
-export interface DimensionLine {
-  start: Point3D;
-  end: Point3D;
-  value: number;
-  unit: 'inches' | 'mm';
-  label?: string;
-  offset?: number;
-}
-
-export interface Annotation {
-  position: Point3D;
-  text: string;
-  fontSize?: number;
-  leader?: boolean;
+export interface CabinetTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  category: string;
+  cabinetType: Cabinet['type'];
+  baseCabinet: Cabinet;
+  configurableDimensions: {
+    width: CabinetWidth[];
+    depth: CabinetDepth[];
+    height: CabinetHeight[];
+  };
+  estimatedCost: number;
+  estimatedTime: number;
+  tags: string[];
 }

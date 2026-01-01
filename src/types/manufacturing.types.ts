@@ -1,206 +1,291 @@
-export type CNCOperationType = 
-  | 'drill' 
-  | 'route' 
-  | 'pocket' 
-  | 'contour' 
-  | 'bore'
-  | 'edge-trim';
+// Manufacturing Type Definitions for Floorplan 3D
 
-export type ToolType = 
-  | 'drill-bit'
-  | 'router-bit'
-  | 'end-mill'
-  | 'v-bit'
-  | 'boring-bit';
-
-export interface CNCTool {
-  id: string;
-  name: string;
-  type: ToolType;
-  diameter: number;
-  length: number;
-  flutes?: number;
-  rpm: number;
-  feedRate: number;
-  plungeRate: number;
-  stepDown: number;
-}
-
-export interface Point2D {
-  x: number;
-  y: number;
-}
-
-export interface Point3D {
-  x: number;
-  y: number;
-  z: number;
-}
-
-export interface CNCOperation {
-  id: string;
-  type: CNCOperationType;
-  tool: CNCTool;
-  startPoint: Point3D;
-  endPoint?: Point3D;
-  path?: Point3D[];
-  depth: number;
-  passes?: number;
-  name: string;
-  estimatedTime?: number;
-}
-
-export interface DrillingPattern {
-  type: 'shelf-pin' | 'hinge' | 'mounting' | 'drawer-slide' | 'custom';
-  holes: DrillHole[];
-  tool: CNCTool;
-}
-
-export interface DrillHole {
-  x: number;
-  y: number;
-  z: number;
-  diameter: number;
-  depth: number;
-  throughHole: boolean;
-}
-
-export interface RoutingPath {
-  type: 'contour' | 'pocket' | 'dado' | 'rabbet' | 'groove';
-  path: Point3D[];
-  tool: CNCTool;
-  depth: number;
-  passes: number;
-  closed: boolean;
-}
-
-export interface EdgeBandingSequence {
-  edges: ('top' | 'bottom' | 'left' | 'right')[];
-  material: string;
-  thickness: number;
-  trimRequired: boolean;
-}
+import { Cabinet, CutListItem } from './cabinet.types';
 
 export interface ManufacturingJob {
   id: string;
-  componentId: string;
-  componentName: string;
-  material: string;
-  thickness: number;
-  width: number;
-  height: number;
-  operations: CNCOperation[];
-  drillingPatterns: DrillingPattern[];
-  routingPaths: RoutingPath[];
-  edgeBanding?: EdgeBandingSequence;
-  setupTime: number;
-  machiningTime: number;
-  totalTime: number;
+  name: string;
+  type: 'cutting' | 'drilling' | 'assembly' | 'finishing' | 'quality-check';
+  status: 'pending' | 'in-progress' | 'completed' | 'failed' | 'cancelled';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  
+  // Job details
+  cabinetId?: string;
+  cutListItems?: CutListItem[];
+  estimatedTime: number; // in minutes
+  actualTime?: number; // in minutes
+  
+  // Machine settings
+  machineSettings: MachineSettings;
+  toolRequirements: ToolRequirement[];
+  
+  // Quality control
+  qualityChecks: QualityCheck[];
+  tolerances: Tolerance[];
+  
+  // Scheduling
+  scheduledDate?: Date;
+  startedDate?: Date;
+  completedDate?: Date;
+  assignedTo?: string;
+  
+  // Costs
+  estimatedCost: number;
+  actualCost?: number;
+  
+  // Metadata
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface GCodeProgram {
-  id: string;
-  jobId: string;
-  componentName: string;
-  header: string[];
-  operations: GCodeOperation[];
-  footer: string[];
-  estimatedTime: number;
-}
-
-export interface GCodeOperation {
-  type: CNCOperationType;
-  lines: string[];
-  tool: CNCTool;
-  comment: string;
-}
-
-export interface ToolpathVisualization {
-  jobId: string;
-  operations: CNCOperation[];
-  currentOperation?: number;
-  bounds: {
-    minX: number;
-    maxX: number;
-    minY: number;
-    maxY: number;
-    minZ: number;
-    maxZ: number;
+export interface MachineSettings {
+  machineType: 'cnc-router' | 'panel-saw' | 'drill-press' | 'edge-bander' | 'sander';
+  spindleSpeed?: number; // RPM
+  feedRate?: number; // mm/min or in/min
+  depthOfCut?: number; // mm
+  passDepth?: number; // mm per pass
+  toolNumber?: number;
+  workOffset?: {
+    x: number;
+    y: number;
+    z: number;
   };
+  coolant?: 'off' | 'mist' | 'flood' | 'through';
+  additionalSettings?: Record<string, any>;
 }
 
-export interface CNCMachine {
+export interface ToolRequirement {
+  toolId: string;
+  toolName: string;
+  toolType: 'end-mill' | 'drill-bit' | 'router-bit' | 'saw-blade' | 'sanding-pad';
+  diameter: number; // mm
+  length: number; // mm
+  fluteCount?: number;
+  coating?: 'hss' | 'carbide' | 'diamond';
+  condition: 'new' | 'good' | 'worn' | 'replacement-needed';
+  estimatedLife?: number; // hours
+  currentUsage?: number; // hours
+}
+
+export interface QualityCheck {
   id: string;
   name: string;
-  type: 'router' | 'drill' | 'boring';
-  workArea: {
-    width: number;
-    height: number;
-    depth: number;
-  };
-  maxRPM: number;
-  maxFeedRate: number;
-  toolChanger: boolean;
-  availableTools: CNCTool[];
+  type: 'dimensional' | 'visual' | 'functional' | 'material';
+  specification: string;
+  tolerance: Tolerance;
+  method: 'manual' | 'automated' | 'visual-inspection';
+  required: boolean;
+  result?: 'pass' | 'fail' | 'conditional';
+  measuredValue?: number;
+  notes?: string;
+  checkedBy?: string;
+  checkedAt?: Date;
 }
 
-export const STANDARD_TOOLS: Record<string, CNCTool> = {
-  SHELF_PIN_DRILL: {
-    id: 'drill-5mm',
-    name: '5mm Shelf Pin Drill',
-    type: 'drill-bit',
-    diameter: 5,
-    length: 13,
-    rpm: 18000,
-    feedRate: 100,
-    plungeRate: 50,
-    stepDown: 13,
-  },
-  HINGE_BORE_35MM: {
-    id: 'bore-35mm',
-    name: '35mm Hinge Boring Bit',
-    type: 'boring-bit',
-    diameter: 35,
-    length: 13,
-    rpm: 12000,
-    feedRate: 80,
-    plungeRate: 40,
-    stepDown: 13,
-  },
-  DADO_ROUTER: {
-    id: 'router-3-8',
-    name: '3/8" Straight Router Bit',
-    type: 'router-bit',
-    diameter: 9.525,
-    length: 25.4,
-    flutes: 2,
-    rpm: 18000,
-    feedRate: 150,
-    plungeRate: 60,
-    stepDown: 6,
-  },
-  EDGE_TRIM: {
-    id: 'router-flush-trim',
-    name: 'Flush Trim Router',
-    type: 'router-bit',
-    diameter: 6.35,
-    length: 12.7,
-    flutes: 2,
-    rpm: 20000,
-    feedRate: 200,
-    plungeRate: 80,
-    stepDown: 3,
-  },
-  CONTOUR_CUT: {
-    id: 'router-1-4',
-    name: '1/4" End Mill',
-    type: 'end-mill',
-    diameter: 6.35,
-    length: 50,
-    flutes: 2,
-    rpm: 18000,
-    feedRate: 180,
-    plungeRate: 70,
-    stepDown: 5,
-  },
-};
+export interface Tolerance {
+  dimension: string;
+  nominal: number;
+  plus: number;
+  minus: number;
+  unit: 'mm' | 'inches';
+  critical: boolean;
+}
+
+export interface ManufacturingOrder {
+  id: string;
+  name: string;
+  description?: string;
+  customerId?: string;
+  projectId?: string;
+  
+  // Order details
+  jobs: ManufacturingJob[];
+  status: 'draft' | 'confirmed' | 'in-production' | 'completed' | 'cancelled';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  
+  // Scheduling
+  orderDate: Date;
+  promisedDate?: Date;
+  startedDate?: Date;
+  completedDate?: Date;
+  
+  // Costs
+  estimatedCost: number;
+  actualCost?: number;
+  laborCost?: number;
+  materialCost?: number;
+  overheadCost?: number;
+  
+  // Production details
+  productionNotes?: string;
+  specialInstructions?: string;
+  qualityRequirements?: string[];
+  
+  // Tracking
+  progress: number; // 0-100 percentage
+  completedJobs: number;
+  totalJobs: number;
+  
+  // Metadata
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ProductionSchedule {
+  id: string;
+  name: string;
+  dateRange: {
+    start: Date;
+    end: Date;
+  };
+  orders: ManufacturingOrder[];
+  machines: Machine[];
+  operators: Operator[];
+  
+  // Efficiency metrics
+  plannedEfficiency: number; // percentage
+  actualEfficiency?: number; // percentage
+  utilization?: number; // percentage
+  
+  // Constraints
+  constraints: ScheduleConstraint[];
+  bottlenecks?: string[];
+  
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Machine {
+  id: string;
+  name: string;
+  type: MachineSettings['machineType'];
+  model: string;
+  manufacturer: string;
+  
+  // Capabilities
+  maxWorkpieceSize: {
+    x: number;
+    y: number;
+    z: number;
+  };
+  spindlePower: number; // kW or HP
+  maxSpindleSpeed: number; // RPM
+  toolCapacity: number; // number of tools
+  
+  // Status
+  status: 'available' | 'busy' | 'maintenance' | 'offline';
+  currentJob?: string;
+  nextAvailable?: Date;
+  
+  // Maintenance
+  maintenanceSchedule: MaintenanceSchedule[];
+  lastMaintenance?: Date;
+  nextMaintenance?: Date;
+  
+  // Performance
+  efficiency?: number; // percentage
+  uptime?: number; // percentage
+  
+  installedAt: Date;
+  location?: string;
+}
+
+export interface Operator {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  
+  // Skills and certifications
+  skills: string[];
+  certifications: Certification[];
+  machines: string[]; // machine IDs they can operate
+  
+  // Availability
+  availability: {
+    monday: boolean;
+    tuesday: boolean;
+    wednesday: boolean;
+    thursday: boolean;
+    friday: boolean;
+    saturday: boolean;
+    sunday: boolean;
+  };
+  
+  // Performance
+  efficiency?: number; // percentage
+  qualityRating?: number; // 1-5 scale
+  
+  status: 'active' | 'inactive' | 'on-leave';
+  hiredAt: Date;
+}
+
+export interface MaintenanceSchedule {
+  id: string;
+  machineId: string;
+  type: 'preventive' | 'corrective' | 'predictive';
+  description: string;
+  scheduledDate: Date;
+  estimatedDuration: number; // hours
+  priority: 'low' | 'medium' | 'high';
+  status: 'scheduled' | 'in-progress' | 'completed' | 'cancelled';
+  
+  performedBy?: string;
+  actualDuration?: number;
+  notes?: string;
+  partsUsed?: string[];
+  cost?: number;
+}
+
+export interface Certification {
+  id: string;
+  name: string;
+  type: 'machine-operation' | 'safety' | 'quality' | 'technical';
+  issuedBy: string;
+  issuedDate: Date;
+  expiryDate?: Date;
+  status: 'valid' | 'expired' | 'suspended';
+}
+
+export interface ScheduleConstraint {
+  id: string;
+  type: 'machine-availability' | 'operator-availability' | 'material-lead-time' | 'shipping-deadline';
+  description: string;
+  impact: 'low' | 'medium' | 'high';
+  startDate: Date;
+  endDate: Date;
+  affectedResources: string[]; // machine IDs, operator IDs, etc.
+}
+
+export interface ManufacturingMetrics {
+  // Production metrics
+  totalOrders: number;
+  completedOrders: number;
+  inProgressOrders: number;
+  averageOrderTime: number; // days
+  
+  // Efficiency metrics
+  overallEfficiency: number; // percentage
+  machineUtilization: number; // percentage
+  laborEfficiency: number; // percentage
+  
+  // Quality metrics
+  firstPassYield: number; // percentage
+  reworkRate: number; // percentage
+  qualityScore: number; // 1-5 scale
+  
+  // Cost metrics
+  averageCostPerOrder: number;
+  laborCostPercentage: number;
+  materialCostPercentage: number;
+  overheadCostPercentage: number;
+  
+  // Time metrics
+  averageSetupTime: number; // hours
+  averageCycleTime: number; // hours
+  onTimeDeliveryRate: number; // percentage
+  
+  calculatedAt: Date;
+}

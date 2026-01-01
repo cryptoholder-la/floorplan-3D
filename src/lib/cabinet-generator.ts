@@ -1,199 +1,568 @@
-/**
- * Parametric Base Cabinet Generator
- * Generates full overlay base cabinets from 9" to 36" in 3" increments
- */
+// Cabinet Generator Library for Floorplan 3D
 
-import {
-  BaseCabinet,
-  BaseCabinetDimensions,
-  CabinetComponents,
-  CabinetConfiguration,
-  ComponentDimensions,
-  CabinetWidth,
-} from '@/types/cabinet.types';
-import {
-  STANDARD_MATERIAL,
-  FULL_OVERLAY,
-  generateShelfPinHoles,
-  generateHingeHoles,
-  generateStandardGrooves,
-  calculateMaterialUsage as calculateMaterial,
-} from './cabinet-common';
+import { Cabinet, CabinetWidth, CabinetDimensions, CabinetPart, CabinetMaterial, CabinetHardware, CutListItem } from '@/types/cabinet.types';
 
-const STANDARD_CONFIG: CabinetConfiguration = {
-  hasDrawer: false,
-  hasAdjustableShelf: true,
-  shelfCount: 1,
-  doorStyle: 'slab',
-  hingeType: 'concealed',
-  overlay: 'full',
+// Standard cabinet dimensions (in inches)
+export const STANDARD_DIMENSIONS = {
+  base: {
+    depths: [12, 15, 18, 21, 24],
+    heights: [34.5], // Standard base cabinet height
+    widths: [12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48] as CabinetWidth[]
+  },
+  wall: {
+    depths: [12, 15],
+    heights: [30, 36, 42],
+    widths: [12, 15, 18, 21, 24, 27, 30, 33, 36] as CabinetWidth[]
+  },
+  tall: {
+    depths: [12, 15, 18, 21, 24],
+    heights: [84, 90, 96],
+    widths: [12, 15, 18, 21, 24, 27, 30, 33, 36] as CabinetWidth[]
+  }
 };
 
-export function generateBaseCabinet(
-  width: CabinetWidth,
-  config: Partial<CabinetConfiguration> = {}
-): BaseCabinet {
-  const dimensions = getStandardDimensions(width);
-  const material = STANDARD_MATERIAL;
-  const configuration = { ...STANDARD_CONFIG, ...config };
-  const components = generateComponents(dimensions, material, configuration);
+// Standard materials
+export const STANDARD_MATERIALS: CabinetMaterial[] = [
+  {
+    id: 'plywood-3-4',
+    name: '3/4" Baltic Birch Plywood',
+    type: 'plywood',
+    thickness: 0.75,
+    pricePerSheet: 45,
+    supplier: 'Hardwood Suppliers'
+  },
+  {
+    id: 'plywood-1-2',
+    name: '1/2" Baltic Birch Plywood',
+    type: 'plywood',
+    thickness: 0.5,
+    pricePerSheet: 35,
+    supplier: 'Hardwood Suppliers'
+  },
+  {
+    id: 'plywood-1-4',
+    name: '1/4" Baltic Birch Plywood',
+    type: 'plywood',
+    thickness: 0.25,
+    pricePerSheet: 25,
+    supplier: 'Hardwood Suppliers'
+  },
+  {
+    id: 'hardwood-maple',
+    name: 'Maple Hardwood',
+    type: 'hardwood',
+    thickness: 0.75,
+    pricePerSheet: 65,
+    supplier: 'Hardwood Suppliers'
+  }
+];
 
-  return {
-    id: `base-cabinet-${width}`,
-    dimensions,
-    material,
-    components,
-    configuration,
-  };
-}
+// Standard hardware
+export const STANDARD_HARDWARE: CabinetHardware[] = [
+  {
+    id: 'hinge-concealed',
+    name: 'Concealed European Hinge',
+    type: 'hinge',
+    quantity: 2,
+    unitPrice: 8.50,
+    supplier: 'Hardware World'
+  },
+  {
+    id: 'handle-modern',
+    name: 'Modern Bar Handle',
+    type: 'handle',
+    quantity: 1,
+    unitPrice: 12.00,
+    supplier: 'Hardware World'
+  },
+  {
+    id: 'drawer-slide-side',
+    name: 'Side Mount Drawer Slide',
+    type: 'drawer-slide',
+    quantity: 2,
+    unitPrice: 15.00,
+    supplier: 'Hardware World'
+  },
+  {
+    id: 'shelf-pin-5mm',
+    name: '5mm Shelf Pin',
+    type: 'shelf-pin',
+    quantity: 4,
+    unitPrice: 0.50,
+    supplier: 'Hardware World'
+  }
+];
 
-function getStandardDimensions(width: CabinetWidth): BaseCabinetDimensions {
-  return {
+/**
+ * Generate a base cabinet with standard construction
+ */
+export function generateBaseCabinet(width: CabinetWidth): Cabinet {
+  const dimensions: CabinetDimensions = {
     width,
     depth: 24,
-    height: 30,
-    toeKickHeight: 4.5,
-    toeKickDepth: 21,
-    totalHeight: 34.5,
+    height: 34.5
   };
+
+  const cabinet: Cabinet = {
+    id: `base-cabinet-${width}-${Date.now()}`,
+    name: `${width}" Base Cabinet`,
+    type: 'base',
+    dimensions,
+    parts: [],
+    hardware: [...STANDARD_HARDWARE],
+    materials: [...STANDARD_MATERIALS],
+    estimatedCost: 0,
+    estimatedTime: 120, // minutes
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+
+  // Generate cabinet parts
+  cabinet.parts = generateBaseCabinetParts(dimensions);
+  
+  // Calculate estimated cost
+  cabinet.estimatedCost = calculateCabinetCost(cabinet);
+
+  return cabinet;
 }
 
-function generateComponents(
-  dims: BaseCabinetDimensions,
-  mat: typeof STANDARD_MATERIAL,
-  config: CabinetConfiguration
-): CabinetComponents {
-  const t = mat.thickness;
-  const internalWidth = dims.width - (2 * t);
-  const internalDepth = dims.depth - t;
-
-  const sidePanels: ComponentDimensions = {
-    name: 'Side Panel',
-    width: dims.depth,
-    height: dims.height,
-    quantity: 2,
-    material: mat.type,
-    thickness: t,
-    edgeBanding: { front: true },
-    holes: generateShelfPinHoles(dims.depth, dims.height, 3, 3, 2, 2),
-    grooves: generateStandardGrooves(dims.depth, dims.height, t, false),
+/**
+ * Generate a wall cabinet with standard construction
+ */
+export function generateWallCabinet(width: CabinetWidth, height: number = 30): Cabinet {
+  const dimensions: CabinetDimensions = {
+    width,
+    depth: 12,
+    height: height as any
   };
 
-  const bottomPanel: ComponentDimensions = {
+  const cabinet: Cabinet = {
+    id: `wall-cabinet-${width}-${Date.now()}`,
+    name: `${width}" Wall Cabinet`,
+    type: 'wall',
+    dimensions,
+    parts: [],
+    hardware: [...STANDARD_HARDWARE],
+    materials: [...STANDARD_MATERIALS],
+    estimatedCost: 0,
+    estimatedTime: 90, // minutes
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+
+  // Generate cabinet parts
+  cabinet.parts = generateWallCabinetParts(dimensions);
+  
+  // Calculate estimated cost
+  cabinet.estimatedCost = calculateCabinetCost(cabinet);
+
+  return cabinet;
+}
+
+/**
+ * Generate parts for a base cabinet
+ */
+function generateBaseCabinetParts(dimensions: CabinetDimensions): CabinetPart[] {
+  const parts: CabinetPart[] = [];
+  const plywood3_4 = STANDARD_MATERIALS.find(m => m.id === 'plywood-3-4')!;
+  const plywood1_2 = STANDARD_MATERIALS.find(m => m.id === 'plywood-1-2')!;
+  const plywood1_4 = STANDARD_MATERIALS.find(m => m.id === 'plywood-1-4')!;
+
+  // Sides (2 pieces)
+  parts.push({
+    id: 'side-left',
+    name: 'Left Side Panel',
+    material: plywood3_4,
+    dimensions: {
+      width: dimensions.depth,
+      height: dimensions.height,
+      thickness: plywood3_4.thickness
+    },
+    quantity: 1,
+    grainDirection: 'vertical'
+  });
+
+  parts.push({
+    id: 'side-right',
+    name: 'Right Side Panel',
+    material: plywood3_4,
+    dimensions: {
+      width: dimensions.depth,
+      height: dimensions.height,
+      thickness: plywood3_4.thickness
+    },
+    quantity: 1,
+    grainDirection: 'vertical'
+  });
+
+  // Top and bottom (2 pieces)
+  parts.push({
+    id: 'top',
+    name: 'Top Panel',
+    material: plywood3_4,
+    dimensions: {
+      width: dimensions.width - 1.5, // Account for side thickness
+      height: dimensions.depth,
+      thickness: plywood3_4.thickness
+    },
+    quantity: 1,
+    grainDirection: 'horizontal'
+  });
+
+  parts.push({
+    id: 'bottom',
     name: 'Bottom Panel',
-    width: internalWidth,
-    height: internalDepth,
+    material: plywood3_4,
+    dimensions: {
+      width: dimensions.width - 1.5,
+      height: dimensions.depth - 1, // Set back from front
+      thickness: plywood3_4.thickness
+    },
     quantity: 1,
-    material: mat.type,
-    thickness: t,
-    edgeBanding: { front: true },
-  };
+    grainDirection: 'horizontal'
+  });
 
-  const topStretcher: ComponentDimensions = {
-    name: 'Top Stretcher',
-    width: internalWidth,
-    height: 3,
-    depth: t,
-    quantity: 1,
-    material: mat.type,
-    thickness: t,
-  };
-
-  const backPanel: ComponentDimensions = {
+  // Back panel
+  parts.push({
+    id: 'back',
     name: 'Back Panel',
-    width: internalWidth,
-    height: dims.height - 0.75,
+    material: plywood1_4,
+    dimensions: {
+      width: dimensions.width,
+      height: dimensions.height,
+      thickness: plywood1_4.thickness
+    },
     quantity: 1,
-    material: 'plywood',
-    thickness: 0.25,
-  };
+    grainDirection: 'vertical'
+  });
 
-  const adjustableShelf: ComponentDimensions = {
+  // Toe kick base
+  parts.push({
+    id: 'toe-kick',
+    name: 'Toe Kick Base',
+    material: plywood3_4,
+    dimensions: {
+      width: dimensions.width - 1.5,
+      height: 3,
+      thickness: plywood3_4.thickness
+    },
+    quantity: 1,
+    grainDirection: 'horizontal'
+  });
+
+  // Adjustable shelves (2 standard)
+  parts.push({
+    id: 'shelf-1',
+    name: 'Adjustable Shelf 1',
+    material: plywood3_4,
+    dimensions: {
+      width: dimensions.width - 1.5,
+      height: dimensions.depth - 1,
+      thickness: plywood3_4.thickness
+    },
+    quantity: 1,
+    grainDirection: 'horizontal'
+  });
+
+  parts.push({
+    id: 'shelf-2',
+    name: 'Adjustable Shelf 2',
+    material: plywood3_4,
+    dimensions: {
+      width: dimensions.width - 1.5,
+      height: dimensions.depth - 1,
+      thickness: plywood3_4.thickness
+    },
+    quantity: 1,
+    grainDirection: 'horizontal'
+  });
+
+  return parts;
+}
+
+/**
+ * Generate parts for a wall cabinet
+ */
+function generateWallCabinetParts(dimensions: CabinetDimensions): CabinetPart[] {
+  const parts: CabinetPart[] = [];
+  const plywood3_4 = STANDARD_MATERIALS.find(m => m.id === 'plywood-3-4')!;
+  const plywood1_4 = STANDARD_MATERIALS.find(m => m.id === 'plywood-1-4')!;
+
+  // Sides (2 pieces)
+  parts.push({
+    id: 'side-left',
+    name: 'Left Side Panel',
+    material: plywood3_4,
+    dimensions: {
+      width: dimensions.depth,
+      height: dimensions.height,
+      thickness: plywood3_4.thickness
+    },
+    quantity: 1,
+    grainDirection: 'vertical'
+  });
+
+  parts.push({
+    id: 'side-right',
+    name: 'Right Side Panel',
+    material: plywood3_4,
+    dimensions: {
+      width: dimensions.depth,
+      height: dimensions.height,
+      thickness: plywood3_4.thickness
+    },
+    quantity: 1,
+    grainDirection: 'vertical'
+  });
+
+  // Top and bottom (2 pieces)
+  parts.push({
+    id: 'top',
+    name: 'Top Panel',
+    material: plywood3_4,
+    dimensions: {
+      width: dimensions.width - 1.5,
+      height: dimensions.depth,
+      thickness: plywood3_4.thickness
+    },
+    quantity: 1,
+    grainDirection: 'horizontal'
+  });
+
+  parts.push({
+    id: 'bottom',
+    name: 'Bottom Panel',
+    material: plywood3_4,
+    dimensions: {
+      width: dimensions.width - 1.5,
+      height: dimensions.depth,
+      thickness: plywood3_4.thickness
+    },
+    quantity: 1,
+    grainDirection: 'horizontal'
+  });
+
+  // Back panel
+  parts.push({
+    id: 'back',
+    name: 'Back Panel',
+    material: plywood1_4,
+    dimensions: {
+      width: dimensions.width,
+      height: dimensions.height,
+      thickness: plywood1_4.thickness
+    },
+    quantity: 1,
+    grainDirection: 'vertical'
+  });
+
+  // Adjustable shelves (1 standard for wall cabinet)
+  parts.push({
+    id: 'shelf-1',
     name: 'Adjustable Shelf',
-    width: internalWidth - 0.125,
-    height: internalDepth - 0.75,
-    quantity: config.shelfCount || 1,
-    material: mat.type,
-    thickness: t,
-    edgeBanding: { front: true },
-  };
-
-  const doorPanel: ComponentDimensions = {
-    name: 'Door Panel',
-    width: dims.width + (2 * FULL_OVERLAY),
-    height: dims.height + FULL_OVERLAY,
+    material: plywood3_4,
+    dimensions: {
+      width: dimensions.width - 1.5,
+      height: dimensions.depth - 0.5,
+      thickness: plywood3_4.thickness
+    },
     quantity: 1,
-    material: mat.type,
-    thickness: t,
-    edgeBanding: { top: true, bottom: true, left: true, right: true },
-    holes: generateHingeHoles(dims.height, 2),
-  };
+    grainDirection: 'horizontal'
+  });
 
-  const toeKickFront: ComponentDimensions = {
-    name: 'Toe Kick Front',
-    width: dims.width,
-    height: dims.toeKickHeight,
-    quantity: 1,
-    material: mat.type,
-    thickness: t,
-  };
+  return parts;
+}
 
-  const toeKickSide: ComponentDimensions = {
-    name: 'Toe Kick Side',
-    width: dims.toeKickDepth,
-    height: dims.toeKickHeight,
-    quantity: 2,
-    material: mat.type,
-    thickness: t,
-  };
+/**
+ * Calculate the total cost of a cabinet
+ */
+export function calculateCabinetCost(cabinet: Cabinet): number {
+  let materialCost = 0;
+  let hardwareCost = 0;
+
+  // Calculate material cost
+  cabinet.parts.forEach(part => {
+    const area = (part.dimensions.width * part.dimensions.height) / 144; // Convert to square feet
+    const materialCostPerSqFt = part.material.pricePerSheet / 32; // Assume 4x8 sheet (32 sq ft)
+    materialCost += area * materialCostPerSqFt * part.quantity;
+  });
+
+  // Calculate hardware cost
+  cabinet.hardware.forEach(hardware => {
+    hardwareCost += hardware.unitPrice * hardware.quantity;
+  });
+
+  // Add labor cost (estimated at $50/hour)
+  const laborCost = (cabinet.estimatedTime || 120) / 60 * 50;
+
+  // Add overhead (15%)
+  const overhead = (materialCost + hardwareCost + laborCost) * 0.15;
+
+  return materialCost + hardwareCost + laborCost + overhead;
+}
+
+/**
+ * Generate a cut list from a cabinet
+ */
+export function generateCutList(cabinet: Cabinet): CutListItem[] {
+  return cabinet.parts.map(part => ({
+    id: `${cabinet.id}-${part.id}`,
+    cabinetId: cabinet.id,
+    cabinetName: cabinet.name,
+    partName: part.name,
+    material: part.material,
+    width: part.dimensions.width,
+    height: part.dimensions.height,
+    thickness: part.dimensions.thickness,
+    quantity: part.quantity,
+    grainDirection: part.grainDirection || 'horizontal',
+    edgeBanding: part.edgeBanding || {
+      top: false,
+      bottom: false,
+      left: false,
+      right: false
+    },
+    notes: `Grain direction: ${part.grainDirection || 'horizontal'}`
+  }));
+}
+
+/**
+ * Generate multiple cabinets for a kitchen layout
+ */
+export function generateKitchenLayout(layout: {
+  baseCabinets: CabinetWidth[];
+  wallCabinets: CabinetWidth[];
+  tallCabinets?: CabinetWidth[];
+}): Cabinet[] {
+  const cabinets: Cabinet[] = [];
+
+  // Generate base cabinets
+  layout.baseCabinets.forEach(width => {
+    cabinets.push(generateBaseCabinet(width));
+  });
+
+  // Generate wall cabinets
+  layout.wallCabinets.forEach(width => {
+    cabinets.push(generateWallCabinet(width));
+  });
+
+  // Generate tall cabinets if specified
+  layout.tallCabinets?.forEach(width => {
+    const tallCabinet = generateBaseCabinet(width);
+    tallCabinet.type = 'tall';
+    tallCabinet.dimensions.height = 84;
+    tallCabinet.name = `${width}" Tall Cabinet`;
+    tallCabinet.id = `tall-cabinet-${width}-${Date.now()}`;
+    cabinets.push(tallCabinet);
+  });
+
+  return cabinets;
+}
+
+/**
+ * Optimize cut list for material efficiency
+ */
+export function optimizeCutList(cutList: CutListItem[]): {
+  optimized: CutListItem[];
+  materialUsage: Record<string, {
+    sheets: number;
+    waste: number;
+    efficiency: number;
+  }>;
+} {
+  // Group by material and thickness
+  const grouped = cutList.reduce((acc, item) => {
+    const key = `${item.material.id}-${item.thickness}`;
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(item);
+    return acc;
+  }, {} as Record<string, CutListItem[]>);
+
+  const materialUsage: Record<string, {
+    sheets: number;
+    waste: number;
+    efficiency: number;
+  }> = {};
+
+  const optimized: CutListItem[] = [];
+
+  // For each material group, optimize layout
+  Object.entries(grouped).forEach(([key, items]) => {
+    const [materialId] = key.split('-');
+    const material = items[0].material;
+    
+    // Simple optimization: sort by largest area first
+    const sorted = items.sort((a, b) => (b.width * b.height) - (a.width * a.height));
+    
+    // Calculate material usage (simplified)
+    const totalArea = sorted.reduce((sum, item) => sum + (item.width * item.height) * item.quantity, 0);
+    const sheetArea = 96 * 48; // 4x8 sheet in inches
+    const sheets = Math.ceil(totalArea / sheetArea);
+    const waste = (sheets * sheetArea) - totalArea;
+    const efficiency = (totalArea / (sheets * sheetArea)) * 100;
+
+    materialUsage[materialId] = {
+      sheets,
+      waste,
+      efficiency
+    };
+
+    optimized.push(...sorted);
+  });
 
   return {
-    leftSide: sidePanels,
-    rightSide: sidePanels,
-    bottom: bottomPanel,
-    top: topStretcher,
-    back: backPanel,
-    adjustableShelf: config.hasAdjustableShelf ? adjustableShelf : undefined,
-    door: doorPanel,
-    toeKickFront,
-    toeKickSides: [toeKickSide, toeKickSide],
+    optimized,
+    materialUsage
   };
 }
 
-export function getAvailableWidths(): CabinetWidth[] {
-  return [9, 12, 15, 18, 21, 24, 27, 30, 33, 36];
-}
-
-export function generateCutList(cabinet: BaseCabinet): ComponentDimensions[] {
-  const components = cabinet.components;
-  const cutList: ComponentDimensions[] = [];
-
-  cutList.push(components.leftSide);
-  cutList.push(components.rightSide);
-  cutList.push(components.bottom);
-  cutList.push(components.top);
-  cutList.push(components.back);
-  
-  if (components.adjustableShelf) {
-    cutList.push(components.adjustableShelf);
-  }
-  
-  cutList.push(components.door);
-  
-  if (components.drawerFront) {
-    cutList.push(components.drawerFront);
-  }
-  
-  cutList.push(components.toeKickFront);
-  components.toeKickSides.forEach(side => cutList.push(side));
-
-  return cutList;
-}
-
-export function calculateMaterialUsage(cabinet: BaseCabinet): {
-  plywood34: number;
-  plywood14: number;
-  edgeBanding: number;
+/**
+ * Validate cabinet dimensions for manufacturing constraints
+ */
+export function validateCabinetDimensions(cabinet: Cabinet): {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
 } {
-  return calculateMaterial(generateCutList(cabinet));
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Check minimum dimensions
+  if (cabinet.dimensions.width < 9) {
+    errors.push('Cabinet width must be at least 9 inches');
+  }
+
+  if (cabinet.dimensions.depth < 12) {
+    errors.push('Cabinet depth must be at least 12 inches');
+  }
+
+  if (cabinet.dimensions.height < 12) {
+    errors.push('Cabinet height must be at least 12 inches');
+  }
+
+  // Check maximum dimensions
+  if (cabinet.dimensions.width > 48) {
+    warnings.push('Cabinet width over 48 inches may require special construction');
+  }
+
+  if (cabinet.dimensions.depth > 24) {
+    warnings.push('Cabinet depth over 24 inches may require special construction');
+  }
+
+  // Check type-specific constraints
+  if (cabinet.type === 'base' && cabinet.dimensions.height !== 34.5) {
+    warnings.push('Base cabinet height should typically be 34.5 inches');
+  }
+
+  if (cabinet.type === 'wall' && cabinet.dimensions.depth > 15) {
+    warnings.push('Wall cabinet depth over 15 inches may require special mounting');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings
+  };
 }
