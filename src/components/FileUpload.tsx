@@ -6,6 +6,7 @@ import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
 import { Progress } from '@/ui/progress';
 import { cn } from '@/lib/utils';
+import { wait } from "@/lib/utils/general";
 
 export interface UploadedFile {
   originalName: string;

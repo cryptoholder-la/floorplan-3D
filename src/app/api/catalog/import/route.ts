@@ -4,6 +4,7 @@ import { buildAttachment } from '@/lib/attachments';
 import { catalogItemsFromCsvRows, catalogItemsFromJson, parseCsv } from '@/lib/importers';
 import { upsertCatalogItems } from '@/lib/merge';
 import type { CatalogItem } from '@/lib/types';
+import { wait } from "@/lib/utils/general";
 
 export const runtime = 'nodejs';
 

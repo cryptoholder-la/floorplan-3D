@@ -91,6 +91,7 @@ export const COMPONENT_REGISTRY = {
   Tabs: () => import('@/components/ui/tabs'),
   Card: () => import('@/components/ui/card'),
 };
+import { flatten } from "@/lib/utils/array";
 
 // Route helper functions
 export const getRouteByPath = (path: string): RouteConfig | undefined => {

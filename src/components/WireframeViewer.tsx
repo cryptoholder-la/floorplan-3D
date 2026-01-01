@@ -29,6 +29,7 @@ import FloorplanConverter from './FloorplanConverter';
 import { generateWireframeExport, downloadFile, ExportOptions } from '../lib/wireframe-exporter';
 import { WireframeAsset, CabinetPart, CabinetAccessory } from '../types/wireframe';
 import { Material } from '@/types';
+import { capitalize } from "@/lib/utils/string";
 
 interface WireframeViewerProps {
   className?: string;

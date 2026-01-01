@@ -16,6 +16,7 @@ import {
   Settings
 } from 'lucide-react';
 import { Material } from '@/types';
+import { capitalize } from "@/lib/utils/string";
 
 interface CabinetViewer3DProps {
   design: CabinetDesign;

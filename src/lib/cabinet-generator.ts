@@ -3,6 +3,7 @@
 import { Cabinet, CabinetPart, CabinetMaterial, CabinetHardware, CutListItem } from '@/types';
 import { CabinetDimensions, CabinetWidth } from '@/types';
 import { CabinetWidth } from '@/types';
+import { first } from "@/lib/utils/array";
 
 // Standard cabinet dimensions (in inches)
 export const STANDARD_DIMENSIONS = {

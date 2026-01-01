@@ -10,6 +10,7 @@ import {
 } from '../core/base.types';
 import { Cabinet, CutListItem } from './cabinet.types';
 import { BaseEntity } from '@/types';
+import { first } from "@/lib/utils/array";
 
 // ============================================================================
 // MANUFACTURING JOB TYPES

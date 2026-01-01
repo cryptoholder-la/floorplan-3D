@@ -17,6 +17,7 @@ import {
   Grid3x3
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { capitalize } from "@/lib/utils/string";
 
 interface Model3D {
   id: string;

@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Material } from '@/types';
+import { first } from "@/lib/utils/array";
+import { truncate } from "@/lib/utils/string";
 
 interface GCodeCommand {
   id: string;

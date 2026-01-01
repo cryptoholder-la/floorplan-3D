@@ -17,6 +17,8 @@ import {
 } from '../core/base.types';
 import { Polygon, Rectangle, BoundingBox } from '../core/geometry.types';
 import { CabinetHeight } from '@/types';
+import { unique } from "@/lib/utils/array";
+import { clamp } from "@/lib/utils/general";
 
 // ============================================================================
 // CABINET CORE TYPES

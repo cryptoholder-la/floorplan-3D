@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useState, useEffect } from 'react';
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -29,6 +28,7 @@ import { ExperimentalTools } from '@/components/ExperimentalTools';
 import { MemlayerProvider } from '@/components/providers/MemlayerProvider';
 import { useMemlayer } from '@/components/providers/MemlayerProvider';
 import { Material } from '@/types';
+import { first } from "@/lib/utils/array";
 
 // Types for 10_10 design system
 interface ToolCard {

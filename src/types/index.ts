@@ -617,6 +617,7 @@ export type DeepPartial<T> = {
 // Re-export all types for easy importing
 export * from './base.types';
 import { CabinetHeight } from '@/types';
+import { sortBy } from "@/lib/utils/array";
 export * from './geometry.types';
 export * from './cabinet.types';
 export * from './cnc.types';

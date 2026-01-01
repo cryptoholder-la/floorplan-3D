@@ -23,6 +23,7 @@ import {
   Layers
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { capitalize } from "@/lib/utils/string";
 
 interface CatalogItem {
   id: string;

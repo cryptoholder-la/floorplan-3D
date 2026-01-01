@@ -26,6 +26,7 @@ import {
   Package
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { capitalize } from "@/lib/utils/string";
 
 interface AssetViewerProps {
   className?: string;
