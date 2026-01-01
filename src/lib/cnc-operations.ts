@@ -1,9 +1,10 @@
 // CNC Operations Library for Floorplan 3D
 
-import { ManufacturingJob, MachineSettings, ToolRequirement, QualityCheck } from '@/types/manufacturing.types';
-import { CutListItem } from '@/types/cabinet.types';
-import { CNCOperation, CNCTool, DrillSettings } from '@/types/cnc.types';
-import { Tolerance } from '@/types/base.types';
+import { ManufacturingJob, MachineSettings, ToolRequirement, QualityCheck } from '@/types';
+import { CutListItem } from '@/types';
+import { CNCOperation, CNCTool, DrillSettings } from '@/types';
+import { Tolerance } from '@/types';
+import { Priority } from '@/types';
 
 // Standard CNC tools
 export const STANDARD_CNC_TOOLS: CNCTool[] = [

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 
 import React, { useState, useEffect } from 'react';
 import { X, Activity, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Status } from '@/types';
 
 interface AgentTask {
   id: string;

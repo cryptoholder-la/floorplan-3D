@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Calculator, DollarSign, Clock, Package } from 'lucide-react';
+import { Material } from '@/types';
 
 interface CutlistItem {
   id: string;

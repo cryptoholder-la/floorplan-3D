@@ -27,7 +27,7 @@ import {
   Grid3x3
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { DrillPattern } from '@/types/cnc.types';
+import { DrillPattern } from '@/types';
 import { 
   AVAILABLE_PATTERNS,
   PATTERN_CATEGORIES,

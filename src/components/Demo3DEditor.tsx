@@ -22,6 +22,7 @@ import {
   RotateCcw as ResetCamera
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Material } from '@/types';
 
 interface Wall {
   id: string;

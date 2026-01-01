@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 
 import React, { useState, useEffect } from 'react';
 import { pluginSystem, usePluginSystem } from '@/lib/core/PluginSystem';
+import { Status } from '@/types';
 
 function PluginSystemDashboard() {
   const api = usePluginSystem();

@@ -22,6 +22,7 @@ import {
   Calculator
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Material } from '@/types';
 
 interface NestingPart {
   id: string;

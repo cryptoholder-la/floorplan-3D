@@ -9,6 +9,7 @@ import {
   Point3D
 } from '../core/base.types';
 import { Cabinet, CutListItem } from './cabinet.types';
+import { BaseEntity } from '@/types';
 
 // ============================================================================
 // MANUFACTURING JOB TYPES

@@ -42,6 +42,7 @@ import { CompletePhoto2Plan } from '@/components/CompletePhoto2Plan';
 import { CompleteInventoryManager } from '@/components/CompleteInventoryManager';
 import { CompleteDrillingPatterns } from '@/components/CompleteDrillingPatterns';
 import { CompleteTemplateMaker } from '@/components/CompleteTemplateMaker';
+import { Status } from '@/types';
 
 export default function CompleteTenTenPage() {
   const [agentTasks, setAgentTasks] = useState<AgentTask[]>([]);

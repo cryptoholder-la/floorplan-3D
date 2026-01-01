@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { generateBaseCabinet, generateCutList } from '@/lib/cabinet-generator';
 import { generateJobsForCabinet } from '@/lib/cnc-operations';
 import { generateGCode, downloadGCode } from '@/lib/gcode-generator';
-import { CabinetWidth } from '@/types/cabinet.types';
-import { ManufacturingJob } from '@/types/manufacturing.types';
+import { CabinetWidth } from '@/types';
+import { ManufacturingJob } from '@/types';
 import ToolpathVisualization from '@/components/ToolpathVisualization';
+import { Material } from '@/types';
 
 export default function ManufacturingPage() {
   const [selectedWidth, setSelectedWidth] = useState<CabinetWidth>(24);

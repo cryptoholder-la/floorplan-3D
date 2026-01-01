@@ -620,3 +620,4 @@ export interface Point3D {
 
 // Import cabinet types for reference
 import { Cabinet } from './cabinet.types';
+import { Point3D } from '@/types';

@@ -2,6 +2,7 @@
 // Merges all 5 modules into an organized, intelligent workflow
 
 import { AgentTask, CabinetItem, FloorplanData, DrillingPattern, TemplatePart } from './10_10-complete';
+import { Material } from '@/types';
 
 // Learning and Analytics Types
 export interface LearningData {

@@ -26,7 +26,7 @@ import {
   Box
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { DrillPattern } from '@/types/cnc.types';
+import { DrillPattern } from '@/types';
 import { 
   AVAILABLE_PATTERNS,
   PATTERN_CATEGORIES,
@@ -34,6 +34,7 @@ import {
   getPatternsByCategory,
   type PatternId
 } from '@/lib/drill-patterns-library';
+import { CabinetHeight } from '@/types';
 
 const ASSEMBLY_USE_CASES = [
   {

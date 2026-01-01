@@ -27,6 +27,7 @@ import {
 import EnhancedFloorPlan3DViewer from '@/components/EnhancedFloorPlan3DViewer';
 import { generateCNCPattern } from '@/lib/drill-patterns-library';
 import { AVAILABLE_PATTERNS, PatternId } from '@/lib/drill-patterns-library';
+import { Status } from '@/types';
 
 // Professional use case configurations
 const PROFESSIONAL_USE_CASES = [

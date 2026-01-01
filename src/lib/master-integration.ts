@@ -12,7 +12,7 @@ import {
   MasterWorkflow as UnifiedMasterWorkflow,
   MasterWorkflowStep as UnifiedMasterWorkflowStep,
   IntegratedProject as UnifiedIntegratedProject
-} from '@/types/master.types';
+} from '@/types';
 
 // Master System Types
 export interface MasterSystemConfig {
@@ -239,6 +239,7 @@ export class MasterIntegrationSystem {
         status: 'active'
       }
     ];
+import { Status } from '@/types';
 
     capabilities.forEach(cap => {
       this.capabilities.set(cap.id, cap);

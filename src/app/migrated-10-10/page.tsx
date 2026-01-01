@@ -26,6 +26,7 @@ import {
   Clock,
   Activity
 } from 'lucide-react';
+import { Material } from '@/types';
 
 export default function MigratedTenTenPage() {
   const [agentTasks, setAgentTasks] = useState<AgentTask[]>([]);

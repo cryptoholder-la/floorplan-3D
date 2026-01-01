@@ -34,6 +34,7 @@ import {
   Eye,
   Grid
 } from 'lucide-react';
+import { Status } from '@/types';
 
 export default function UnifiedWorkflowPage() {
   const [activeView, setActiveView] = useState<'unified' | 'modules' | 'analytics'>('unified');

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { DollarSign, TrendingUp, FileText, Download } from 'lucide-react';
+import { Material } from '@/types';
 
 export default function CostReport() {
   const [reportData, setReportData] = React.useState({

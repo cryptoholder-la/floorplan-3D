@@ -35,6 +35,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
+import { Status } from '@/types';
 
 export function UnifiedWorkflow() {
   const [userId] = useState('user_' + Date.now());

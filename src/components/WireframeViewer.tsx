@@ -28,6 +28,7 @@ import CabinetWireframeRenderer from './CabinetWireframeRenderer';
 import FloorplanConverter from './FloorplanConverter';
 import { generateWireframeExport, downloadFile, ExportOptions } from '../lib/wireframe-exporter';
 import { WireframeAsset, CabinetPart, CabinetAccessory } from '../types/wireframe';
+import { Material } from '@/types';
 
 interface WireframeViewerProps {
   className?: string;

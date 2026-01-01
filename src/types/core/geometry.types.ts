@@ -2,6 +2,7 @@
 // Extends base types with specialized geometry for CAD/CAM operations
 
 import { Point2D, Point3D, Size2D, Size3D, Material, Rectangle, BoundingBox } from './base.types';
+import { BoundingBox } from '@/types';
 
 // ============================================================================
 // ADVANCED GEOMETRY

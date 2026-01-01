@@ -3,6 +3,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Filter, Search } from 'lucide-react';
+import { Material } from '@/types';
 
 interface FilterPanelProps {
   data: any[];

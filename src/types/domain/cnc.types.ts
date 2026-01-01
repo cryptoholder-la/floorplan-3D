@@ -24,6 +24,7 @@ import {
   ToolCoating,
   CoolantType
 } from '../core/geometry.types';
+import { BaseEntity } from '@/types';
 
 // ============================================================================
 // DRILL PATTERNS

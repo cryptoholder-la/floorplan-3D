@@ -1,7 +1,8 @@
 // Cabinet Generator Library for Floorplan 3D
 
-import { Cabinet, CabinetPart, CabinetMaterial, CabinetHardware, CutListItem } from '@/types/cabinet.types';
-import { CabinetDimensions, CabinetWidth } from '@/types/base.types';
+import { Cabinet, CabinetPart, CabinetMaterial, CabinetHardware, CutListItem } from '@/types';
+import { CabinetDimensions, CabinetWidth } from '@/types';
+import { CabinetWidth } from '@/types';
 
 // Standard cabinet dimensions (in inches)
 export const STANDARD_DIMENSIONS = {

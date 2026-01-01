@@ -29,6 +29,7 @@ import {
   Shield,
   Database
 } from 'lucide-react';
+import { Status } from '@/types';
 
 // Sync status types
 type SyncStatus = 'online' | 'offline' | 'syncing' | 'error';

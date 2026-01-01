@@ -511,4 +511,5 @@ export function CompleteTemplateMaker() {
       </Card>
     </div>
   );
+import { Material } from '@/types';
 }

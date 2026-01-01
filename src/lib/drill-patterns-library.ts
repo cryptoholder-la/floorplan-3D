@@ -1,7 +1,8 @@
-import { Point2D, Tolerance } from '@/types/base.types';
+import { Point2D, Tolerance } from '@/types';
 // Drill Patterns Library for Floorplan 3D
 
-import { DrillPattern, PatternCategory, PatternType, Point2D, DrillHole, DrillSettings } from '@/types/cnc.types';
+import { DrillPattern, PatternCategory, PatternType, Point2D, DrillHole, DrillSettings } from '@/types';
+import { Tolerance } from '@/types';
 
 // Pattern ID type
 export type PatternId = string;

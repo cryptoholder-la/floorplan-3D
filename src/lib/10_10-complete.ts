@@ -788,6 +788,7 @@ export class CompleteTemplateSystem {
       }
     } catch (error) {
       console.error('Failed to import template:', error);
+import { Status } from '@/types';
     }
     return [];
   }

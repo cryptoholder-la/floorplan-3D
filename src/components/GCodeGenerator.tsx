@@ -24,6 +24,7 @@ import {
   Wrench
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Material } from '@/types';
 
 interface GCodeCommand {
   id: string;

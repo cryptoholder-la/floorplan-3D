@@ -2,7 +2,7 @@
 
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Grid, Environment } from '@react-three/drei';
-import { CabinetDesign } from '@/types/cabinet.types';
+import { CabinetDesign } from '@/types';
 import * as THREE from 'three';
 import { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card';
@@ -15,6 +15,7 @@ import {
   Box,
   Settings
 } from 'lucide-react';
+import { Material } from '@/types';
 
 interface CabinetViewer3DProps {
   design: CabinetDesign;

@@ -146,6 +146,7 @@ export function CompleteInventoryManager({ onClose }: CompleteInventoryManagerPr
           }
         } catch (error) {
           console.error('Failed to import inventory:', error);
+import { Material } from '@/types';
         }
       };
       reader.readAsText(file);

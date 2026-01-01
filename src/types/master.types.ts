@@ -12,6 +12,7 @@ import {
 import { Cabinet } from '../domain/cabinet.types';
 import { Floorplan } from '../domain/floorplan.types';
 import { ManufacturingJob } from '../domain/manufacturing.types';
+import { BaseEntity } from '@/types';
 
 // ============================================================================
 // MASTER SYSTEM CONFIGURATION

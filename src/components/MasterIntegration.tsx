@@ -36,6 +36,7 @@ import {
   Star,
   Star as Sparkles
 } from 'lucide-react';
+import { Status } from '@/types';
 
 export function MasterIntegration() {
   const [activeView, setActiveView] = useState<'overview' | 'capabilities' | 'workflows' | 'projects'>('overview');

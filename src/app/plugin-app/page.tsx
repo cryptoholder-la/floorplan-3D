@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import React, { useState, useEffect } from 'react';
 import { PluginProvider, usePluginAPI, usePluginManager } from '@/plugins/core/PluginManager';
 import { availablePlugins, defaultPlugins } from '@/plugins/registry';
+import { Status } from '@/types';
 
 function PluginDashboard() {
   const manager = usePluginManager();

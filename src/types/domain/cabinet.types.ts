@@ -16,6 +16,7 @@ import {
   Difficulty
 } from '../core/base.types';
 import { Polygon, Rectangle, BoundingBox } from '../core/geometry.types';
+import { CabinetHeight } from '@/types';
 
 // ============================================================================
 // CABINET CORE TYPES

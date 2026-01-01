@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { CabinetDesign, CabinetStyle, DoorStyle, MaterialType, DEFAULT_CABINET_TEMPLATES } from '@/types/cabinet.types';
+import { CabinetDesign, CabinetStyle, DoorStyle, MaterialType, DEFAULT_CABINET_TEMPLATES } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card';
 import { Label } from '@/ui/label';
 import { Input } from '@/ui/input';
@@ -19,6 +19,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Material } from '@/types';
 
 interface DesignDashboardProps {
   design: CabinetDesign;

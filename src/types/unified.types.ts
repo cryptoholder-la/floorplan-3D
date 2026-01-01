@@ -97,6 +97,7 @@ import type {
   WorkflowStatus,
   ProjectStatus
 } from './master.types';
+import { BaseEntity } from '@/types';
 
 // Re-export commonly used types
 export {

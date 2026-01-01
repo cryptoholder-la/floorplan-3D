@@ -18,6 +18,7 @@ import FilterPanel from '@/components/FilterPanel';
 import TemplateSelector from '@/components/TemplateSelector';
 import QuickAddCabinet from '@/components/QuickAddCabinet';
 import { DollarSign, FileText, Calculator, TrendingUp, Cpu, AlertTriangle, Filter, Layers, Plus } from 'lucide-react';
+import { Material } from '@/types';
 
 export default function AnalysisToolsPage() {
   const [activeTab, setActiveTab] = useState('estimator');

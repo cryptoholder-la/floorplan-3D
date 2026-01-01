@@ -18,6 +18,7 @@ import {
   Settings,
   Drill
 } from 'lucide-react';
+import { Difficulty } from '@/types';
 
 const USE_CASES = [
   {

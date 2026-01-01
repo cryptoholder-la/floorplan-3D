@@ -11,6 +11,7 @@ import {
   LengthUnit
 } from '../core/base.types';
 import { Rectangle, BoundingBox } from '../core/geometry.types';
+import { BaseEntity } from '@/types';
 
 // ============================================================================
 // FLOORPLAN CORE TYPES
