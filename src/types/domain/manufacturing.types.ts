@@ -18,6 +18,11 @@ export interface ManufacturingJob extends BaseEntity {
   type: 'cutting' | 'drilling' | 'assembly' | 'finishing' | 'quality-check';
   
   // Job details
+  priority: Priority;
+  estimatedCost?: number;
+  actualCost?: number;
+  
+  // Job details
   cabinetId?: string;
   cutListItems?: CutListItem[];
   estimatedTime: number; // in minutes
@@ -83,7 +88,10 @@ export type CoolantType =
 // ============================================================================
 
 export interface ToolRequirement extends BaseEntity {
+  toolId: string;
   toolType: ToolType;
+  quantity?: number;
+  estimatedCost?: number;
   diameter: number; // mm
   length: number; // mm
   fluteCount?: number;
@@ -121,6 +129,10 @@ export interface QualityCheck extends BaseEntity {
   tolerance: Tolerance;
   method: QualityCheckMethod;
   required: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  performedBy?: string;
+  results?: CheckResult[];
   result?: QualityCheckResult;
   measuredValue?: number;
   notes?: string;

@@ -437,6 +437,7 @@ export interface GCodeProgram extends BaseEntity {
   simulation: SimulationResults;
   validation: ProgramValidation;
   metadata: ProgramMetadata;
+  estimatedRunTime?: number;
 }
 
 export interface MachineSpecification {
