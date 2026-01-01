@@ -118,9 +118,9 @@ class ContinueMerger {
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     
     if (diffDays < 1) return 'Less than a day';
-    if (diffDays < 7) return `${diffDays} days`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks`;
-    return `${Math.floor(diffDays / 30)} months`;
+    if (diffDays < 7) return diffDays + ' days ago';
+    if (diffDays < 30) return Math.floor(diffDays / 7) + ' weeks ago';
+    return Math.floor(diffDays / 30) + ' months ago';
   }
 
   async consolidateUtilities() {
@@ -170,9 +170,9 @@ export const getRelativeTime = (date: Date | string): string => {
   
   if (diffDays === 0) return 'Today';
   if (diffDays === 1) return 'Yesterday';
-  if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-  return `${Math.floor(diffDays / 30)} months ago`;
+  if (diffDays < 7) return diffDays + ' days ago';
+  if (diffDays < 30) return Math.floor(diffDays / 7) + ' weeks ago';
+  return Math.floor(diffDays / 30) + ' months ago';
 };
 
 export const isValidDate = (date: any): boolean => {
@@ -429,7 +429,7 @@ export const generateId = (prefix: string = '', length: number = 8): string => {
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  return prefix ? `${prefix}_${result}` : result;
+  return prefix ? prefix + '_' + result : result;
 };
 
 export const deepClone = <T>(obj: T): T => {
