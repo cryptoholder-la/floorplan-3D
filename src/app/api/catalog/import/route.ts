@@ -1,3 +1,4 @@
+import { memoize, memoizeAsync, defaultCache, PerformanceMonitor, withPerformanceMonitoring } from "@/lib/utils/caching";
 import { NextResponse } from 'next/server';
 import { readCatalogFile, writeCatalogFile, writeAttachment } from '@/lib/fs';
 import { buildAttachment } from '@/lib/attachments';
@@ -42,7 +43,23 @@ export async function POST(req: Request) {
 
       if (ext === 'json') {
         const text = await f.text();
-        const json = JSON.parse(text);
+        const json = withPerformanceMonitoring((json_inner) {
+          const cacheKey = `json-parse-${(() => {
+          const cacheKey = `json-stringify-${JSON.stringify(text)}`;
+          let cached = defaultCache.get(cacheKey);
+          if (!cached) {
+            cached = JSON.stringify(text);
+            defaultCache.set(cacheKey, cached, 300000); // 5 minute cache
+          }
+          return cached;
+        })()}`;
+          let cached = defaultCache.get(cacheKey);
+          if (!cached) {
+            cached = JSON.parse(text);
+            defaultCache.set(cacheKey, cached, 300000); // 5 minute cache
+          }
+          return cached;
+        })();
         incomingItems.push(...catalogItemsFromJson(json));
         continue;
       }

@@ -1,3 +1,4 @@
+import { memoize, memoizeAsync, defaultCache, PerformanceMonitor, withPerformanceMonitoring } from "@/lib/utils/caching";
 "use client";
 
 import { useState } from 'react';
@@ -28,6 +29,23 @@ import {
 import { toast } from 'sonner';
 import { capitalize } from "@/lib/utils/string";
 
+/**
+ * TypeScript type definition for interface
+ * 
+ * @description
+ * Defines the structure and properties for interface.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: interface = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 interface AssetViewerProps {
   className?: string;
 }
@@ -37,16 +55,55 @@ export default function AssetViewer({ className = "" }: AssetViewerProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAsset, setSelectedAsset] = useState<AssetItem | null>(null);
 
-  const filteredAssets = searchQuery 
+  /**
+ * Utility function for filteredAssets
+ * 
+ * @param {any} params - Function parameters
+ * @returns {any} Function return value
+ * 
+ * @example
+ * // Example usage:
+ * filteredAssets(params);
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+const filteredAssets = searchQuery 
     ? searchAssets(searchQuery)
     : getAssetByCategory(activeCategory);
 
-  const handleAssetSelect = (asset: AssetItem) => {
+  /**
+ * Utility function for handleAssetSelect
+ * 
+ * @param {any} params - Function parameters
+ * @returns {any} Function return value
+ * 
+ * @example
+ * // Example usage:
+ * handleAssetSelect(params);
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+const handleAssetSelect = withPerformanceMonitoring((handleAssetSelect_inner) {
     setSelectedAsset(asset);
     toast.success(`Selected: ${asset.name}`);
   };
 
-  const handleDownload = (asset: AssetItem) => {
+  /**
+ * Utility function for handleDownload
+ * 
+ * @param {any} params - Function parameters
+ * @returns {any} Function return value
+ * 
+ * @example
+ * // Example usage:
+ * handleDownload(params);
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+const handleDownload = withPerformanceMonitoring((handleDownload_inner) {
     // Create download link for asset
     const link = document.createElement('a');
     link.href = asset.path;
@@ -57,7 +114,20 @@ export default function AssetViewer({ className = "" }: AssetViewerProps) {
     toast.success(`Downloaded: ${asset.name}`);
   };
 
-  const renderAssetPreview = (asset: AssetItem) => {
+  /**
+ * Utility function for renderAssetPreview
+ * 
+ * @param {any} params - Function parameters
+ * @returns {any} Function return value
+ * 
+ * @example
+ * // Example usage:
+ * renderAssetPreview(params);
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+const renderAssetPreview = withPerformanceMonitoring((renderAssetPreview_inner) {
     if (asset.type === 'texture') {
       return (
         <div className="w-full h-32 bg-muted rounded-lg overflow-hidden">

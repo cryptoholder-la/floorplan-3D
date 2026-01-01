@@ -1,5 +1,73 @@
 // ============================================================================
-// CENTRALIZED TYPE SYSTEM - Complete type definitions for all logic
+// CENTRALIZED TYPE SYSTEM - Complete /**
+ * TypeScript type definition for type
+ * 
+ * @description
+ * Defines the structure and properties for type.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: type = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+/**
+ * TypeScript type definition for type
+ * 
+ * @description
+ * Defines the structure and properties for type.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: type = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+/**
+ * TypeScript type definition for type
+ * 
+ * @description
+ * Defines the structure and properties for type.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: type = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+/**
+ * TypeScript type definition for type
+ * 
+ * @description
+ * Defines the structure and properties for type.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: type = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+type definitions for all logic
 // ============================================================================
 // This file contains all type definitions used across the entire application
 // Generated on: 2026-01-01T03:06:05.781Z
@@ -12,7 +80,41 @@
 // - Manufacturing Types: Production and manufacturing types
 // - Floorplan Types: Floorplan and architectural types
 // - Integration Types: System integration types
-// - UI Types: User interface component types
+// - UI Types: User /**
+ * TypeScript type definition for interface
+ * 
+ * @description
+ * Defines the structure and properties for interface.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: interface = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+/**
+ * TypeScript type definition for interface
+ * 
+ * @description
+ * Defines the structure and properties for interface.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: interface = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+interface component types
 // - API Types: API and data exchange types
 // - Utility Types: Helper types and utilities
 // ============================================================================
@@ -22,6 +124,23 @@
 // BASE TYPES - Core fundamental types for all logic
 // ============================================================================
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface BaseEntity {
   id: string;
   name: string;
@@ -32,17 +151,68 @@ export interface BaseEntity {
   metadata?: Record<string, any>;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Point2D {
   x: number;
   y: number;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Point3D {
   x: number;
   y: number;
   z: number;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Rectangle {
   x: number;
   y: number;
@@ -50,15 +220,100 @@ export interface Rectangle {
   height: number;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface BoundingBox {
   min: Point2D;
   max: Point2D;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type Status = 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled' | 'running' | 'done' | 'finished' | 'error';
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type Priority = 'low' | 'medium' | 'high' | 'critical';
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced' | 'expert';
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Tolerance {
   dimension: string;
   nominal: number;
@@ -68,6 +323,23 @@ export interface Tolerance {
   critical: boolean;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Material {
   id: string;
   name: string;
@@ -77,14 +349,99 @@ export interface Material {
   supplier?: string;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface CabinetDimensions {
   width: number;
   height: number;
   depth: number;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type CabinetWidth = 300 | 450 | 600 | 900 | 1200;
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type CabinetDepth = 300 | 350 | 400 | 450 | 600;
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type CabinetHeight = 720 | 900 | 1200 | 1500 | 2100;
 
 
@@ -93,6 +450,23 @@ export type CabinetHeight = 720 | 900 | 1200 | 1500 | 2100;
 // GEOMETRY TYPES - Advanced geometric primitives and operations
 // ============================================================================
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Geometry {
   type: 'point' | 'line' | 'polygon' | 'circle' | 'arc' | 'bezier';
   coordinates: Point2D[] | Point3D[];
@@ -101,12 +475,46 @@ export interface Geometry {
   perimeter?: number;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Transformation {
   type: 'translate' | 'rotate' | 'scale' | 'mirror';
   parameters: Record<string, number>;
   matrix?: number[][];
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Toolpath {
   id: string;
   type: 'linear' | 'circular' | 'helical' | 'contour';
@@ -116,6 +524,23 @@ export interface Toolpath {
   depth?: number;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface GeometricFeature {
   type: 'edge' | 'face' | 'hole' | 'slot' | 'pocket' | 'chamfer' | 'fillet';
   geometry: any;
@@ -142,6 +567,23 @@ export interface Cabinet extends BaseEntity {
   price?: number;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface CabinetPart extends BaseEntity {
   partType: 'side' | 'top' | 'bottom' | 'back' | 'door' | 'drawer' | 'shelf';
   material: Material;
@@ -151,6 +593,23 @@ export interface CabinetPart extends BaseEntity {
   hardware?: CabinetHardware;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface CabinetMaterial extends BaseEntity {
   thickness: number;
   pricePerSheet?: number;
@@ -160,6 +619,23 @@ export interface CabinetMaterial extends BaseEntity {
   grain?: string;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface CabinetHardware extends BaseEntity {
   type: 'hinge' | 'handle' | 'slide' | 'support' | 'bracket';
   material: string;
@@ -169,6 +645,23 @@ export interface CabinetHardware extends BaseEntity {
   totalCost?: number;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface CabinetConfiguration {
   style: 'traditional' | 'modern' | 'shaker' | 'flat-panel';
   construction: 'frameless' | 'face-frame' | 'overlay';
@@ -176,6 +669,23 @@ export interface CabinetConfiguration {
   customizations: Record<string, any>;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface CabinetMetadata {
   designer?: string;
   project?: string;
@@ -190,6 +700,23 @@ export interface CabinetMetadata {
 // CNC TYPES - All CNC manufacturing and drilling pattern types
 // ============================================================================
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface DrillPattern extends BaseEntity {
   category: PatternCategory;
   type: PatternType;
@@ -204,9 +731,60 @@ export interface DrillPattern extends BaseEntity {
   applications: string[];
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type PatternCategory = 'shelf-holes' | 'handle-mounts' | 'hardware-mounts' | 'joinery' | 'decorative';
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type PatternType = 'linear' | 'grid' | 'circular' | 'radial' | 'custom';
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface PatternGeometry {
   points: Point2D[];
   holes: DrillHole[];
@@ -214,6 +792,23 @@ export interface PatternGeometry {
   area: number;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface DrillHole {
   id: string;
   position: Point2D;
@@ -224,6 +819,23 @@ export interface DrillHole {
   counterbore?: CounterboreDetail;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface PatternParameters {
   spacing: { x: number; y: number };
   depth: number;
@@ -231,6 +843,23 @@ export interface PatternParameters {
   repetitions: number;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface DrillSettings {
   spindleSpeed: number; // RPM
   feedRate: number; // mm/min
@@ -241,6 +870,23 @@ export interface DrillSettings {
   plungeRate?: number; // mm/min
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface CNCTool extends BaseEntity {
   type: 'drill' | 'endmill' | 'ballmill' | 'facemill' | 'slotmill';
   diameter: number; // mm
@@ -252,8 +898,42 @@ export interface CNCTool extends BaseEntity {
   wearPercentage?: number;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type ToolCoating = 'none' | 'hss' | 'carbide' | 'diamond' | 'tin' | 'ticn' | 'alcrn';
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface CNCOperation extends BaseEntity {
   type: OperationType;
   geometry: OperationGeometry;
@@ -263,8 +943,42 @@ export interface CNCOperation extends BaseEntity {
   timing: TimingRequirements;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type OperationType = 'drilling' | 'milling' | 'pocket' | 'profile' | 'contour';
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface GCodeProgram extends BaseEntity {
   machine: MachineSpecification;
   workpiece: WorkpieceSpecification;
@@ -274,6 +988,23 @@ export interface GCodeProgram extends BaseEntity {
   metadata: ProgramMetadata;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface GCodeCommand {
   lineNumber: number;
   command: string;
@@ -288,6 +1019,23 @@ export interface GCodeCommand {
 // MANUFACTURING TYPES - All manufacturing-related type definitions
 // ============================================================================
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface ManufacturingJob extends BaseEntity {
   type: 'cutting' | 'drilling' | 'assembly' | 'finishing' | 'quality-check';
   priority: Priority;
@@ -300,6 +1048,40 @@ export interface ManufacturingJob extends BaseEntity {
   status: Status;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface MachineSettings {
   machineType: MachineType;
   spindleSpeed?: number; // RPM
@@ -309,8 +1091,42 @@ export interface MachineSettings {
   coolant?: CoolantSetting;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type MachineType = 'cnc_router' | 'cnc_mill' | 'laser_cutter' | 'plasma_cutter' | 'waterjet';
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface ToolRequirement extends BaseEntity {
   toolId: string;
   toolType: ToolType;
@@ -321,6 +1137,23 @@ export interface ToolRequirement extends BaseEntity {
   estimatedCost?: number;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface QualityCheck extends BaseEntity {
   type: QualityCheckType;
   specification: string;
@@ -333,8 +1166,42 @@ export interface QualityCheck extends BaseEntity {
   results?: CheckResult[];
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type QualityCheckType = 'dimensional' | 'surface_finish' | 'alignment' | 'material' | 'assembly';
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface ProductionSchedule extends BaseEntity {
   dateRange: { start: Date; end: Date };
   jobs: ManufacturingJob[];
@@ -356,6 +1223,23 @@ export interface Machine extends BaseEntity {
 // FLOORPLAN TYPES - All floorplan and architectural types
 // ============================================================================
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Floorplan extends BaseEntity {
   dimensions: { width: number; height: number };
   scale: number;
@@ -369,6 +1253,23 @@ export interface Floorplan extends BaseEntity {
   metadata: FloorplanMetadata;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Wall extends BaseEntity {
   layerId: string;
   geometry: { start: Point2D; end: Point2D };
@@ -379,6 +1280,23 @@ export interface Wall extends BaseEntity {
   type: 'interior' | 'exterior' | 'load-bearing' | 'shear';
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Room extends BaseEntity {
   layerId: string;
   geometry: { points: Point2D[] };
@@ -391,6 +1309,23 @@ export interface Room extends BaseEntity {
   type: 'bedroom' | 'kitchen' | 'bathroom' | 'living' | 'dining' | 'office' | 'storage' | 'garage' | 'utility';
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Door extends BaseEntity {
   layerId: string;
   position: { wall: string; distance: number };
@@ -401,6 +1336,23 @@ export interface Door extends BaseEntity {
   hardware: CabinetHardware[];
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Window extends BaseEntity {
   layerId: string;
   position: { wall: string; distance: number };
@@ -410,6 +1362,23 @@ export interface Window extends BaseEntity {
   properties: WindowProperties;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface Fixture extends BaseEntity {
   layerId: string;
   position: Point2D;
@@ -423,6 +1392,23 @@ export interface Fixture extends BaseEntity {
 // INTEGRATION TYPES - All system integration and workflow types
 // ============================================================================
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface MasterIntegration extends BaseEntity {
   workflow: IntegratedWorkflow;
   systems: SystemConfiguration[];
@@ -432,6 +1418,23 @@ export interface MasterIntegration extends BaseEntity {
   status: Status;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface IntegratedWorkflow {
   steps: WorkflowStep[];
   dependencies: WorkflowDependency[];
@@ -440,6 +1443,23 @@ export interface IntegratedWorkflow {
   outputs: WorkflowOutput[];
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface SystemConfiguration {
   systemId: string;
   systemType: 'cnc' | 'cad' | 'cam' | 'erp' | 'inventory' | 'design';
@@ -448,6 +1468,23 @@ export interface SystemConfiguration {
   authentication: AuthConfiguration;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface DataFlowConfiguration {
   sources: DataSource[];
   destinations: DataDestination[];
@@ -456,6 +1493,23 @@ export interface DataFlowConfiguration {
   scheduling: FlowSchedule;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface SyncConfiguration {
   frequency: 'real-time' | 'scheduled' | 'manual';
   conflictResolution: ConflictResolutionStrategy;
@@ -468,6 +1522,23 @@ export interface SyncConfiguration {
 // UI TYPES - All user interface component types
 // ============================================================================
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface UIComponent {
   id: string;
   type: ComponentType;
@@ -477,8 +1548,42 @@ export interface UIComponent {
   styling: ComponentStyling;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type ComponentType = 'button' | 'input' | 'select' | 'modal' | 'card' | 'table' | 'form' | 'navigation';
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface ComponentProps {
   [key: string]: any;
   children?: React.ReactNode;
@@ -488,6 +1593,23 @@ export interface ComponentProps {
   onChange?: (value: any) => void;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface ComponentState {
   loading?: boolean;
   error?: string;
@@ -496,12 +1618,46 @@ export interface ComponentState {
   visible?: boolean;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface ComponentEvent {
   type: 'click' | 'change' | 'focus' | 'blur' | 'submit' | 'cancel';
   handler: (event: any) => void;
   payload?: any;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface ComponentStyling {
   theme: Theme;
   variant: ComponentVariant;
@@ -510,8 +1666,59 @@ export interface ComponentStyling {
   responsive?: ResponsiveBreakpoints;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type Theme = 'light' | 'dark' | 'auto';
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type ComponentVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type ComponentSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 
@@ -519,6 +1726,23 @@ export type ComponentSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
 // API TYPES - All API and data exchange types
 // ============================================================================
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface APIResponse<T = any> {
   success: boolean;
   data?: T;
@@ -527,6 +1751,23 @@ export interface APIResponse<T = any> {
   metadata?: ResponseMetadata;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface APIError {
   code: string;
   message: string;
@@ -534,6 +1775,23 @@ export interface APIError {
   timestamp: Date;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface APIEndpoint {
   url: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
@@ -542,12 +1800,46 @@ export interface APIEndpoint {
   rateLimit?: RateLimit;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface AuthConfiguration {
   type: 'none' | 'basic' | 'bearer' | 'oauth' | 'api_key';
   credentials?: AuthCredentials;
   refresh?: TokenRefresh;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface DataValidation {
   rules: ValidationRule[];
   schema?: JSONSchema;
@@ -560,15 +1852,83 @@ export interface DataValidation {
 // UTILITY TYPES - Helper types and utilities
 // ============================================================================
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type RequiredBy<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface ValidationResult {
   isValid: boolean;
   errors: ValidationError[];
   warnings?: ValidationWarning[];
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface ValidationError {
   field: string;
   message: string;
@@ -576,6 +1936,23 @@ export interface ValidationError {
   value?: any;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface ValidationWarning {
   field: string;
   message: string;
@@ -583,6 +1960,23 @@ export interface ValidationWarning {
   value?: any;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface PaginationInfo {
   page: number;
   pageSize: number;
@@ -592,6 +1986,23 @@ export interface PaginationInfo {
   hasPrevious: boolean;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface SearchFilters {
   query?: string;
   category?: string;
@@ -601,11 +2012,45 @@ export interface SearchFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export interface DateRange {
   start: Date;
   end: Date;
 }
 
+/**
+ * TypeScript type definition for export
+ * 
+ * @description
+ * Defines the structure and properties for export.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: export = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };

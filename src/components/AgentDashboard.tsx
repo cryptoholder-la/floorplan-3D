@@ -1,3 +1,4 @@
+import { memoize, memoizeAsync, defaultCache, PerformanceMonitor, withPerformanceMonitoring } from "@/lib/utils/caching";
 import { useState, useEffect } from 'react';
 'use client';
 
@@ -43,7 +44,7 @@ export function AgentDashboard({ onClose }: AgentDashboardProps) {
     return () => clearInterval(interval);
   }, []);
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = withPerformanceMonitoring((getStatusIcon_inner) {
     switch (status) {
       case 'running':
         return <Activity className="w-3 h-3 text-yellow-400" />;
@@ -56,7 +57,7 @@ export function AgentDashboard({ onClose }: AgentDashboardProps) {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = withPerformanceMonitoring((getStatusColor_inner) {
     switch (status) {
       case 'running':
         return 'text-yellow-400';

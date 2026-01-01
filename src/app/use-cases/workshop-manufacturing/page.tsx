@@ -15,6 +15,23 @@ import {
 import { toast } from 'sonner';
 
 // Mock types for now
+/**
+ * TypeScript type definition for interface
+ * 
+ * @description
+ * Defines the structure and properties for interface.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: interface = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 interface UseCaseData {
   id: string;
   name: string;
@@ -24,6 +41,23 @@ interface UseCaseData {
   estimatedTime: number;
 }
 
+/**
+ * TypeScript type definition for interface
+ * 
+ * @description
+ * Defines the structure and properties for interface.
+ * 
+ * @template T - Generic type parameter
+ * 
+ * @example
+ * // Example usage:
+ * const variable: interface = {
+ *   // properties
+ * };
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
 interface HardwareSpec {
   hinges: string[];
   drawers: string[];
@@ -64,7 +98,20 @@ const WorkshopManufacturing: React.FC = () => {
     }
   ];
 
-  const handleUseCaseSelect = (useCaseId: string) => {
+  /**
+ * Utility function for handleUseCaseSelect
+ * 
+ * @param {any} params - Function parameters
+ * @returns {any} Function return value
+ * 
+ * @example
+ * // Example usage:
+ * handleUseCaseSelect(params);
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+const handleUseCaseSelect = (useCaseId: string) => {
     const useCase = useCases.find(uc => uc.id === useCaseId);
     if (useCase) {
       setSelectedUseCase(useCaseId);
@@ -73,7 +120,20 @@ const WorkshopManufacturing: React.FC = () => {
     }
   };
 
-  const generatePatterns = async () => {
+  /**
+ * Utility function for generatePatterns
+ * 
+ * @param {any} params - Function parameters
+ * @returns {any} Function return value
+ * 
+ * @example
+ * // Example usage:
+ * generatePatterns(params);
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+const generatePatterns = async () => {
     if (!selectedUseCaseData) return;
 
     setIsGenerating(true);
@@ -81,7 +141,20 @@ const WorkshopManufacturing: React.FC = () => {
       // Simulate pattern generation
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const patterns = [
+      /**
+ * Utility function for patterns
+ * 
+ * @param {any} params - Function parameters
+ * @returns {any} Function return value
+ * 
+ * @example
+ * // Example usage:
+ * patterns(params);
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+const patterns = [
         `${selectedUseCaseData.name}_pattern_1`,
         `${selectedUseCaseData.name}_pattern_2`,
         `${selectedUseCaseData.name}_pattern_3`
@@ -97,7 +170,20 @@ const WorkshopManufacturing: React.FC = () => {
     }
   };
 
-  const renderUseCaseSelection = () => (
+  /**
+ * Utility function for renderUseCaseSelection
+ * 
+ * @param {any} params - Function parameters
+ * @returns {any} Function return value
+ * 
+ * @example
+ * // Example usage:
+ * renderUseCaseSelection(params);
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+const renderUseCaseSelection = () => (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold mb-4">Select Manufacturing Use Case</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -128,7 +214,20 @@ const WorkshopManufacturing: React.FC = () => {
     </div>
   );
 
-  const renderConfiguration = () => (
+  /**
+ * Utility function for renderConfiguration
+ * 
+ * @param {any} params - Function parameters
+ * @returns {any} Function return value
+ * 
+ * @example
+ * // Example usage:
+ * renderConfiguration(params);
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+const renderConfiguration = () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold mb-4">Configuration</h2>
       {selectedUseCaseData && (
@@ -171,7 +270,20 @@ const WorkshopManufacturing: React.FC = () => {
     </div>
   );
 
-  const renderVisualization = () => (
+  /**
+ * Utility function for renderVisualization
+ * 
+ * @param {any} params - Function parameters
+ * @returns {any} Function return value
+ * 
+ * @example
+ * // Example usage:
+ * renderVisualization(params);
+ * 
+ * @since 1.0.0
+ * @author Development Team
+ */
+const renderVisualization = () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold mb-4">Generated Patterns</h2>
       {generatedPatterns.length > 0 ? (

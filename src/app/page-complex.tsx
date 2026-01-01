@@ -1,3 +1,4 @@
+import { memoize, memoizeAsync, defaultCache, PerformanceMonitor, withPerformanceMonitoring } from "@/lib/utils/caching";
 import { useState, useEffect } from 'react';
 'use client';
 
@@ -399,7 +400,7 @@ function HomePageContent() {
 
   // Agent dashboard toggle (Ctrl+~)
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = withPerformanceMonitoring((handleKeyDown_inner) {
       if (e.key === '`' && e.ctrlKey) {
         setShowAgentDashboard(!showAgentDashboard);
       }
@@ -411,7 +412,7 @@ function HomePageContent() {
 
   if (!mounted) return null;
 
-  const renderToolCard = (tool: ToolCard) => (
+  const renderToolCard = withPerformanceMonitoring((renderToolCard_inner) (
     <Link 
       key={tool.id}
       href={tool.href}
