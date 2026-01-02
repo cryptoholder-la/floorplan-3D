@@ -1,13 +1,12 @@
-// Machine Learning Utilities for Floorplan 3D
+// Simplified ML Utilities for Floorplan 3D
 import * as tf from '@tensorflow/tfjs';
 import { Matrix } from 'ml-matrix';
 import { RandomForestRegression as RandomForest } from 'ml-random-forest';
 import { SimpleLinearRegression as LinearRegression } from 'ml-regression';
 import { kmeans } from 'ml-kmeans';
-import brain from 'brain.js';
 import natural from 'natural';
 
-export class FloorplanMLUtils {
+export class SimplifiedMLUtils {
   // TensorFlow.js utilities
   static createTensor(data, shape) {
     return tf.tensor(data, shape);
@@ -60,7 +59,7 @@ export class FloorplanMLUtils {
     // Check work triangle in kitchen
     if (design.type === 'kitchen') {
       const workTriangle = this.calculateWorkTriangle(design);
-      if (workTriangle.perimeter > 26 * 3) { // 26 feet max total
+      if (workTriangle && workTriangle.perimeter > 26 * 3) { // 26 feet max total
         violations.push({
           type: 'work_triangle',
           severity: 'warning',
@@ -73,12 +72,13 @@ export class FloorplanMLUtils {
     // Check clearances
     design.appliances?.forEach(appliance => {
       const clearance = this.checkClearance(appliance, design.obstacles);
-      if (clearance < this.getRequiredClearance(appliance.type)) {
+      const required = this.getRequiredClearance(appliance.type);
+      if (clearance < required) {
         violations.push({
           type: 'clearance',
           severity: 'error',
           message: `Insufficient clearance for ${appliance.type}`,
-          required: this.getRequiredClearance(appliance.type),
+          required: required,
           actual: clearance
         });
       }
@@ -92,9 +92,9 @@ export class FloorplanMLUtils {
   }
 
   static calculateWorkTriangle(kitchenDesign) {
-    const sink = kitchenDesign.appliances.find(a => a.type === 'sink');
-    const stove = kitchenDesign.appliances.find(a => a.type === 'stove');
-    const fridge = kitchenDesign.appliances.find(a => a.type === 'refrigerator');
+    const sink = kitchenDesign.appliances?.find(a => a.type === 'sink');
+    const stove = kitchenDesign.appliances?.find(a => a.type === 'stove');
+    const fridge = kitchenDesign.appliances?.find(a => a.type === 'refrigerator');
 
     if (!sink || !stove || !fridge) return null;
 
@@ -104,9 +104,12 @@ export class FloorplanMLUtils {
       this.getDistance(fridge.position, sink.position)
     ];
 
+    const perimeter = distances.reduce((a, b) => a + b, 0);
+    const sides = distances;
+
     return {
-      perimeter: distances.reduce((a, b) => a + b, 0),
-      sides: distances
+      perimeter,
+      sides
     };
   }
 
@@ -140,25 +143,21 @@ export class FloorplanMLUtils {
 
   // User preference learning
   static createUserPreferenceModel() {
-    return new brain.js.NeuralNetwork({
-      hiddenLayers: [10, 8, 6],
-      activation: 'sigmoid',
-      learningRate: 0.01
+    // Simple preference model using linear regression
+    return new LinearRegression({
+      numFeatures: 8,
+      learningRate: 0.01,
+      iterations: 1000
     });
   }
 
   static trainUserPreferences(model, userInteractions) {
     const trainingData = userInteractions.map(interaction => ({
       input: this.extractFeatures(interaction.design),
-      output: this.extractPreferences(interaction.feedback)
+      output: interaction.satisfaction || 0.5
     }));
 
-    model.train(trainingData, {
-      iterations: 1000,
-      errorThresh: 0.005,
-      log: true
-    });
-
+    model.train(trainingData);
     return model;
   }
 
@@ -175,16 +174,6 @@ export class FloorplanMLUtils {
     ];
   }
 
-  static extractPreferences(feedback) {
-    return [
-      feedback.satisfaction || 0.5,
-      feedback.wouldRecommend ? 1 : 0,
-      feedback.styleRating || 0.5,
-      feedback.functionalityRating || 0.5,
-      feedback.budgetSatisfaction || 0.5
-    ];
-  }
-
   // Material usage prediction
   static predictMaterialUsage(projectData) {
     const features = [
@@ -197,19 +186,10 @@ export class FloorplanMLUtils {
     ];
 
     // Simple linear regression for material estimation
-    const coefficients = {
-      area: 1.15,
-      rooms: 0.8,
-      complexity: 0.3,
-      wood: 1.2,
-      metal: 0.9,
-      composite: 1.0
-    };
-
-    const predictedUsage = features.reduce((sum, feature, index) => {
-      const coefficient = Object.values(coefficients)[index] || 0;
-      return sum + (feature * coefficient);
-    }, 0);
+    const coefficients = [1.15, 0.8, 0.3, 1.2, 0.9, 1.0];
+    const predictedUsage = features.reduce((sum, feature, index) => 
+      sum + (feature * coefficients[index]), 0
+    );
 
     return {
       predicted: predictedUsage,
@@ -242,7 +222,7 @@ export class FloorplanMLUtils {
 
     // Analyze traffic flow
     const trafficFlow = this.analyzeTrafficFlow(design);
-    if (trafficFlow.efficiency < 0.7) {
+    if (trafficFlow < 0.7) {
       recommendations.push({
         type: 'layout',
         priority: 'high',
@@ -254,7 +234,7 @@ export class FloorplanMLUtils {
 
     // Storage optimization
     const storageAnalysis = this.analyzeStorage(design);
-    if (storageAnalysis.utilization < 0.6) {
+    if (storageAnalysis < 0.6) {
       recommendations.push({
         type: 'storage',
         priority: 'medium',
@@ -264,22 +244,7 @@ export class FloorplanMLUtils {
       });
     }
 
-    // Style consistency
-    const styleAnalysis = this.analyzeStyle(design);
-    if (styleAnalysis.consistency < 0.8) {
-      recommendations.push({
-        type: 'style',
-        priority: 'low',
-        title: 'Improve Style Consistency',
-        description: 'Consider elements that match your preferred style',
-        impact: 'aesthetic'
-      });
-    }
-
-    return recommendations.sort((a, b) => {
-      const priorityOrder = { high: 3, medium: 2, low: 1 };
-      return priorityOrder[b.priority] - priorityOrder[a.priority];
-    });
+    return recommendations;
   }
 
   static analyzeTrafficFlow(design) {
@@ -288,7 +253,7 @@ export class FloorplanMLUtils {
     const intersections = this.countIntersections(pathways);
     const efficiency = Math.max(0, 1 - (intersections * 0.1));
 
-    return { efficiency, pathways, intersections };
+    return efficiency;
   }
 
   static analyzeStorage(design) {
@@ -300,23 +265,11 @@ export class FloorplanMLUtils {
       sum + (item.width * item.height * item.depth), 0
     );
 
-    const roomVolume = design.roomDimensions.width * 
-                    design.roomDimensions.height * 
-                    design.roomDimensions.depth;
+    const roomVolume = design.roomDimensions?.width * 
+                    design.roomDimensions?.height * 
+                    (design.roomDimensions?.depth || 8);
 
-    const utilization = totalStorage / roomVolume;
-
-    return { utilization, totalStorage, roomVolume };
-  }
-
-  static analyzeStyle(design) {
-    const styleElements = design.furniture?.map(item => item.style) || [];
-    const uniqueStyles = [...new Set(styleElements)];
-    const mostCommon = this.getMostCommon(styleElements);
-    const consistency = mostCommon ? 
-      styleElements.filter(s => s === mostCommon).length / styleElements.length : 0;
-
-    return { consistency, mostCommon, uniqueStyles };
+    return totalStorage / roomVolume;
   }
 
   static findPathways(design) {
@@ -352,9 +305,9 @@ export class FloorplanMLUtils {
   }
 
   static findNearestOpening(position, furniture) {
-    const openings = furniture.filter(item => 
+    const openings = furniture?.filter(item => 
       item.type === 'door' || item.type === 'opening'
-    );
+    ) || [];
     
     let nearest = null;
     let minDistance = Infinity;
@@ -370,16 +323,75 @@ export class FloorplanMLUtils {
     return nearest;
   }
 
-  static getMostCommon(array) {
-    const counts = {};
-    array.forEach(item => {
-      counts[item] = (counts[item] || 0) + 1;
-    });
+  // Text processing utilities using natural
+  static processDesignDescription(description) {
+    if (!description) return { tokens: [], sentiment: 0 };
     
-    return Object.keys(counts).reduce((a, b) => 
-      counts[a] > counts[b] ? a : b
+    const tokens = natural.WordTokenizer.tokenize(description);
+    const sentiment = natural.SentimentAnalyzer.getSentiment(description);
+    
+    return {
+      tokens,
+      sentiment: sentiment.score || 0,
+      keywords: this.extractKeywords(tokens)
+    };
+  }
+
+  static extractKeywords(tokens) {
+    const keywords = ['kitchen', 'bedroom', 'bathroom', 'modern', 'traditional', 'minimal'];
+    return tokens.filter(token => 
+      keywords.some(keyword => token.toLowerCase().includes(keyword))
     );
+  }
+
+  // Data quality assessment
+  static assessDataQuality(data) {
+    const completeness = data.filter(d => 
+      d.floorplan && d.compliance && d.preferences
+    ).length / data.length;
+
+    const diversity = {
+      roomTypes: [...new Set(data.map(d => d.floorplan?.type))].length,
+      styles: [...new Set(data.map(d => d.floorplan?.style))].length
+    };
+
+    return {
+      completeness,
+      diversity,
+      quality: completeness * 0.6 + diversity.roomTypes * 0.2 + diversity.styles * 0.2
+    };
+  }
+
+  // Model evaluation metrics
+  static calculateAccuracy(predictions, actual) {
+    if (predictions.length !== actual.length) return 0;
+    
+    const correct = predictions.filter((pred, i) => 
+      Math.abs(pred - actual[i]) < 0.1
+    ).length;
+    
+    return correct / predictions.length;
+  }
+
+  static calculateMSE(predictions, actual) {
+    if (predictions.length !== actual.length) return Infinity;
+    
+    const squaredErrors = predictions.map((pred, i) => 
+      Math.pow(pred - actual[i], 2)
+    );
+    
+    return squaredErrors.reduce((sum, error) => sum + error, 0) / predictions.length;
+  }
+
+  static calculateMAE(predictions, actual) {
+    if (predictions.length !== actual.length) return Infinity;
+    
+    const errors = predictions.map((pred, i) => 
+      Math.abs(pred - actual[i])
+    );
+    
+    return errors.reduce((sum, error) => sum + error, 0) / predictions.length;
   }
 }
 
-export default FloorplanMLUtils;
+export default SimplifiedMLUtils;

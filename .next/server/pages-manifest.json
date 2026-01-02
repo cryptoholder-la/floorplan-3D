@@ -1,5 +1,9 @@
 {
-  "/_app": "pages/_app.js",
+  "/SimpleCabinetViewer": "pages/SimpleCabinetViewer.js",
+  "/SimpleQuickAdd": "pages/SimpleQuickAdd.js",
+  "/page": "pages/page.js",
   "/_error": "pages/_error.js",
+  "/_app": "pages/_app.js",
+  "/route": "pages/route.js",
   "/_document": "pages/_document.js"
 }
