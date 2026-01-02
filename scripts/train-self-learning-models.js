@@ -2,31 +2,145 @@
 
 /**
  * Train Self-Learning Models
- * Initializes and trains the ML models for the floorplan system
+ * Initializes and trains the ML models for the floorplan system using the new ML library
  */
 
 const fs = require('fs');
 const path = require('path');
 
-class ModelTrainer {
+// Import the new ML library
+const { FloorplanML, ML_CONSTANTS } = require('../src/lib/ml/index.js');
+
+class EnhancedModelTrainer {
   constructor() {
-    this.models = [];
-    this.trainingProgress = new Map();
-    this.trainingHistory = [];
+    this.floorplanML = new FloorplanML();
+    this.trainingStartTime = Date.now();
   }
 
   async run() {
-    console.log('🧠 Training Self-Learning Models\n');
+    console.log('🧠 Training Self-Learning Models with Enhanced ML Library\n');
 
-    await this.loadModelConfiguration();
-    await this.initializeModels();
-    await this.generateTrainingData();
-    await this.trainModels();
-    await this.validateModels();
-    await this.deployModels();
-    await this.generateTrainingReport();
+    try {
+      // Initialize the ML system
+      await this.floorplanML.initialize();
+      
+      // Generate comprehensive training dataset
+      console.log('📊 Generating training dataset...');
+      const trainingData = await this.floorplanML.generateTrainingDataset(2000);
+      
+      // Train all models
+      console.log('🎯 Training ML models...');
+      const trainingReport = await this.floorplanML.trainModels(trainingData);
+      
+      // Validate models
+      console.log('✅ Validating trained models...');
+      const validationResults = await this.validateTrainedModels();
+      
+      // Save models and report
+      await this.floorplanML.saveAllModels();
+      await this.saveTrainingReport(trainingReport, validationResults);
+      
+      console.log('\n🎉 Model training completed successfully!');
+      this.printTrainingSummary(trainingReport, validationResults);
+      
+    } catch (error) {
+      console.error('❌ Model training failed:', error);
+      throw error;
+    }
+  }
 
-    console.log('\n✅ Model training complete!');
+  async validateTrainedModels() {
+    // Generate test data for validation
+    const testData = await this.floorplanML.generateTrainingDataset(200);
+    
+    // Evaluate models
+    const evaluationResults = await this.floorplanML.evaluateModels(testData);
+    
+    return evaluationResults;
+  }
+
+  async saveTrainingReport(trainingReport, validationResults) {
+    const report = {
+      timestamp: new Date().toISOString(),
+      trainingDuration: Date.now() - this.trainingStartTime,
+      trainingReport,
+      validationResults,
+      mlLibraryVersion: '1.0.0',
+      systemInfo: this.getSystemInfo()
+    };
+
+    const reportPath = './ML_TRAINING_REPORT.json';
+    fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
+    console.log(`📄 Training report saved: ${reportPath}`);
+  }
+
+  getSystemInfo() {
+    return {
+      nodeVersion: process.version,
+      platform: process.platform,
+      memory: process.memoryUsage(),
+      mlLibraries: [
+        '@tensorflow/tfjs',
+        'ml-matrix',
+        'ml-random-forest',
+        'ml-regression',
+        'ml-kmeans',
+        'ml-fnn',
+        'brain.js',
+        'natural',
+        'synaptic'
+      ]
+    };
+  }
+
+  printTrainingSummary(trainingReport, validationResults) {
+    console.log('\n' + '='.repeat(60));
+    console.log('🧠 ML MODEL TRAINING SUMMARY');
+    console.log('='.repeat(60));
+    
+    if (trainingReport.models) {
+      Object.entries(trainingReport.models).forEach(([modelType, summary]) => {
+        if (summary) {
+          console.log(`\n📈 ${modelType.toUpperCase()} MODEL:`);
+          console.log(`   Epochs: ${summary.epochs}`);
+          console.log(`   Final Loss: ${summary.finalLoss?.toFixed(4) || 'N/A'}`);
+          console.log(`   Best Loss: ${summary.bestLoss?.toFixed(4) || 'N/A'}`);
+          console.log(`   Final Accuracy: ${((summary.finalAccuracy || 0) * 100).toFixed(1)}%`);
+          console.log(`   Converged: ${summary.convergence ? '✅' : '❌'}`);
+        }
+      });
+    }
+
+    if (validationResults) {
+      console.log('\n🎯 VALIDATION RESULTS:');
+      Object.entries(validationResults).forEach(([modelType, results]) => {
+        console.log(`\n📊 ${modelType.toUpperCase()} MODEL:`);
+        if (results.accuracy !== undefined) {
+          console.log(`   Accuracy: ${(results.accuracy * 100).toFixed(1)}%`);
+        }
+        if (results.mse !== undefined) {
+          console.log(`   MSE: ${results.mse?.toFixed(4) || 'N/A'}`);
+        }
+        if (results.mae !== undefined) {
+          console.log(`   MAE: ${results.mae?.toFixed(4) || 'N/A'}`);
+        }
+        if (results.f1Score !== undefined) {
+          console.log(`   F1 Score: ${results.f1Score?.toFixed(4) || 'N/A'}`);
+        }
+      });
+    }
+
+    console.log('\n📚 ML Library Features:');
+    console.log('   ✅ Layout optimization with TensorFlow.js');
+    console.log('   ✅ NKBA compliance checking');
+    console.log('   ✅ User preference learning');
+    console.log('   ✅ Material usage prediction');
+    console.log('   ✅ Synthetic dataset generation');
+    console.log('   ✅ Model training and evaluation');
+    console.log('   ✅ Real-time inference capabilities');
+
+    console.log('\n🚀 Ready for intelligent floorplan design!');
+    console.log('='.repeat(60));
   }
 
   async loadModelConfiguration() {
