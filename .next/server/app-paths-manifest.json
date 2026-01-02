@@ -1,13 +1,13 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/api/agents/status/route": "app/api/agents/status/route.js",
   "/catalog/page": "app/catalog/page.js",
-  "/demo/page": "app/demo/page.js",
+  "/api/agents/status/route": "app/api/agents/status/route.js",
   "/drill-configurator/enhanced/page": "app/drill-configurator/enhanced/page.js",
+  "/demo/page": "app/demo/page.js",
   "/minimal-test/page": "app/minimal-test/page.js",
-  "/page": "app/page.js",
-  "/master-integration/page": "app/master-integration/page.js",
   "/test-plugin/page": "app/test-plugin/page.js",
+  "/master-integration/page": "app/master-integration/page.js",
+  "/page": "app/page.js",
   "/use-cases/workshop-manufacturing/page": "app/use-cases/workshop-manufacturing/page.js",
   "/api/catalog/import/route": "app/api/catalog/import/route.js"
 }

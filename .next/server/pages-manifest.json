@@ -1,9 +1,9 @@
 {
-  "/SimpleCabinetViewer": "pages/SimpleCabinetViewer.js",
-  "/SimpleQuickAdd": "pages/SimpleQuickAdd.js",
-  "/page": "pages/page.js",
   "/_error": "pages/_error.js",
   "/_app": "pages/_app.js",
+  "/SimpleQuickAdd": "pages/SimpleQuickAdd.js",
+  "/SimpleCabinetViewer": "pages/SimpleCabinetViewer.js",
+  "/page": "pages/page.js",
   "/route": "pages/route.js",
   "/_document": "pages/_document.js"
 }

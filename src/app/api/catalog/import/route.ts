@@ -43,24 +43,13 @@ export async function POST(req: Request) {
 
       if (ext === 'json') {
         const text = await f.text();
-        const json = withPerformanceMonitoring((json_inner) {
-          const cacheKey = `json-parse-${(() => {
-          const cacheKey = `json-stringify-${JSON.stringify(text)}`;
-          let cached = defaultCache.get(cacheKey);
-          if (!cached) {
-            cached = JSON.stringify(text);
-            defaultCache.set(cacheKey, cached, 300000); // 5 minute cache
-          }
-          return cached;
-        })()}`;
-          let cached = defaultCache.get(cacheKey);
-          if (!cached) {
-            cached = JSON.parse(text);
-            defaultCache.set(cacheKey, cached, 300000); // 5 minute cache
-          }
-          return cached;
-        })();
-        incomingItems.push(...catalogItemsFromJson(json));
+        const json = JSON.parse(text);
+        const items = catalogItemsFromJson(json);
+        items.forEach(item => {
+          item.sku = item.sku || skuCandidate;
+          item.name = item.name || baseName;
+        });
+        incomingItems.push(...items);
         continue;
       }
 
