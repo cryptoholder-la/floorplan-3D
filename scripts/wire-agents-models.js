@@ -127,7 +127,7 @@ class AgentModelWiring {
       }
     };
 
-    await this.saveFile('./src/lib/agents/agent-system.json', agentSystem);
+    await this.saveFile('./src/lib/agents/agent-system.json', JSON.stringify(agentSystem, null, 2));
     await this.createAgentClasses(agentSystem.agents);
     
     console.log(`✅ Created agent system with ${agentSystem.agents.length} agents`);
@@ -189,7 +189,7 @@ class AgentModelWiring {
       }
     };
 
-    await this.saveFile('./src/lib/models/learning-models.json', learningModels);
+    await this.saveFile('./src/lib/models/learning-models.json', JSON.stringify(learningModels, null, 2));
     await this.createModelClasses(learningModels.models);
     
     console.log(`✅ Created ${learningModels.models.length} learning models`);
@@ -246,7 +246,7 @@ class AgentModelWiring {
       }
     ];
 
-    await this.saveFile('./src/lib/connections/agent-model-connections.json', connections);
+    await this.saveFile('./src/lib/connections/agent-model-connections.json', JSON.stringify(connections, null, 2));
     await this.createConnectionHandlers(connections);
     
     this.connections = connections;

@@ -85,10 +85,10 @@ const filteredAssets = searchQuery
  * @since 1.0.0
  * @author Development Team
  */
-const handleAssetSelect = withPerformanceMonitoring((handleAssetSelect_inner) {
+const handleAssetSelect = withPerformanceMonitoring((asset) => {
     setSelectedAsset(asset);
     toast.success(`Selected: ${asset.name}`);
-  };
+  });
 
   /**
  * Utility function for handleDownload
@@ -103,7 +103,7 @@ const handleAssetSelect = withPerformanceMonitoring((handleAssetSelect_inner) {
  * @since 1.0.0
  * @author Development Team
  */
-const handleDownload = withPerformanceMonitoring((handleDownload_inner) {
+const handleDownload = withPerformanceMonitoring((asset) => {
     // Create download link for asset
     const link = document.createElement('a');
     link.href = asset.path;
@@ -112,7 +112,7 @@ const handleDownload = withPerformanceMonitoring((handleDownload_inner) {
     link.click();
     document.body.removeChild(link);
     toast.success(`Downloaded: ${asset.name}`);
-  };
+  });
 
   /**
  * Utility function for renderAssetPreview
@@ -127,7 +127,7 @@ const handleDownload = withPerformanceMonitoring((handleDownload_inner) {
  * @since 1.0.0
  * @author Development Team
  */
-const renderAssetPreview = withPerformanceMonitoring((renderAssetPreview_inner) {
+const renderAssetPreview = withPerformanceMonitoring((asset) => {
     if (asset.type === 'texture') {
       return (
         <div className="w-full h-32 bg-muted rounded-lg overflow-hidden">
@@ -156,7 +156,7 @@ const renderAssetPreview = withPerformanceMonitoring((renderAssetPreview_inner) 
         <Folder className="w-12 h-12 text-muted-foreground" />
       </div>
     );
-  };
+  });
 
   return (
     <div className={`space-y-6 ${className}`}>

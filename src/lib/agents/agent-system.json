@@ -1,0 +1,71 @@
+{
+  "name": "FloorplanAgentSystem",
+  "version": "1.0.0",
+  "agents": [
+    {
+      "id": "nkba-agent",
+      "name": "NKBA Compliance Agent",
+      "type": "validation",
+      "description": "Ensures NKBA standards compliance",
+      "capabilities": [
+        "kitchen_validation",
+        "clearance_checks",
+        "workflow_analysis"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "optimization-agent",
+      "name": "Design Optimization Agent",
+      "type": "optimization",
+      "description": "Optimizes floorplan layouts and material usage",
+      "capabilities": [
+        "space_optimization",
+        "material_efficiency",
+        "cost_analysis"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "ux-agent",
+      "name": "User Experience Agent",
+      "type": "analysis",
+      "description": "Analyzes user happiness and usability",
+      "capabilities": [
+        "user_satisfaction",
+        "accessibility_check",
+        "workflow_improvement"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "design-agent",
+      "name": "Design Aesthetics Agent",
+      "type": "creative",
+      "description": "Ensures grace and beauty in designs",
+      "capabilities": [
+        "aesthetic_analysis",
+        "style_consistency",
+        "visual_harmony"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "learning-agent",
+      "name": "Self-Learning Agent",
+      "type": "ml",
+      "description": "Learns from user patterns and preferences",
+      "capabilities": [
+        "pattern_recognition",
+        "preference_learning",
+        "adaptive_design"
+      ],
+      "status": "training"
+    }
+  ],
+  "coordination": {
+    "message_bus": "event-driven",
+    "communication": "websocket",
+    "coordination_protocol": "agent_coordination_v1"
+  }
+}

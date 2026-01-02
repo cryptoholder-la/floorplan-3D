@@ -2,10 +2,12 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { ArrowRight, Home, Box, Wrench } from 'lucide-react'
+import { ArrowRight, Home, Box, Wrench, Bot } from 'lucide-react'
+import { AgentDashboard } from '@/components/AgentDashboard'
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
+  const [showAgentDashboard, setShowAgentDashboard] = useState(true)
 
   useEffect(() => {
     setMounted(true)
@@ -182,6 +184,25 @@ export default function HomePage() {
               <ArrowRight className="w-4 h-4" />
             </div>
           </Link>
+
+          {/* AI Agent System */}
+          <div 
+            className="group bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-8 hover:border-purple-500 transition-all duration-300 hover-lift cursor-pointer"
+            onClick={() => setShowAgentDashboard(!showAgentDashboard)}
+          >
+            <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <Bot className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-4">AI Agent System</h3>
+            <p className="text-gray-300 mb-6">
+              Intelligent design agents with NKBA compliance validation, layout optimization, 
+              and self-learning capabilities. Real-time design assistance.
+            </p>
+            <div className="text-purple-400 hover:text-purple-300 font-semibold flex items-center gap-2">
+              {showAgentDashboard ? 'Hide' : 'Show'} Dashboard
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -240,6 +261,11 @@ export default function HomePage() {
           </p>
         </div>
       </footer>
+
+      {/* Agent Dashboard */}
+      {showAgentDashboard && (
+        <AgentDashboard onClose={() => setShowAgentDashboard(false)} />
+      )}
     </div>
   )
 }

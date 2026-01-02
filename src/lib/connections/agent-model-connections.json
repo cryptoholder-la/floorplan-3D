@@ -1,0 +1,65 @@
+[
+  {
+    "id": "nkba-validation-pipeline",
+    "source": "nkba-agent",
+    "target": "nkba-compliance-model",
+    "type": "validation_request",
+    "data_flow": "bidirectional",
+    "triggers": [
+      "design_change",
+      "measurement_update"
+    ],
+    "frequency": "real_time"
+  },
+  {
+    "id": "optimization-learning-loop",
+    "source": "optimization-agent",
+    "target": "layout-optimization-model",
+    "type": "optimization_request",
+    "data_flow": "bidirectional",
+    "triggers": [
+      "layout_change",
+      "efficiency_analysis"
+    ],
+    "frequency": "on_demand"
+  },
+  {
+    "id": "ux-preference-feedback",
+    "source": "ux-agent",
+    "target": "user-preference-model",
+    "type": "feedback_loop",
+    "data_flow": "unidirectional",
+    "triggers": [
+      "user_interaction",
+      "satisfaction_rating"
+    ],
+    "frequency": "continuous"
+  },
+  {
+    "id": "design-aesthetic-enhancement",
+    "source": "design-agent",
+    "target": "user-preference-model",
+    "type": "style_analysis",
+    "data_flow": "bidirectional",
+    "triggers": [
+      "style_selection",
+      "aesthetic_rating"
+    ],
+    "frequency": "on_demand"
+  },
+  {
+    "id": "learning-agent-coordination",
+    "source": "learning-agent",
+    "target": [
+      "user-preference-model",
+      "layout-optimization-model"
+    ],
+    "type": "model_coordination",
+    "data_flow": "multidirectional",
+    "triggers": [
+      "training_complete",
+      "model_update"
+    ],
+    "frequency": "scheduled"
+  }
+]

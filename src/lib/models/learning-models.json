@@ -1,0 +1,85 @@
+{
+  "name": "FloorplanLearningModels",
+  "version": "1.0.0",
+  "models": [
+    {
+      "id": "user-preference-model",
+      "type": "neural_network",
+      "framework": "tensorflow",
+      "description": "Learns user design preferences",
+      "inputs": [
+        "layout_patterns",
+        "material_choices",
+        "color_schemes",
+        "style_preferences"
+      ],
+      "outputs": [
+        "preference_score",
+        "recommendations"
+      ],
+      "training_data": "user_interactions",
+      "status": "ready_for_training"
+    },
+    {
+      "id": "layout-optimization-model",
+      "type": "random_forest",
+      "framework": "ml-random-forest",
+      "description": "Optimizes floorplan layouts",
+      "inputs": [
+        "room_dimensions",
+        "furniture_placement",
+        "traffic_flow",
+        "storage_needs"
+      ],
+      "outputs": [
+        "efficiency_score",
+        "optimization_suggestions"
+      ],
+      "training_data": "successful_layouts",
+      "status": "ready_for_training"
+    },
+    {
+      "id": "nkba-compliance-model",
+      "type": "classification",
+      "framework": "ml-regression",
+      "description": "Predicts NKBA compliance issues",
+      "inputs": [
+        "measurements",
+        "clearances",
+        "work_triangle",
+        "appliance_placement"
+      ],
+      "outputs": [
+        "compliance_score",
+        "violation_predictions"
+      ],
+      "training_data": "nkba_standards",
+      "status": "ready_for_training"
+    },
+    {
+      "id": "material-usage-model",
+      "type": "regression",
+      "framework": "ml-regression",
+      "description": "Predicts material usage and waste",
+      "inputs": [
+        "room_size",
+        "material_types",
+        "cut_patterns",
+        "waste_factors"
+      ],
+      "outputs": [
+        "material_requirements",
+        "waste_prediction",
+        "cost_estimate"
+      ],
+      "training_data": "project_history",
+      "status": "ready_for_training"
+    }
+  ],
+  "training_pipeline": {
+    "data_collection": "automatic",
+    "training_frequency": "weekly",
+    "model_validation": "cross_validation",
+    "deployment_strategy": "canary_release"
+  }
+}
