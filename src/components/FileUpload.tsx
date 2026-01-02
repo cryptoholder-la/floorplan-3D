@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { Upload, X, File as FileIcon, Image, FileText } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
-import { Progress } from '@/ui/progress';
+import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { wait } from "@/lib/utils/general";
 

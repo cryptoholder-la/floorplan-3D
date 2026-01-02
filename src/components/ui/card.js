@@ -24,9 +24,9 @@ export function CardTitle({ children }) {
   )
 }
 
-export function CardContent({ children }) {
+export function CardContent({ children, className = '' }) {
   return (
-    <div className="p-6 pt-0">
+    <div className={`p-6 pt-0 ${className}`}>
       {children}
     </div>
   )

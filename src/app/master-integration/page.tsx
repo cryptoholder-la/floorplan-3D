@@ -1,8 +1,5 @@
-'use client';
-
-import React from 'react';
-import { MasterIntegration } from '@/components/MasterIntegration';
+import IntegrationPlugin from '@/plugins/integration/IntegrationPlugin';
 
 export default function MasterIntegrationPage() {
-  return <MasterIntegration />;
+  return <IntegrationPlugin />;
 }

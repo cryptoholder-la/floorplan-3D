@@ -2,7 +2,7 @@
 
 import { memoize, memoizeAsync, defaultCache, PerformanceMonitor, withPerformanceMonitoring } from "@/lib/utils/caching";
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/ui/card';
 import { Button} from '@/ui/button';
 import { Badge } from '@/ui/badge';
 import { Input } from '@/ui/input';
@@ -88,7 +88,7 @@ const filteredAssets = searchQuery
 const handleAssetSelect = withPerformanceMonitoring((asset) => {
     setSelectedAsset(asset);
     toast.success(`Selected: ${asset.name}`);
-  });
+  }, 'handleAssetSelect');
 
   /**
  * Utility function for handleDownload
@@ -112,7 +112,7 @@ const handleDownload = withPerformanceMonitoring((asset) => {
     link.click();
     document.body.removeChild(link);
     toast.success(`Downloaded: ${asset.name}`);
-  });
+  }, 'handleDownload');
 
   /**
  * Utility function for renderAssetPreview
@@ -156,7 +156,7 @@ const renderAssetPreview = withPerformanceMonitoring((asset) => {
         <Folder className="w-12 h-12 text-muted-foreground" />
       </div>
     );
-  });
+  }, 'renderAssetPreview');
 
   return (
     <div className={`space-y-6 ${className}`}>

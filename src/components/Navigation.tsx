@@ -1,10 +1,9 @@
-import { useState } from 'react';
 'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Button } from '@/ui/button-simple';
-import { Badge } from '@/ui/badge-simple';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { 
   Home, 
   Grid, 
@@ -15,7 +14,17 @@ import {
   ArrowRight,
   Activity,
   Box,
-  Wrench
+  Wrench,
+  Database,
+  Eye,
+  Layers,
+  Package,
+  FileText,
+  Gauge,
+  Scan,
+  Move,
+  Palette,
+  Ruler
 } from 'lucide-react';
 
 export function Navigation() {
@@ -30,45 +39,59 @@ export function Navigation() {
       badge: null
     },
     {
-      href: '/migrated-10-10',
-      label: '10_10 Migrated',
+      href: '/dashboard-10-10',
+      label: '10_10 Dashboard',
       icon: Grid,
-      description: 'Advanced design system with agents',
+      description: 'Complete 10_10 design system',
       badge: 'New'
     },
     {
-      href: '/complete-10-10',
-      label: 'Complete 10_10',
-      icon: Zap,
-      description: 'Full migration of all abilities',
-      badge: 'Complete'
+      href: '/kitchen-designer',
+      label: 'Kitchen Designer',
+      icon: Box,
+      description: '3D layout with cutlist',
+      badge: 'Core'
     },
     {
-      href: '/unified-workflow',
-      label: 'Unified Workflow',
-      icon: Activity,
-      description: 'Self-learning workflow system',
-      badge: 'AI'
-    },
-    {
-      href: '/master-integration',
-      label: 'Master Integration',
-      icon: Zap,
-      description: 'Complete system integration',
-      badge: 'Ultimate'
-    },
-    {
-      href: '/design-tools',
-      label: 'Design Tools',
-      icon: Zap,
-      description: 'Complete design toolkit',
+      href: '/design-studio',
+      label: 'Design Studio',
+      icon: Palette,
+      description: 'Scene controls and outputs',
       badge: null
     },
     {
-      href: '/manufacturing',
-      label: 'Manufacturing',
-      icon: Wrench,
-      description: 'CNC and fabrication tools',
+      href: '/3d-builder',
+      label: '3D Builder',
+      icon: Move,
+      description: 'Interactive room + cabinet placement',
+      badge: null
+    },
+    {
+      href: '/floorplan-scanner',
+      label: 'Floorplan Scanner',
+      icon: Scan,
+      description: 'AI-powered dimension generation',
+      badge: 'AI'
+    },
+    {
+      href: '/project-cabinet-list',
+      label: 'Cabinet Inventory',
+      icon: Database,
+      description: 'Project cabinet management',
+      badge: null
+    },
+    {
+      href: '/cnc-cutlist',
+      label: 'CNC Cutlist',
+      icon: Gauge,
+      description: 'Detailed parts and barcodes',
+      badge: 'CNC'
+    },
+    {
+      href: '/template-builder',
+      label: 'Template Builder',
+      icon: Settings,
+      description: 'Custom cabinet templates',
       badge: null
     }
   ];

@@ -25,6 +25,7 @@
   "license": "ISC",
   "dependencies": {
     "@radix-ui/react-progress": "^1.1.8",
+    "@radix-ui/react-scroll-area": "^1.2.10",
     "@radix-ui/react-slot": "^1.2.4",
     "@react-three/drei": "9",
     "@react-three/fiber": "8",
@@ -57,6 +58,8 @@
     "zustand": "4"
   },
   "devDependencies": {
+    "@types/d3-scale": "^4.0.9",
+    "@types/d3-shape": "^3.1.7",
     "@types/react": "18",
     "@types/react-dom": "18",
     "@types/react-syntax-highlighter": "^15.5.13",
@@ -64,6 +67,7 @@
     "autoprefixer": "10",
     "postcss": "8",
     "tailwindcss": "3",
+    "tslib": "^2.8.1",
     "typescript": "5"
   }
 }
