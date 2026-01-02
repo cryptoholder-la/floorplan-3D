@@ -1,6 +1,6 @@
 "use client";
 
-import EnhancedDrillConfigurator from '@/pages/drill-configurator/EnhancedDrillConfigurator';
+import EnhancedDrillConfigurator from '@/components/EnhancedDrillConfigurator';
 
 export default function EnhancedPage() {
   return <EnhancedDrillConfigurator />;
